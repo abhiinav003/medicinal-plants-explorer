@@ -82,8 +82,8 @@ if (fileInput) {
       preview.src = event.target.result;
 
       if (previewBox) {
-        previewBox.style.display = "block";
-      }
+  previewBox.hidden = false;
+ }
 
       predictionsBox.textContent = "";
       predictedCategory = "";
@@ -225,7 +225,7 @@ if (removeBtn) {
 
     if (fileInput) fileInput.value = "";
     if (preview) preview.src = "";
-    if (previewBox) previewBox.style.display = "none";
+    if (previewBox) previewBox.hidden = true;
     if (predictionsBox) predictionsBox.textContent = "";
     if (promptBox) promptBox.textContent = "";
     if (categoryStatus) categoryStatus.textContent = "";
