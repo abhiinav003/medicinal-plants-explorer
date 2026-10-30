@@ -1,162 +1,237 @@
-const $ = id => document.getElementById(id);
+// ======================================
+// MAJOR CROPS DETECTOR - APP.JS
+// ======================================
+
+const MODEL_URL =
+  "https://teachablemachine.withgoogle.com/models/ZPH5tuVS8/";
+
+const WORKER_URL =
+  "https://old-glade-65c0.abhiinav003.workers.dev";
 
 let model = null;
-let file = null;
-let predicted = "";
-let confidence = 0;
+let selectedImage = null;
+let predictedCategory = "";
 
-const preview = $("preview");
+// HTML elements
+const fileInput = document.getElementById("file");
+const preview = document.getElementById("preview");
+const previewBox = document.getElementById("previewBox");
+const classifyBtn = document.getElementById("classify");
+const predictionsBox = document.getElementById("predictions");
 
-$("file").onchange = e => {
-  file = e.target.files[0];
-  if (!file) return;
+const loadBtn = document.getElementById("load");
+const modelUrlInput = document.getElementById("modelUrl");
+const modelStatus = document.getElementById("modelStatus");
 
-  if (!file.type.startsWith("image/")) {
-    alert("Choose an image.");
-    return;
-  }
+const categoryStatus = document.getElementById("categoryStatus");
+const askBtn = document.getElementById("ask");
+const promptBox = document.getElementById("promptBox");
+const copyBtn = document.getElementById("copy");
+const copyStatus = document.getElementById("copyStatus");
+const removeBtn = document.getElementById("remove");
 
-  const r = new FileReader();
+// Load model URL into input
+if (modelUrlInput) {
+  modelUrlInput.value = MODEL_URL;
+}
 
-  r.onload = () => {
-    preview.src = r.result;
-    $("previewBox").hidden = false;
-    $("classify").disabled = !model;
-    $("predictions").hidden = true;
-    $("promptBox").hidden = true;
-    predicted = "";
-    confidence = 0;
-    $("ask").disabled = true;
-    $("categoryStatus").textContent =
-      "Classify this picture to get its Teachable Machine category.";
-  };
-
-  r.readAsDataURL(file);
-};
-
-$("remove").onclick = () => {
-  file = null;
-  $("file").value = "";
-  preview.removeAttribute("src");
-  $("previewBox").hidden = true;
-  $("classify").disabled = true;
-  $("predictions").hidden = true;
-  $("promptBox").hidden = true;
-  $("ask").disabled = true;
-  predicted = "";
-  confidence = 0;
-};
-
-$("load").onclick = async () => {
-  let u = $("modelUrl").value.trim();
-
-  if (!u) {
-    $("modelStatus").textContent =
-      "Paste your exported Teachable Machine model URL.";
-    return;
-  }
-
-  if (!u.endsWith("/")) u += "/";
-
-  $("modelStatus").textContent = "Loading model…";
-
+// Load Teachable Machine model
+async function loadModel() {
   try {
+    if (modelStatus) {
+      modelStatus.textContent = "Loading model...";
+    }
+
+    const url = modelUrlInput?.value.trim() || MODEL_URL;
+
     model = await tmImage.load(
-      u + "model.json",
-      u + "metadata.json"
+      url + "model.json",
+      url + "metadata.json"
     );
 
-    $("modelStatus").textContent =
-      `Model connected · ${model.getTotalClasses()} trained categories.`;
+    if (modelStatus) {
+      modelStatus.textContent = "Model loaded successfully!";
+    }
 
-    $("classify").disabled = !file;
+  } catch (error) {
+    console.error(error);
 
-  } catch (err) {
-    model = null;
-    $("modelStatus").textContent =
-      "Could not load model. Check your exported TensorFlow.js model URL.";
+    if (modelStatus) {
+      modelStatus.textContent = "Unable to load model.";
+    }
   }
-};
-
-$("classify").onclick = async () => {
-  if (!model || !file) return;
-
-  $("classify").disabled = true;
-  $("modelStatus").textContent =
-    "Classifying with your custom model…";
-
-  try {
-    const results = await model.predict(preview, false);
-
-    results.sort((a, b) => b.probability - a.probability);
-
-    predicted = results[0].className;
-    confidence = results[0].probability;
-
-    $("predictions").innerHTML =
-      "<b>Teachable Machine results</b><br>" +
-      results.slice(0, 5).map(x =>
-        `${escapeHtml(x.className)}: ${(x.probability * 100).toFixed(1)}%`
-      ).join("<br>");
-
-    $("predictions").hidden = false;
-
-    $("categoryStatus").innerHTML =
-      `Predicted category: <b>${escapeHtml(predicted)}</b> ` +
-      `(${(confidence * 100).toFixed(1)}% confidence).`;
-
-    $("ask").disabled = false;
-    $("promptBox").hidden = true;
-
-    $("modelStatus").textContent =
-      "Classification complete. This label comes from your trained classes.";
-
-  } catch (err) {
-    $("modelStatus").textContent =
-      "Classification failed. Try another picture or reload the model.";
-  } finally {
-    $("classify").disabled = !model || !file;
-  }
-};
-
-$("ask").onclick = () => {
-  if (!predicted) return;
-
-  const prompt =
-    `My custom Teachable Machine image classifier predicted this category: “${predicted}” (confidence: ${(confidence * 100).toFixed(1)}%).\n\n` +
-    `Do NOT inspect, identify, or make a new prediction about any image. Explain ONLY the category named above. ${$("focus").value} ` +
-    `If the category name is ambiguous, explain the likely meaning and state the uncertainty. Do not claim that you verified the uploaded picture.`;
-
-  $("prompt").value = prompt;
-
-  $("openChatGPT").href =
-    "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
-
-  $("promptBox").hidden = false;
-};
-
-$("copy").onclick = async () => {
-  try {
-    await navigator.clipboard.writeText($("prompt").value);
-
-    $("copyStatus").textContent =
-      "Copied. The prompt contains only the predicted category, not your photo.";
-
-  } catch (err) {
-    $("prompt").select();
-    document.execCommand("copy");
-
-    $("copyStatus").textContent =
-      "Prompt selected/copied. Paste it into ChatGPT.";
-  }
-};
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[c]));
 }
+
+// Load model when button is clicked
+if (loadBtn) {
+  loadBtn.addEventListener("click", loadModel);
+}
+
+// Select image
+if (fileInput) {
+  fileInput.addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (!file) return;
+
+    selectedImage = file;
+
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      preview.src = event.target.result;
+
+      if (previewBox) {
+        previewBox.style.display = "block";
+      }
+
+      predictionsBox.textContent = "";
+      predictedCategory = "";
+
+      if (categoryStatus) {
+        categoryStatus.textContent = "Image selected.";
+      }
+
+      if (promptBox) {
+        promptBox.textContent = "";
+      }
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+// Classify image
+if (classifyBtn) {
+  classifyBtn.addEventListener("click", async function () {
+    try {
+      if (!selectedImage) {
+        alert("Please select an image first.");
+        return;
+      }
+
+      if (!model) {
+        alert("Please load the model first.");
+        return;
+      }
+
+      classifyBtn.disabled = true;
+      classifyBtn.textContent = "Classifying...";
+
+      const results = await model.predict(preview);
+
+      results.sort((a, b) => b.probability - a.probability);
+
+      predictedCategory = results[0].className;
+
+      predictionsBox.innerHTML = "";
+
+      results.forEach(result => {
+        const item = document.createElement("p");
+
+        item.textContent =
+          result.className + " — " +
+          (result.probability * 100).toFixed(1) + "%";
+
+        predictionsBox.appendChild(item);
+      });
+
+      if (categoryStatus) {
+        categoryStatus.textContent =
+          "Predicted category: " + predictedCategory;
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Image classification failed.");
+    } finally {
+      classifyBtn.disabled = false;
+      classifyBtn.textContent = "Classify Image";
+    }
+  });
+}
+
+// Get information from Gemini through Cloudflare Worker
+if (askBtn) {
+  askBtn.addEventListener("click", async function () {
+    try {
+      if (!predictedCategory) {
+        alert("Please classify an image first.");
+        return;
+      }
+
+      askBtn.disabled = true;
+      askBtn.textContent = "Generating information...";
+
+      promptBox.textContent = "Generating information. Please wait...";
+
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          category: predictedCategory
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "AI request failed.");
+      }
+
+      promptBox.textContent =
+        data.answer || "No information was generated.";
+
+    } catch (error) {
+      console.error(error);
+
+      promptBox.textContent =
+        "Unable to generate information: " + error.message;
+
+    } finally {
+      askBtn.disabled = false;
+      askBtn.textContent = "Generate AI Information";
+    }
+  });
+}
+
+// Copy generated information
+if (copyBtn) {
+  copyBtn.addEventListener("click", async function () {
+    try {
+      await navigator.clipboard.writeText(
+        promptBox.textContent
+      );
+
+      if (copyStatus) {
+        copyStatus.textContent = "Copied successfully!";
+      }
+
+    } catch (error) {
+      if (copyStatus) {
+        copyStatus.textContent = "Unable to copy.";
+      }
+    }
+  });
+}
+
+// Remove selected image
+if (removeBtn) {
+  removeBtn.addEventListener("click", function () {
+    selectedImage = null;
+    predictedCategory = "";
+
+    if (fileInput) fileInput.value = "";
+    if (preview) preview.src = "";
+    if (previewBox) previewBox.style.display = "none";
+    if (predictionsBox) predictionsBox.textContent = "";
+    if (promptBox) promptBox.textContent = "";
+    if (categoryStatus) categoryStatus.textContent = "";
+    if (copyStatus) copyStatus.textContent = "";
+  });
+}
+
+// Automatically load model
+loadModel();
