@@ -16,6 +16,8 @@ let predictedCategory = "";
 const fileInput = document.getElementById("file");
 const preview = document.getElementById("preview");
 const previewBox = document.getElementById("previewBox");
+const fileStatus = document.getElementById("fileStatus");
+
 const classifyBtn = document.getElementById("classify");
 const predictionsBox = document.getElementById("predictions");
 
@@ -26,6 +28,8 @@ const modelStatus = document.getElementById("modelStatus");
 const categoryStatus = document.getElementById("categoryStatus");
 const askBtn = document.getElementById("ask");
 const promptBox = document.getElementById("promptBox");
+const focusInput = document.getElementById("focus");
+
 const copyBtn = document.getElementById("copy");
 const copyStatus = document.getElementById("copyStatus");
 const removeBtn = document.getElementById("remove");
@@ -35,11 +39,18 @@ if (modelUrlInput) {
   modelUrlInput.value = MODEL_URL;
 }
 
-// Load Teachable Machine model
+// ======================================
+// LOAD TEACHABLE MACHINE MODEL
+// ======================================
+
 async function loadModel() {
   try {
     if (modelStatus) {
       modelStatus.textContent = "Loading model...";
+    }
+
+    if (loadBtn) {
+      loadBtn.disabled = true;
     }
 
     const url = modelUrlInput?.value.trim() || MODEL_URL;
@@ -53,11 +64,26 @@ async function loadModel() {
       modelStatus.textContent = "Model loaded successfully!";
     }
 
+    if (classifyBtn) {
+      classifyBtn.disabled = !selectedImage;
+    }
+
   } catch (error) {
     console.error(error);
 
+    model = null;
+
     if (modelStatus) {
-      modelStatus.textContent = "Unable to load model.";
+      modelStatus.textContent = "Unable to load model. Check the model URL.";
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
+    }
+
+  } finally {
+    if (loadBtn) {
+      loadBtn.disabled = false;
     }
   }
 }
@@ -67,14 +93,61 @@ if (loadBtn) {
   loadBtn.addEventListener("click", loadModel);
 }
 
-// Select image
+// ======================================
+// SELECT AND PREVIEW IMAGE
+// ======================================
+
 if (fileInput) {
   fileInput.addEventListener("change", function () {
     const file = this.files[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image.");
+
+      fileInput.value = "";
+      return;
+    }
 
     selectedImage = file;
+    predictedCategory = "";
+
+    if (fileStatus) {
+      fileStatus.textContent = "Picture selected: " + file.name;
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = !model;
+    }
+
+    if (askBtn) {
+      askBtn.disabled = true;
+    }
+
+    if (predictionsBox) {
+      predictionsBox.innerHTML = "";
+      predictionsBox.hidden = true;
+    }
+
+    if (categoryStatus) {
+      categoryStatus.textContent = "Image selected. Ready to classify.";
+    }
+
+    if (promptBox) {
+      promptBox.textContent = "";
+      promptBox.hidden = true;
+    }
+
+    if (copyBtn) {
+      copyBtn.hidden = true;
+    }
+
+    if (copyStatus) {
+      copyStatus.textContent = "";
+    }
 
     const reader = new FileReader();
 
@@ -82,18 +155,13 @@ if (fileInput) {
       preview.src = event.target.result;
 
       if (previewBox) {
-  previewBox.hidden = false;
- }
-
-      predictionsBox.textContent = "";
-      predictedCategory = "";
-
-      if (categoryStatus) {
-        categoryStatus.textContent = "Image selected.";
+        previewBox.hidden = false;
       }
+    };
 
-      if (promptBox) {
-        promptBox.textContent = "";
+    reader.onerror = function () {
+      if (fileStatus) {
+        fileStatus.textContent = "Unable to read this image.";
       }
     };
 
@@ -101,7 +169,10 @@ if (fileInput) {
   });
 }
 
-// Classify image
+// ======================================
+// CLASSIFY IMAGE
+// ======================================
+
 if (classifyBtn) {
   classifyBtn.addEventListener("click", async function () {
     try {
@@ -120,38 +191,52 @@ if (classifyBtn) {
 
       const results = await model.predict(preview);
 
-      results.sort((a, b) => b.probability - a.probability);
+      results.sort(
+        (a, b) => b.probability - a.probability
+      );
 
       predictedCategory = results[0].className;
 
-      predictionsBox.innerHTML = "";
+      if (predictionsBox) {
+        predictionsBox.innerHTML = "";
+        predictionsBox.hidden = false;
 
-      results.forEach(result => {
-        const item = document.createElement("p");
+        results.forEach(result => {
+          const item = document.createElement("p");
 
-        item.textContent =
-          result.className + " — " +
-          (result.probability * 100).toFixed(1) + "%";
+          item.textContent =
+            result.className + " — " +
+            (result.probability * 100).toFixed(1) + "%";
 
-        predictionsBox.appendChild(item);
-      });
+          predictionsBox.appendChild(item);
+        });
+      }
 
       if (categoryStatus) {
         categoryStatus.textContent =
           "Predicted category: " + predictedCategory;
       }
 
+      if (askBtn) {
+        askBtn.disabled = false;
+      }
+
     } catch (error) {
       console.error(error);
       alert("Image classification failed.");
+
     } finally {
-      classifyBtn.disabled = false;
-      classifyBtn.textContent = "Classify Image";
+      classifyBtn.disabled = !model || !selectedImage;
+      classifyBtn.textContent = "Classify uploaded picture";
     }
   });
 }
 
-// Get information from Gemini through Cloudflare Worker
+// ======================================
+// GET INFORMATION FROM GEMINI
+// THROUGH CLOUDFLARE WORKER
+// ======================================
+
 if (askBtn) {
   askBtn.addEventListener("click", async function () {
     try {
@@ -163,15 +248,21 @@ if (askBtn) {
       askBtn.disabled = true;
       askBtn.textContent = "Generating information...";
 
-      promptBox.textContent = "Generating information. Please wait...";
+      if (promptBox) {
+        promptBox.hidden = false;
+        promptBox.textContent = "Generating information. Please wait...";
+      }
 
       const response = await fetch(WORKER_URL, {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json"
         },
+
         body: JSON.stringify({
-          category: predictedCategory
+          category: predictedCategory,
+          focus: focusInput?.value || ""
         })
       });
 
@@ -181,23 +272,35 @@ if (askBtn) {
         throw new Error(data.error || "AI request failed.");
       }
 
-      promptBox.textContent =
-        data.answer || "No information was generated.";
+      if (promptBox) {
+        promptBox.textContent =
+          data.answer || "No information was generated.";
+      }
+
+      if (copyBtn) {
+        copyBtn.hidden = false;
+      }
 
     } catch (error) {
       console.error(error);
 
-      promptBox.textContent =
-        "Unable to generate information: " + error.message;
+      if (promptBox) {
+        promptBox.hidden = false;
+        promptBox.textContent =
+          "Unable to generate information: " + error.message;
+      }
 
     } finally {
       askBtn.disabled = false;
-      askBtn.textContent = "Generate AI Information";
+      askBtn.textContent = "Get information about this category";
     }
   });
 }
 
-// Copy generated information
+// ======================================
+// COPY GENERATED INFORMATION
+// ======================================
+
 if (copyBtn) {
   copyBtn.addEventListener("click", async function () {
     try {
@@ -217,21 +320,66 @@ if (copyBtn) {
   });
 }
 
-// Remove selected image
+// ======================================
+// REMOVE SELECTED IMAGE
+// ======================================
+
 if (removeBtn) {
   removeBtn.addEventListener("click", function () {
     selectedImage = null;
     predictedCategory = "";
 
-    if (fileInput) fileInput.value = "";
-    if (preview) preview.src = "";
-    if (previewBox) previewBox.hidden = true;
-    if (predictionsBox) predictionsBox.textContent = "";
-    if (promptBox) promptBox.textContent = "";
-    if (categoryStatus) categoryStatus.textContent = "";
-    if (copyStatus) copyStatus.textContent = "";
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    if (preview) {
+      preview.src = "";
+    }
+
+    if (previewBox) {
+      previewBox.hidden = true;
+    }
+
+    if (fileStatus) {
+      fileStatus.textContent = "No picture selected yet.";
+    }
+
+    if (predictionsBox) {
+      predictionsBox.innerHTML = "";
+      predictionsBox.hidden = true;
+    }
+
+    if (promptBox) {
+      promptBox.textContent = "";
+      promptBox.hidden = true;
+    }
+
+    if (categoryStatus) {
+      categoryStatus.textContent =
+        "First select a picture, connect your model, and classify the picture.";
+    }
+
+    if (askBtn) {
+      askBtn.disabled = true;
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
+    }
+
+    if (copyBtn) {
+      copyBtn.hidden = true;
+    }
+
+    if (copyStatus) {
+      copyStatus.textContent = "";
+    }
   });
 }
 
-// Automatically load model
+// ======================================
+// AUTOMATICALLY LOAD MODEL
+// ======================================
+
 loadModel();
