@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Medicinal Plants Explorer</title>
 
@@ -14,85 +14,73 @@
 </head>
 
 <body>
+
   <header>
     <div class="logo">✦</div>
     <div>
-      <small>TEACHABLE MACHINE MEDICINAL PLANT CLASSIFIER</small>
+      <small>TEACHABLE MACHINE IMAGE CLASSIFIER</small>
       <h1>Medicinal Plants Explorer</h1>
     </div>
   </header>
 
   <main>
-    <!-- INTRODUCTION -->
+
     <section class="intro">
-      <b>PLANT CLASSIFICATION + INFORMATION</b>
-      <h2>Discover and explore medicinal plants.</h2>
+      <h2>Discover and explore plants</h2>
       <p>
-        Upload a picture of a plant and let your Teachable Machine model
-        predict its category. Explore information about its characteristics,
-        habitat, traditional uses, history, and interesting facts.
+        Upload a plant picture, identify its category using AI,
+        and explore useful information about it.
       </p>
     </section>
 
-    <!-- IMAGE UPLOAD -->
     <section class="card">
       <h2>01 · Add a plant picture</h2>
 
-      <div
-        class="upload"
-        onclick="document.getElementById('file').click()"
-      >
-        ＋
+      <label class="upload" for="file">
+        <span>＋</span>
         <strong>Choose an image</strong>
         <small>JPG, PNG, WEBP</small>
-      </div>
+      </label>
 
       <input
-        id="file"
-        name="file"
         type="file"
+        id="file"
         accept="image/*"
-        style="display:none"
+        hidden
       >
 
       <div id="previewBox" hidden>
-        <img id="preview" alt="Selected plant image preview">
-
-        <button
-          id="remove"
-          class="secondary"
-          type="button"
-        >
-          Remove image
-        </button>
+        <img id="preview" alt="Selected image preview">
       </div>
 
-      <p id="fileStatus" role="status" aria-live="polite">
+      <p id="fileStatus" aria-live="polite">
         No picture selected yet.
       </p>
+
+      <button id="remove" type="button">
+        Remove image
+      </button>
     </section>
 
-    <!-- MODEL CLASSIFICATION -->
     <section class="card">
       <h2>02 · Plant classification</h2>
 
-      <p id="modelStatus" role="status" aria-live="polite">
-        Connecting to the classification model...
+      <p id="modelStatus" aria-live="polite">
+        Loading AI model...
       </p>
 
       <button id="classify" type="button" disabled>
-        Identify plant
+        Classify uploaded picture
       </button>
 
       <div id="predictions" hidden aria-live="polite"></div>
     </section>
 
-    <!-- PLANT INFORMATION -->
     <section class="card">
       <h2>03 · Explore plant information</h2>
 
-      <p id="categoryStatus">
-        First select a plant picture and identify it.
+      <p id="categoryStatus" aria-live="polite">
+        Upload and classify an image first.
       </p>
 
       <button id="ask" type="button" disabled>
@@ -101,7 +89,7 @@
 
       <div id="promptBox" hidden aria-live="polite"></div>
 
-      <p id="copyStatus" role="status" aria-live="polite"></p>
+      <p id="copyStatus" aria-live="polite"></p>
 
       <button id="copy" type="button" hidden>
         Copy information
@@ -114,17 +102,16 @@
         rel="noopener"
         hidden
       >
-        Open ChatGPT ↗
+        Open ChatGPT
       </a>
     </section>
 
-    <!-- HOW IT WORKS -->
     <aside>
-      <b>How it works:</b>
-      Your Teachable Machine model predicts one of its
-      trained plant categories. The information section explains
-      that category. Predictions are educational estimates and
-      do not confirm a plant's identity or medicinal safety.
+      <strong>How it works:</strong>
+      Upload an image, let the AI model predict its category,
+      and explore the available information.
+      AI predictions are estimates and do not confirm plant identity
+      or medicinal safety.
     </aside>
 
   </main>
@@ -133,8 +120,7 @@
     Medicinal Plants Explorer
   </footer>
 
-  <!-- Updated version forces the browser to load fresh app.js -->
-  <script src="app.js?v=6" defer></script>
+  <script src="app.js?v=7" defer></script>
 
 </body>
 </html>
