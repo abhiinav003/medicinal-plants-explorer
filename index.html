@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Major Crops Detector</title>
+  <title>Medicinal Plants Explorer</title>
 
   <link rel="stylesheet" href="style.css">
 
@@ -18,8 +18,8 @@
   <header>
     <div class="logo">✦</div>
     <div>
-      <small>TEACHABLE MACHINE CROP CLASSIFIER</small>
-      <h1>Major Crops Detector</h1>
+      <small>TEACHABLE MACHINE MEDICINAL PLANT CLASSIFIER</small>
+      <h1>Medicinal Plants Explorer</h1>
     </div>
   </header>
 
@@ -27,18 +27,18 @@
 
     <!-- INTRODUCTION -->
     <section class="intro">
-      <b>IMAGE CLASSIFICATION + AI INFORMATION</b>
-      <h2>Discover the categories you trained.</h2>
+      <b>PLANT CLASSIFICATION + INFORMATION</b>
+      <h2>Discover and explore medicinal plants.</h2>
       <p>
-        Upload a picture and let your Teachable Machine model
-        predict its category. The explanation is based on
-        the predicted category name.
+        Upload a picture of a plant and let your Teachable Machine model
+        predict its category. Explore information about its characteristics,
+        habitat, traditional uses, history, and interesting facts.
       </p>
     </section>
 
     <!-- IMAGE UPLOAD -->
     <section class="card">
-      <h2>01 · Add a picture</h2>
+      <h2>01 · Add a plant picture</h2>
 
       <div
         class="upload"
@@ -58,7 +58,7 @@
       >
 
       <div id="previewBox" hidden>
-        <img id="preview" alt="Selected image preview">
+        <img id="preview" alt="Selected plant image preview">
 
         <button
           id="remove"
@@ -76,44 +76,44 @@
 
     <!-- MODEL CLASSIFICATION -->
     <section class="card">
-      <h2>02 · Image classification</h2>
+      <h2>02 · Plant classification</h2>
 
       <p id="modelStatus" role="status" aria-live="polite">
         Connecting to the classification model...
       </p>
 
       <button id="classify" type="button" disabled>
-        Classify uploaded picture
+        Identify plant
       </button>
 
       <div id="predictions" hidden aria-live="polite"></div>
     </section>
 
-    <!-- AI INFORMATION -->
+    <!-- PLANT INFORMATION -->
     <section class="card">
-      <h2>03 · Get information about the predicted category</h2>
+      <h2>03 · Explore plant information</h2>
 
       <p id="categoryStatus">
-        First select a picture and classify it.
+        First select a plant picture and identify it.
       </p>
 
       <label for="focus">Choose information type</label>
 
       <select id="focus">
-        <option value="Give a clear overview, key characteristics, uses, origin or history, and five interesting facts.">
+        <option value="Give a clear overview, key characteristics, habitat, traditional uses, origin or history, and five interesting facts.">
           Everything important
         </option>
 
-        <option value="Explain its main features, parts, and how it works.">
-          Features and how it works
+        <option value="Explain its physical features, leaves, flowers, roots, and other characteristics.">
+          Features and characteristics
         </option>
 
-        <option value="Explain its origin, discovery or invention, and history.">
-          History and origin
+        <option value="Explain its natural habitat, geographical distribution, origin, and history.">
+          Habitat and history
         </option>
 
-        <option value="Explain its uses, benefits, and limitations.">
-          Uses and applications
+        <option value="Explain its traditional uses and applications, including relevant safety limitations.">
+          Traditional uses
         </option>
 
         <option value="Explain it simply for a school student, with examples.">
@@ -122,7 +122,7 @@
       </select>
 
       <button id="ask" type="button" disabled>
-        Get information about this category
+        Get information about this plant
       </button>
 
       <div id="promptBox" hidden aria-live="polite"></div>
@@ -148,15 +148,15 @@
     <aside>
       <b>How it works:</b>
       Your Teachable Machine model predicts one of its
-      trained categories. The information section explains
-      that category. A confidence score does not guarantee
-      that an unfamiliar object will be rejected.
+      trained plant categories. The information section explains
+      that category. Predictions are educational estimates and
+      do not confirm a plant's identity or medicinal safety.
     </aside>
 
   </main>
 
   <footer>
-    Major Crops Detector
+    Medicinal Plants Explorer
   </footer>
 
   <script src="app.js" defer></script>
