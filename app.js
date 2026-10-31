@@ -14,25 +14,25 @@ const informationLibrary = {
   CATS: `
 CATS
 
-1. Overview
+Overview:
 Cats are small, domesticated mammals commonly kept as pets. They belong to the family Felidae.
 
-2. Key Characteristics
-- Cats have sharp claws and teeth.
-- They have excellent night vision.
-- They possess flexible bodies and good balance.
-- They use whiskers to sense their surroundings.
-- They are known for their grooming behavior.
+Key Characteristics:
+1. Cats have sharp claws and teeth.
+2. They have excellent night vision.
+3. They possess flexible bodies and good balance.
+4. They use whiskers to sense their surroundings.
+5. They are known for their grooming behavior.
 
-3. Uses and Importance
-- Cats are popular companion animals.
-- They help control certain rodent populations.
-- They provide companionship to humans.
+Uses and Importance:
+1. Cats are popular companion animals.
+2. They help control certain rodent populations.
+3. They provide companionship to humans.
 
-4. Origin and History
+Origin and History:
 Domestic cats are believed to have descended from the African wildcat. Their relationship with humans began thousands of years ago.
 
-5. Five Interesting Facts
+Five Interesting Facts:
 1. Cats spend many hours sleeping.
 2. Each cat has a unique nose pattern.
 3. Cats use whiskers to sense nearby objects.
@@ -43,27 +43,27 @@ Domestic cats are believed to have descended from the African wildcat. Their rel
   DOGS: `
 DOGS
 
-1. Overview
+Overview:
 Dogs are domesticated mammals belonging to the family Canidae. They are known for their intelligence and close relationship with humans.
 
-2. Key Characteristics
-- Dogs have a strong sense of smell.
-- They have an excellent sense of hearing.
-- They communicate through barking and body language.
-- They come in many breeds and sizes.
-- They are social animals.
+Key Characteristics:
+1. Dogs have a strong sense of smell.
+2. They have an excellent sense of hearing.
+3. They communicate through barking and body language.
+4. They come in many breeds and sizes.
+5. They are social animals.
 
-3. Uses and Importance
-- Dogs are kept as companion animals.
-- They help in search and rescue operations.
-- Some dogs assist people with disabilities.
-- They can help with herding and guarding.
-- Trained dogs can detect certain substances.
+Uses and Importance:
+1. Dogs are kept as companion animals.
+2. They help in search and rescue operations.
+3. Some dogs assist people with disabilities.
+4. They can help with herding and guarding.
+5. Trained dogs can detect certain substances.
 
-4. Origin and History
+Origin and History:
 Dogs descended from ancient wolf populations. Their domestication began tens of thousands of years ago.
 
-5. Five Interesting Facts
+Five Interesting Facts:
 1. Dogs have a powerful sense of smell.
 2. Every dog's nose-print is unique.
 3. Dogs can understand many human gestures.
@@ -88,27 +88,29 @@ const categoryStatus = document.getElementById("categoryStatus");
 
 const askBtn = document.getElementById("ask");
 const promptBox = document.getElementById("promptBox");
+
 const copyBtn = document.getElementById("copy");
 const copyStatus = document.getElementById("copyStatus");
+
 const removeBtn = document.getElementById("remove");
 
 // ==========================================
-// CLEAN UP OLD PAUSE AND RESUME BUTTONS
+// APPLICATION VARIABLES
 // ==========================================
 
-document.getElementById("pauseSpeech")?.remove();
-document.getElementById("resumeSpeech")?.remove();
+let model = null;
+let predictedCategory = "";
 
-// Remove an older dynamically-created control panel.
-document.getElementById("speechControls")?.remove();
+let speechChunks = [];
+let currentChunk = 0;
+let speechSession = 0;
 
 // ==========================================
-// CREATE STOP BUTTON ONLY
+// STOP-ONLY VOICE CONTROL
 // ==========================================
 
 const speechControls = document.createElement("div");
 
-speechControls.id = "speechControls";
 speechControls.style.display = "none";
 speechControls.style.marginTop = "15px";
 
@@ -123,18 +125,7 @@ const stopSpeechBtn = document.getElementById("stopSpeech");
 const speechStatus = document.getElementById("speechStatus");
 
 // ==========================================
-// VARIABLES
-// ==========================================
-
-let model = null;
-let predictedCategory = "";
-
-let speechChunks = [];
-let currentChunk = 0;
-let speechSession = 0;
-
-// ==========================================
-// SPEECH FUNCTIONS
+// SPLIT TEXT INTO SENTENCES
 // ==========================================
 
 function splitIntoChunks(text) {
@@ -143,6 +134,10 @@ function splitIntoChunks(text) {
     .map(sentence => sentence.trim())
     .filter(sentence => sentence.length > 0);
 }
+
+// ==========================================
+// SPEAK NEXT SENTENCE
+// ==========================================
 
 function speakNextChunk(session) {
   if (session !== speechSession) return;
@@ -181,12 +176,17 @@ function speakNextChunk(session) {
       event.error !== "canceled" &&
       event.error !== "interrupted"
     ) {
-      speechStatus.textContent = "Voice playback error.";
+      speechStatus.textContent =
+        "Voice playback encountered an error.";
     }
   };
 
   window.speechSynthesis.speak(utterance);
 }
+
+// ==========================================
+// START NARRATION
+// ==========================================
 
 function speakInformation(text) {
   if (!("speechSynthesis" in window)) {
@@ -207,6 +207,10 @@ function speakInformation(text) {
   speakNextChunk(session);
 }
 
+// ==========================================
+// STOP NARRATION
+// ==========================================
+
 function stopSpeech() {
   speechSession++;
 
@@ -217,9 +221,7 @@ function stopSpeech() {
     window.speechSynthesis.cancel();
   }
 
-  if (speechControls) {
-    speechControls.style.display = "none";
-  }
+  speechControls.style.display = "none";
 }
 
 stopSpeechBtn.addEventListener("click", stopSpeech);
@@ -241,7 +243,7 @@ async function loadModel() {
     classifyBtn.disabled = false;
 
   } catch (error) {
-    console.error("Model loading error:", error);
+    console.error(error);
 
     modelStatus.textContent =
       "Unable to connect to the model. Please refresh the page.";
@@ -260,7 +262,7 @@ fileInput.addEventListener("change", function () {
   if (!file) return;
 
   if (!file.type.startsWith("image/")) {
-    fileStatus.textContent = "Please select a valid image.";
+    fileStatus.textContent = "Please select an image file.";
     return;
   }
 
@@ -268,27 +270,28 @@ fileInput.addEventListener("change", function () {
 
   reader.onload = function (event) {
     preview.onload = function () {
-
-      // Make the image preview visible.
       previewBox.hidden = false;
-      previewBox.style.display = "";
-
-      fileStatus.textContent = "Image uploaded successfully.";
+      previewBox.style.display = "block";
 
       classifyBtn.disabled = false;
 
+      fileStatus.textContent = "Image uploaded successfully.";
+
       predictions.innerHTML = "";
-      categoryStatus.textContent = "";
+      predictions.hidden = true;
+
+      categoryStatus.textContent =
+        "Image uploaded. Now identify the plant.";
 
       promptBox.textContent = "";
       promptBox.hidden = true;
 
       askBtn.disabled = true;
-      copyBtn.style.display = "none";
-    };
 
-    preview.onerror = function () {
-      fileStatus.textContent = "Unable to display this image.";
+      copyBtn.hidden = true;
+      copyStatus.textContent = "";
+
+      predictedCategory = "";
     };
 
     preview.src = event.target.result;
@@ -329,6 +332,8 @@ classifyBtn.addEventListener("click", async function () {
       predictions.appendChild(item);
     });
 
+    predictions.hidden = false;
+
     predictedCategory = results[0].className;
 
     categoryStatus.textContent =
@@ -339,17 +344,18 @@ classifyBtn.addEventListener("click", async function () {
     promptBox.textContent = "";
     promptBox.hidden = true;
 
-    copyBtn.style.display = "none";
+    copyBtn.hidden = true;
+    copyStatus.textContent = "";
 
   } catch (error) {
-    console.error("Classification error:", error);
+    console.error(error);
 
     categoryStatus.textContent =
       "Classification failed. Please try again.";
 
   } finally {
     classifyBtn.disabled = false;
-    classifyBtn.textContent = "Classify uploaded picture";
+    classifyBtn.textContent = "Identify plant";
   }
 });
 
@@ -359,31 +365,28 @@ classifyBtn.addEventListener("click", async function () {
 
 askBtn.addEventListener("click", function () {
   const category = predictedCategory.toUpperCase();
-
   const information = informationLibrary[category];
 
+  stopSpeech();
+
+  promptBox.hidden = false;
+  promptBox.style.display = "block";
+
   if (!information) {
-    promptBox.hidden = false;
     promptBox.textContent =
       "Information for this category is not available yet.";
 
-    copyBtn.style.display = "none";
-
-    stopSpeech();
+    copyBtn.hidden = true;
     return;
   }
 
-  // Make the information box visible.
-  promptBox.hidden = false;
-  promptBox.style.display = "";
-
-  // Display written information.
   promptBox.textContent = information;
 
+  copyBtn.hidden = false;
   copyBtn.style.display = "inline-block";
+
   copyStatus.textContent = "";
 
-  // Start voice narration.
   speakInformation(information);
 });
 
@@ -395,7 +398,8 @@ copyBtn.addEventListener("click", async function () {
   try {
     await navigator.clipboard.writeText(promptBox.textContent);
 
-    copyStatus.textContent = "Information copied successfully.";
+    copyStatus.textContent =
+      "Information copied successfully.";
 
   } catch (error) {
     copyStatus.textContent =
@@ -414,17 +418,22 @@ removeBtn.addEventListener("click", function () {
   preview.src = "";
 
   previewBox.hidden = true;
+  previewBox.style.display = "none";
 
-  fileStatus.textContent = "";
+  fileStatus.textContent = "No picture selected yet.";
+
   predictions.innerHTML = "";
-  categoryStatus.textContent = "";
+  predictions.hidden = true;
+
+  categoryStatus.textContent =
+    "First select a plant picture and identify it.";
 
   predictedCategory = "";
 
   promptBox.textContent = "";
   promptBox.hidden = true;
 
-  copyBtn.style.display = "none";
+  copyBtn.hidden = true;
   copyStatus.textContent = "";
 
   askBtn.disabled = true;
@@ -437,7 +446,5 @@ removeBtn.addEventListener("click", function () {
 
 classifyBtn.disabled = true;
 askBtn.disabled = true;
-
-promptBox.hidden = true;
 
 loadModel();
