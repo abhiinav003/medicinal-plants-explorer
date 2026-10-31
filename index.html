@@ -74,25 +74,12 @@
       </p>
     </section>
 
-    <!-- MODEL CONNECTION -->
+    <!-- MODEL CLASSIFICATION -->
     <section class="card">
-      <h2>02 · Connect your Teachable Machine model</h2>
-
-      <label for="modelUrl">Model URL</label>
-
-      <input
-        id="modelUrl"
-        type="url"
-        inputmode="url"
-        placeholder="https://teachablemachine.withgoogle.com/models/…/"
-      >
-
-      <button id="load" type="button">
-        Load model
-      </button>
+      <h2>02 · Image classification</h2>
 
       <p id="modelStatus" role="status" aria-live="polite">
-        No model connected.
+        Connecting to the classification model...
       </p>
 
       <button id="classify" type="button" disabled>
@@ -107,8 +94,7 @@
       <h2>03 · Get information about the predicted category</h2>
 
       <p id="categoryStatus">
-        First select a picture, connect your model,
-        and classify the picture.
+        First select a picture and classify it.
       </p>
 
       <label for="focus">Choose information type</label>
