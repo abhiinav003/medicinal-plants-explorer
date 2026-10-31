@@ -1,126 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Medicinal Plants Explorer</title>
 
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#f8faf5">
+  <meta name="description" content="Explore and learn about plants using an image classifier.">
 
+  <!-- Botanical Design -->
+  <link rel="stylesheet" href="style.css?v=3">
+
+  <!-- TensorFlow and Teachable Machine -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+  <!-- Website JavaScript -->
+  <script src="app.js?v=9" defer></script>
 </head>
 
 <body>
 
-  <header>
-    <div class="logo">✦</div>
-    <div>
-      <small>TEACHABLE MACHINE IMAGE CLASSIFIER</small>
-      <h1>Medicinal Plants Explorer</h1>
+  <header class="site-header">
+    <div class="header-content">
+      <div class="logo">🌿</div>
+
+      <div class="header-text">
+        <h1>Medicinal Plants Explorer</h1>
+        <p>Discover the natural world, one plant at a time.</p>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main class="container">
 
-    <section class="intro">
-      <h2>Discover and explore plants</h2>
+    <section class="welcome-section">
+      <h2>Explore Nature's Green World</h2>
       <p>
-        Upload a plant picture, identify its category using AI,
-        and explore useful information about it.
+        Upload a picture and explore the category predicted
+        by your image classification model.
       </p>
     </section>
 
-    <section class="card">
-      <h2>01 · Add a plant picture</h2>
+    <!-- Image Upload -->
+    <section class="card upload-card">
+      <h2>📷 Upload an Image</h2>
 
-      <label class="upload" for="file">
-        <span>＋</span>
-        <strong>Choose an image</strong>
-        <small>JPG, PNG, WEBP</small>
+      <p class="section-description">
+        Choose an image from your device to get started.
+      </p>
+
+      <label for="file" class="upload-label">
+        Choose Image
       </label>
 
       <input
         type="file"
         id="file"
         accept="image/*"
-        hidden
       >
 
+      <p id="fileStatus" class="status-message" aria-live="polite">
+        No image selected.
+      </p>
+
+      <!-- Image Preview -->
       <div id="previewBox" hidden>
-        <img id="preview" alt="Selected image preview">
+        <img
+          id="preview"
+          src=""
+          alt="Selected image preview"
+        >
       </div>
 
-      <p id="fileStatus" aria-live="polite">
-        No picture selected yet.
-      </p>
-
-      <button id="remove" type="button">
-        Remove image
-      </button>
-    </section>
-
-    <section class="card">
-      <h2>02 · Plant classification</h2>
-
-      <p id="modelStatus" aria-live="polite">
-        Loading AI model...
-      </p>
-
       <button id="classify" type="button" disabled>
-        Classify uploaded picture
+        Identify Image
       </button>
 
-      <div id="predictions" hidden aria-live="polite"></div>
+      <p id="modelStatus" class="status-message" aria-live="polite">
+        Model is ready when loaded.
+      </p>
     </section>
 
-    <section class="card">
-      <h2>03 · Explore plant information</h2>
+    <!-- Prediction -->
+    <section class="card result-card">
+      <h2>🔍 Classification Result</h2>
 
-      <p id="categoryStatus" aria-live="polite">
-        Upload and classify an image first.
+      <p class="section-description">
+        The model's predicted category will appear below.
       </p>
+
+      <div id="predictions" aria-live="polite">
+        <p>Your prediction will appear here.</p>
+      </div>
+
+      <p id="categoryStatus" class="status-message"></p>
 
       <button id="ask" type="button" disabled>
-        Get complete information about this plant
+        Get Information
       </button>
-
-      <div id="promptBox" hidden aria-live="polite"></div>
-
-      <p id="copyStatus" aria-live="polite"></p>
-
-      <button id="copy" type="button" hidden>
-        Copy information
-      </button>
-
-      <a
-        id="openChatGPT"
-        href="https://chatgpt.com/"
-        target="_blank"
-        rel="noopener"
-        hidden
-      >
-        Open ChatGPT
-      </a>
     </section>
 
-    <aside>
-      <strong>How it works:</strong>
-      Upload an image, let the AI model predict its category,
-      and explore the available information.
-      AI predictions are estimates and do not confirm plant identity
-      or medicinal safety.
-    </aside>
+    <!-- Information -->
+    <section id="promptBox" class="card information-card" hidden>
+      <h2>🌱 Explore Information</h2>
+
+      <div id="information">
+        Information about the predicted category will appear here.
+      </div>
+
+      <div class="action-buttons">
+        <button id="copy" type="button">
+          Copy Information
+        </button>
+
+        <button id="openChatGPT" type="button">
+          Open ChatGPT
+        </button>
+
+        <button id="remove" type="button">
+          Remove Image
+        </button>
+      </div>
+
+      <p id="copyStatus" class="status-message" aria-live="polite"></p>
+    </section>
+
+    <section class="note-section">
+      <p>
+        <strong>Note:</strong> Image classification is an educational
+        tool. Predictions may be incorrect and should not be used
+        to identify plants for medical treatment or consumption.
+      </p>
+    </section>
 
   </main>
 
-  <footer>
-    Medicinal Plants Explorer
+  <footer class="site-footer">
+    <p>🌿 Medicinal Plants Explorer</p>
+    <p>Learn • Explore • Discover</p>
   </footer>
-
-  <script src="app.js?v=7" defer></script>
 
 </body>
 </html>
