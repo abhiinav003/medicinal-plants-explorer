@@ -1,6 +1,7 @@
 // ======================================
 // MAJOR CROPS DETECTOR - APP.JS
 // Built-in Information System
+// Fixed Teachable Machine Model
 // ======================================
 
 const MODEL_URL =
@@ -22,8 +23,6 @@ const fileStatus = document.getElementById("fileStatus");
 const classifyBtn = document.getElementById("classify");
 const predictionsBox = document.getElementById("predictions");
 
-const loadBtn = document.getElementById("load");
-const modelUrlInput = document.getElementById("modelUrl");
 const modelStatus = document.getElementById("modelStatus");
 
 const categoryStatus = document.getElementById("categoryStatus");
@@ -118,7 +117,7 @@ dogs for companionship and different working roles.
 };
 
 // ======================================
-// LOAD TEACHABLE MACHINE MODEL
+// AUTOMATICALLY LOAD FIXED MODEL
 // ======================================
 
 async function loadModel() {
@@ -126,24 +125,21 @@ async function loadModel() {
   try {
 
     if (modelStatus) {
-      modelStatus.textContent = "Loading model...";
+      modelStatus.textContent = "Connecting to the model...";
     }
 
-    if (loadBtn) {
-      loadBtn.disabled = true;
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
     }
-
-    const url =
-      modelUrlInput?.value.trim() || MODEL_URL;
 
     model = await tmImage.load(
-      url + "model.json",
-      url + "metadata.json"
+      MODEL_URL + "model.json",
+      MODEL_URL + "metadata.json"
     );
 
     if (modelStatus) {
       modelStatus.textContent =
-        "Model loaded successfully!";
+        "Model connected successfully! Ready to classify.";
     }
 
     if (classifyBtn) {
@@ -152,31 +148,21 @@ async function loadModel() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Model loading error:", error);
 
     model = null;
 
     if (modelStatus) {
       modelStatus.textContent =
-        "Unable to load model. Check the model URL.";
+        "Unable to connect to the model. Please refresh the page.";
     }
 
     if (classifyBtn) {
       classifyBtn.disabled = true;
     }
 
-  } finally {
-
-    if (loadBtn) {
-      loadBtn.disabled = false;
-    }
-
   }
 
-}
-
-if (loadBtn) {
-  loadBtn.addEventListener("click", loadModel);
 }
 
 // ======================================
@@ -282,7 +268,7 @@ if (classifyBtn) {
       }
 
       if (!model) {
-        alert("Please load the model first.");
+        alert("The model is still loading. Please wait.");
         return;
       }
 
@@ -476,10 +462,8 @@ if (removeBtn) {
     }
 
     if (categoryStatus) {
-
       categoryStatus.textContent =
-        "First select a picture, connect your model, and classify the picture.";
-
+        "First select a picture and classify the picture.";
     }
 
     if (askBtn) {
@@ -503,7 +487,7 @@ if (removeBtn) {
 }
 
 // ======================================
-// AUTOMATICALLY LOAD MODEL
+// LOAD MODEL WHEN WEBSITE OPENS
 // ======================================
 
 loadModel();
