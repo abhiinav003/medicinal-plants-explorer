@@ -1,6 +1,10 @@
 // ======================================
-// MEDICINAL PLANTS EXPLORER - APP.JS
-// Teachable Machine + Information + Voice
+// MEDICINAL PLANTS EXPLORER
+// PREMIUM BOTANICAL APP.JS
+// ======================================
+
+// ======================================
+// MODEL CONFIGURATION
 // ======================================
 
 const MODEL_URL =
@@ -9,6 +13,7 @@ const MODEL_URL =
 let model = null;
 let selectedImage = null;
 let predictedCategory = "";
+let imageObjectURL = null;
 
 // ======================================
 // HTML ELEMENTS
@@ -27,6 +32,7 @@ const categoryStatus = document.getElementById("categoryStatus");
 
 const askBtn = document.getElementById("ask");
 const promptBox = document.getElementById("promptBox");
+const informationBox = document.getElementById("information");
 
 const copyBtn = document.getElementById("copy");
 const copyStatus = document.getElementById("copyStatus");
@@ -116,20 +122,205 @@ dogs for companionship and different working roles.
 };
 
 // ======================================
-// CREATE VOICE CONTROL BUTTONS
+// DARK MODE
+// ======================================
+
+function setupTheme() {
+
+  const header = document.querySelector("header");
+
+  if (!header) return;
+
+  const themeButton = document.createElement("button");
+
+  themeButton.id = "themeToggle";
+  themeButton.type = "button";
+  themeButton.setAttribute("aria-label", "Switch theme");
+
+  header.appendChild(themeButton);
+
+  function applyTheme(theme) {
+
+    document.documentElement.dataset.theme = theme;
+
+    themeButton.textContent =
+      theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+
+    themeButton.setAttribute(
+      "aria-label",
+      theme === "dark"
+        ? "Switch to light mode"
+        : "Switch to dark mode"
+    );
+
+    try {
+      localStorage.setItem("plantExplorerTheme", theme);
+    } catch (error) {
+      console.warn("Theme preference could not be saved.");
+    }
+
+  }
+
+  let savedTheme = "light";
+
+  try {
+    savedTheme =
+      localStorage.getItem("plantExplorerTheme") || "light";
+  } catch (error) {
+    console.warn("Theme preference could not be loaded.");
+  }
+
+  applyTheme(savedTheme);
+
+  themeButton.addEventListener("click", function () {
+
+    const currentTheme =
+      document.documentElement.dataset.theme;
+
+    applyTheme(
+      currentTheme === "dark" ? "light" : "dark"
+    );
+
+  });
+
+}
+
+// ======================================
+// PLANT OF THE DAY
+// ======================================
+
+function setupPlantOfTheDay() {
+
+  const main = document.querySelector("main");
+
+  if (!main) return;
+
+  const plantCard = document.createElement("section");
+
+  plantCard.id = "plantOfTheDay";
+  plantCard.className = "card plant-day-card";
+
+  const plants = [
+    {
+      name: "Tulsi",
+      scientific: "Ocimum tenuiflorum",
+      fact: "Tulsi is an aromatic plant widely grown in Indian households."
+    },
+    {
+      name: "Neem",
+      scientific: "Azadirachta indica",
+      fact: "Neem is an evergreen tree native to the Indian subcontinent."
+    },
+    {
+      name: "Aloe Vera",
+      scientific: "Aloe barbadensis miller",
+      fact: "Aloe vera is a succulent plant known for its thick, fleshy leaves."
+    },
+    {
+      name: "Mint",
+      scientific: "Mentha",
+      fact: "Mint plants are known for their refreshing aroma."
+    },
+    {
+      name: "Turmeric",
+      scientific: "Curcuma longa",
+      fact: "Turmeric is a tropical plant whose rhizome is widely used as a spice."
+    },
+    {
+      name: "Ginger",
+      scientific: "Zingiber officinale",
+      fact: "Ginger is a flowering plant cultivated for its aromatic rhizome."
+    },
+    {
+      name: "Ashwagandha",
+      scientific: "Withania somnifera",
+      fact: "Ashwagandha is a plant native to parts of Asia and Africa."
+    }
+  ];
+
+  // Select the same plant throughout each calendar day.
+
+  const today = new Date();
+
+  const dayNumber = Math.floor(
+    Date.UTC(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    ) / 86400000
+  );
+
+  const plant = plants[
+    ((dayNumber % plants.length) + plants.length) %
+    plants.length
+  ];
+
+  plantCard.innerHTML = `
+    <div class="plant-day-icon">🌿</div>
+
+    <div class="plant-day-content">
+      <span class="plant-day-label">TODAY'S FEATURED PLANT</span>
+
+      <h2>${plant.name}</h2>
+
+      <p class="plant-scientific">
+        ${plant.scientific}
+      </p>
+
+      <p>${plant.fact}</p>
+    </div>
+  `;
+
+  const welcomeSection =
+    main.querySelector(".welcome-section, .intro");
+
+  if (welcomeSection) {
+    welcomeSection.insertAdjacentElement(
+      "afterend",
+      plantCard
+    );
+  } else {
+    main.prepend(plantCard);
+  }
+
+}
+
+// ======================================
+// IMAGE SCANNING STATUS
+// ======================================
+
+function showScanningStatus() {
+
+  if (!categoryStatus) return;
+
+  categoryStatus.innerHTML = `
+    <span class="scanning-indicator"></span>
+    Analyzing your image...
+  `;
+
+  if (classifyBtn) {
+    classifyBtn.classList.add("is-scanning");
+  }
+
+}
+
+function hideScanningStatus() {
+
+  if (classifyBtn) {
+    classifyBtn.classList.remove("is-scanning");
+  }
+
+}
+
+// ======================================
+// VOICE CONTROLS
 // ======================================
 
 const speechControls = document.createElement("div");
 
 speechControls.id = "speechControls";
-
-speechControls.style.display = "none";
-speechControls.style.flexWrap = "wrap";
-speechControls.style.gap = "10px";
-speechControls.style.marginTop = "15px";
-speechControls.style.padding = "12px";
-speechControls.style.borderRadius = "10px";
-speechControls.style.background = "#f1f5f9";
+speechControls.className = "speech-controls";
+speechControls.hidden = true;
 
 speechControls.innerHTML = `
   <button type="button" id="speakPause">
@@ -144,30 +335,15 @@ speechControls.innerHTML = `
     Stop
   </button>
 
-  <p id="speechStatus"
-     aria-live="polite"
-     style="width:100%; margin:5px 0;">
-  </p>
+  <p id="speechStatus" aria-live="polite"></p>
 `;
 
-// Insert controls after the information box.
-
 if (promptBox && promptBox.parentElement) {
-
   promptBox.insertAdjacentElement(
     "afterend",
     speechControls
   );
-
-} else {
-
-  console.error("Information box not found.");
-
 }
-
-// ======================================
-// VOICE ELEMENTS
-// ======================================
 
 const pauseSpeechBtn =
   document.getElementById("speakPause");
@@ -191,9 +367,11 @@ function stopSpeech() {
     window.speechSynthesis.cancel();
   }
 
-  speechControls.style.display = "none";
+  speechControls.hidden = true;
 
-  speechStatus.textContent = "";
+  if (speechStatus) {
+    speechStatus.textContent = "";
+  }
 
 }
 
@@ -205,7 +383,7 @@ function speakInformation(text) {
 
   if (!("speechSynthesis" in window)) {
 
-    speechControls.style.display = "flex";
+    speechControls.hidden = false;
 
     speechStatus.textContent =
       "Your browser does not support voice reading.";
@@ -213,8 +391,6 @@ function speakInformation(text) {
     return;
 
   }
-
-  // Stop any previous speech.
 
   window.speechSynthesis.cancel();
 
@@ -252,9 +428,7 @@ function speakInformation(text) {
 
   };
 
-  // Show buttons before starting speech.
-
-  speechControls.style.display = "flex";
+  speechControls.hidden = false;
 
   speechStatus.textContent =
     "Preparing voice...";
@@ -264,7 +438,7 @@ function speakInformation(text) {
 }
 
 // ======================================
-// PAUSE BUTTON
+// SPEECH BUTTON EVENTS
 // ======================================
 
 pauseSpeechBtn.addEventListener("click", function () {
@@ -275,10 +449,6 @@ pauseSpeechBtn.addEventListener("click", function () {
 
 });
 
-// ======================================
-// RESUME BUTTON
-// ======================================
-
 resumeSpeechBtn.addEventListener("click", function () {
 
   window.speechSynthesis.resume();
@@ -287,18 +457,10 @@ resumeSpeechBtn.addEventListener("click", function () {
 
 });
 
-// ======================================
-// STOP BUTTON
-// ======================================
-
-stopSpeechBtn.addEventListener("click", function () {
-
-  stopSpeech();
-
-});
+stopSpeechBtn.addEventListener("click", stopSpeech);
 
 // ======================================
-// AUTOMATICALLY LOAD MODEL
+// LOAD TEACHABLE MACHINE MODEL
 // ======================================
 
 async function loadModel() {
@@ -373,6 +535,12 @@ if (fileInput) {
     selectedImage = file;
     predictedCategory = "";
 
+    if (imageObjectURL) {
+      URL.revokeObjectURL(imageObjectURL);
+    }
+
+    imageObjectURL = URL.createObjectURL(file);
+
     if (fileStatus) {
       fileStatus.textContent =
         "Picture selected: " + file.name;
@@ -397,8 +565,11 @@ if (fileInput) {
     }
 
     if (promptBox) {
-      promptBox.textContent = "";
       promptBox.hidden = true;
+    }
+
+    if (informationBox) {
+      informationBox.textContent = "";
     }
 
     if (copyBtn) {
@@ -409,11 +580,7 @@ if (fileInput) {
       copyStatus.textContent = "";
     }
 
-    const reader = new FileReader();
-
-    reader.onload = function (event) {
-
-      preview.src = event.target.result;
+    preview.onload = function () {
 
       if (previewBox) {
         previewBox.hidden = false;
@@ -421,18 +588,68 @@ if (fileInput) {
 
     };
 
-    reader.onerror = function () {
+    preview.onerror = function () {
 
       if (fileStatus) {
         fileStatus.textContent =
-          "Unable to read this image.";
+          "Unable to display this image.";
       }
 
     };
 
-    reader.readAsDataURL(file);
+    preview.src = imageObjectURL;
 
   });
+
+}
+
+// ======================================
+// CONFIDENCE BAR CREATOR
+// ======================================
+
+function createConfidenceBar(result, index) {
+
+  const percentage =
+    (result.probability * 100).toFixed(1);
+
+  const item = document.createElement("div");
+
+  item.className = "confidence-item";
+
+  const name = document.createElement("div");
+  name.className = "confidence-heading";
+
+  const category = document.createElement("span");
+  category.textContent = result.className;
+
+  const value = document.createElement("strong");
+  value.textContent = percentage + "%";
+
+  name.append(category, value);
+
+  const track = document.createElement("div");
+  track.className = "confidence-track";
+
+  const bar = document.createElement("div");
+  bar.className = "confidence-fill";
+
+  bar.style.width = "0%";
+
+  track.appendChild(bar);
+
+  item.append(name, track);
+
+  // Animate after the browser renders the bar.
+
+  requestAnimationFrame(() => {
+
+    setTimeout(() => {
+      bar.style.width = percentage + "%";
+    }, index * 120);
+
+  });
+
+  return item;
 
 }
 
@@ -457,7 +674,15 @@ if (classifyBtn) {
       }
 
       classifyBtn.disabled = true;
-      classifyBtn.textContent = "Classifying...";
+      classifyBtn.textContent = "Scanning Image...";
+
+      showScanningStatus();
+
+      if (askBtn) {
+        askBtn.disabled = true;
+      }
+
+      stopSpeech();
 
       const results = await model.predict(preview);
 
@@ -472,15 +697,11 @@ if (classifyBtn) {
         predictionsBox.innerHTML = "";
         predictionsBox.hidden = false;
 
-        results.forEach(result => {
+        results.forEach((result, index) => {
 
-          const item = document.createElement("p");
-
-          item.textContent =
-            result.className + " — " +
-            (result.probability * 100).toFixed(1) + "%";
-
-          predictionsBox.appendChild(item);
+          predictionsBox.appendChild(
+            createConfidenceBar(result, index)
+          );
 
         });
 
@@ -499,11 +720,18 @@ if (classifyBtn) {
 
     } catch (error) {
 
-      console.error(error);
+      console.error("Classification error:", error);
+
+      if (categoryStatus) {
+        categoryStatus.textContent =
+          "Classification failed. Please try again.";
+      }
 
       alert("Image classification failed.");
 
     } finally {
+
+      hideScanningStatus();
 
       classifyBtn.disabled = !model || !selectedImage;
 
@@ -531,37 +759,37 @@ if (askBtn) {
 
     }
 
+    stopSpeech();
+
     askBtn.disabled = true;
     askBtn.textContent = "Loading information...";
 
+    const category =
+      predictedCategory.trim().toUpperCase();
+
+    const information =
+      informationLibrary[category];
+
     if (promptBox) {
-
       promptBox.hidden = false;
+    }
 
-      const category =
-        predictedCategory.trim().toUpperCase();
+    if (informationBox) {
 
-      const information =
-        informationLibrary[category];
+      informationBox.textContent = information ||
+        "Information for " + predictedCategory +
+        " is not available in the built-in library yet.";
 
-      if (information) {
+    } else if (promptBox) {
 
-        promptBox.textContent = information;
+      promptBox.textContent = information ||
+        "Information for " + predictedCategory +
+        " is not available in the built-in library yet.";
 
-        // Start voice reading.
+    }
 
-        speakInformation(information);
-
-      } else {
-
-        promptBox.textContent =
-          "Information for " + predictedCategory +
-          " is not available in the built-in library yet.";
-
-        stopSpeech();
-
-      }
-
+    if (information) {
+      speakInformation(information);
     }
 
     if (copyBtn) {
@@ -575,7 +803,7 @@ if (askBtn) {
     askBtn.disabled = false;
 
     askBtn.textContent =
-      "Get information about this category";
+      "Get Information";
 
   });
 
@@ -589,11 +817,13 @@ if (copyBtn) {
 
   copyBtn.addEventListener("click", async function () {
 
+    const textToCopy = informationBox
+      ? informationBox.textContent
+      : promptBox.textContent;
+
     try {
 
-      await navigator.clipboard.writeText(
-        promptBox.textContent
-      );
+      await navigator.clipboard.writeText(textToCopy);
 
       if (copyStatus) {
         copyStatus.textContent =
@@ -604,7 +834,7 @@ if (copyBtn) {
 
       if (copyStatus) {
         copyStatus.textContent =
-          "Unable to copy.";
+          "Unable to copy. Please try again.";
       }
 
     }
@@ -626,6 +856,11 @@ if (removeBtn) {
     selectedImage = null;
     predictedCategory = "";
 
+    if (imageObjectURL) {
+      URL.revokeObjectURL(imageObjectURL);
+      imageObjectURL = null;
+    }
+
     if (fileInput) {
       fileInput.value = "";
     }
@@ -640,7 +875,7 @@ if (removeBtn) {
 
     if (fileStatus) {
       fileStatus.textContent =
-        "No picture selected yet.";
+        "No image selected.";
     }
 
     if (predictionsBox) {
@@ -649,13 +884,16 @@ if (removeBtn) {
     }
 
     if (promptBox) {
-      promptBox.textContent = "";
       promptBox.hidden = true;
+    }
+
+    if (informationBox) {
+      informationBox.textContent = "";
     }
 
     if (categoryStatus) {
       categoryStatus.textContent =
-        "First select a picture and classify the picture.";
+        "Select an image to begin.";
     }
 
     if (askBtn) {
@@ -679,7 +917,9 @@ if (removeBtn) {
 }
 
 // ======================================
-// LOAD MODEL WHEN WEBSITE OPENS
+// INITIALIZE WEBSITE
 // ======================================
 
+setupTheme();
+setupPlantOfTheDay();
 loadModel();
