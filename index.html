@@ -5,19 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Medicinal Plants Explorer</title>
-
   <meta name="theme-color" content="#f8faf5">
-  <meta name="description" content="Explore and learn about plants using an image classifier.">
+  <meta name="description" content="Explore plant categories using an AI image classifier and learn interesting facts about plants.">
 
-  <!-- Botanical Design -->
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 
-  <!-- TensorFlow and Teachable Machine -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
-  <!-- Website JavaScript -->
-  <script src="app.js?v=9" defer></script>
+  <script src="app.js?v=10" defer></script>
 </head>
 
 <body>
@@ -28,7 +24,7 @@
 
       <div class="header-text">
         <h1>Medicinal Plants Explorer</h1>
-        <p>Discover the natural world, one plant at a time.</p>
+        <p>Discover the natural world with AI</p>
       </div>
     </div>
   </header>
@@ -36,42 +32,45 @@
   <main class="container">
 
     <section class="welcome-section">
-      <h2>Explore Nature's Green World</h2>
+      <span class="welcome-tag">🌱 Explore • Discover • Learn</span>
+
+      <h2>Discover the Wonders of Nature</h2>
+
       <p>
-        Upload a picture and explore the category predicted
-        by your image classification model.
+        Upload a picture and let our AI image classifier explore its category.
+        Discover interesting information and learn more about the natural world.
       </p>
     </section>
 
-    <!-- Image Upload -->
-    <section class="card upload-card">
-      <h2>📷 Upload an Image</h2>
+    <section class="upload-card card">
 
-      <p class="section-description">
-        Choose an image from your device to get started.
-      </p>
+      <div class="section-heading">
+        <span class="section-icon">📸</span>
+        <div>
+          <h2>Upload an Image</h2>
+          <p class="section-description">
+            Choose an image from your device to get started.
+          </p>
+        </div>
+      </div>
 
       <label for="file" class="upload-label">
-        Choose Image
+        <span class="upload-icon">☁️</span>
+        <span class="upload-title">Choose an Image</span>
+        <span class="upload-subtitle">Tap here to browse your device</span>
       </label>
 
       <input
         type="file"
         id="file"
         accept="image/*"
+        hidden
       >
 
-      <p id="fileStatus" class="status-message" aria-live="polite">
-        No image selected.
-      </p>
+      <p id="fileStatus" class="status-message" aria-live="polite"></p>
 
-      <!-- Image Preview -->
       <div id="previewBox" hidden>
-        <img
-          id="preview"
-          src=""
-          alt="Selected image preview"
-        >
+        <img id="preview" alt="Selected image preview">
       </div>
 
       <button id="classify" type="button" disabled>
@@ -79,67 +78,85 @@
       </button>
 
       <p id="modelStatus" class="status-message" aria-live="polite">
-        Model is ready when loaded.
+        Preparing AI model...
       </p>
+
     </section>
 
-    <!-- Prediction -->
-    <section class="card result-card">
-      <h2>🔍 Classification Result</h2>
+    <section class="result-card card">
 
-      <p class="section-description">
-        The model's predicted category will appear below.
-      </p>
+      <div class="section-heading">
+        <span class="section-icon">🤖</span>
+        <div>
+          <h2>AI Classification Results</h2>
+          <p class="section-description">
+            See the categories predicted by the AI model.
+          </p>
+        </div>
+      </div>
 
       <div id="predictions" aria-live="polite">
-        <p>Your prediction will appear here.</p>
+        <p class="empty-message">
+          Your classification results will appear here.
+        </p>
       </div>
 
-      <p id="categoryStatus" class="status-message"></p>
+      <p id="categoryStatus" class="status-message" aria-live="polite"></p>
 
-      <button id="ask" type="button" disabled>
-        Get Information
+      <button id="ask" type="button" hidden>
+        ✨ Get AI Information
       </button>
+
     </section>
 
-    <!-- Information -->
-    <section id="promptBox" class="card information-card" hidden>
-      <h2>🌱 Explore Information</h2>
+    <section id="promptBox" class="information-card card" hidden>
 
-      <div id="information">
-        Information about the predicted category will appear here.
+      <div class="section-heading">
+        <span class="section-icon">🌿</span>
+        <div>
+          <h2>Explore the Information</h2>
+          <p class="section-description">
+            Learn more about the predicted category.
+          </p>
+        </div>
       </div>
 
+      <div id="information"></div>
+
       <div class="action-buttons">
+
         <button id="copy" type="button">
-          Copy Information
+          📋 Copy Information
         </button>
 
         <button id="openChatGPT" type="button">
-          Open ChatGPT
+          💬 Open in ChatGPT
         </button>
 
         <button id="remove" type="button">
-          Remove Image
+          🗑️ Remove Image
         </button>
+
       </div>
 
       <p id="copyStatus" class="status-message" aria-live="polite"></p>
+
     </section>
 
     <section class="note-section">
       <p>
-        <strong>Note:</strong> Image classification is an educational
-        tool. Predictions may be incorrect and should not be used
-        to identify plants for medical treatment or consumption.
+        🌱 <strong>Learning note:</strong> AI predictions can sometimes be
+        incorrect. Always verify plant identification using reliable sources.
+        This website is for educational purposes and does not provide medical
+        advice.
       </p>
     </section>
 
   </main>
 
   <footer class="site-footer">
-    <p>🌿 Medicinal Plants Explorer</p>
-    <p>Learn • Explore • Discover</p>
+    <p>Made with 🌿 for nature and learning</p>
+    <p>Medicinal Plants Explorer</p>
   </footer>
 
 </body>
