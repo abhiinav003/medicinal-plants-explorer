@@ -1,8 +1,6 @@
 // ======================================
 // MEDICINAL PLANTS EXPLORER - APP.JS
-// Built-in Information System
-// Fixed Teachable Machine Model
-// With Text-to-Speech Voice Feature
+// Teachable Machine + Information + Voice
 // ======================================
 
 const MODEL_URL =
@@ -25,8 +23,8 @@ const classifyBtn = document.getElementById("classify");
 const predictionsBox = document.getElementById("predictions");
 
 const modelStatus = document.getElementById("modelStatus");
-
 const categoryStatus = document.getElementById("categoryStatus");
+
 const askBtn = document.getElementById("ask");
 const promptBox = document.getElementById("promptBox");
 
@@ -118,29 +116,58 @@ dogs for companionship and different working roles.
 };
 
 // ======================================
-// TEXT-TO-SPEECH VOICE CONTROLS
+// CREATE VOICE CONTROL BUTTONS
 // ======================================
 
 const speechControls = document.createElement("div");
 
 speechControls.id = "speechControls";
-speechControls.hidden = true;
 
-speechControls.style.marginTop = "15px";
-speechControls.style.display = "flex";
+speechControls.style.display = "none";
 speechControls.style.flexWrap = "wrap";
 speechControls.style.gap = "10px";
+speechControls.style.marginTop = "15px";
+speechControls.style.padding = "12px";
+speechControls.style.borderRadius = "10px";
+speechControls.style.background = "#f1f5f9";
 
 speechControls.innerHTML = `
-  <button type="button" id="speakPause">Pause</button>
-  <button type="button" id="speakResume">Resume</button>
-  <button type="button" id="speakStop">Stop</button>
-  <p id="speechStatus" aria-live="polite" style="width:100%;"></p>
+  <button type="button" id="speakPause">
+    Pause
+  </button>
+
+  <button type="button" id="speakResume">
+    Resume
+  </button>
+
+  <button type="button" id="speakStop">
+    Stop
+  </button>
+
+  <p id="speechStatus"
+     aria-live="polite"
+     style="width:100%; margin:5px 0;">
+  </p>
 `;
 
-if (promptBox) {
-  promptBox.insertAdjacentElement("afterend", speechControls);
+// Insert controls after the information box.
+
+if (promptBox && promptBox.parentElement) {
+
+  promptBox.insertAdjacentElement(
+    "afterend",
+    speechControls
+  );
+
+} else {
+
+  console.error("Information box not found.");
+
 }
+
+// ======================================
+// VOICE ELEMENTS
+// ======================================
 
 const pauseSpeechBtn =
   document.getElementById("speakPause");
@@ -155,7 +182,7 @@ const speechStatus =
   document.getElementById("speechStatus");
 
 // ======================================
-// STOP VOICE
+// STOP SPEECH
 // ======================================
 
 function stopSpeech() {
@@ -164,30 +191,32 @@ function stopSpeech() {
     window.speechSynthesis.cancel();
   }
 
-  speechControls.hidden = true;
+  speechControls.style.display = "none";
 
   speechStatus.textContent = "";
 
 }
 
 // ======================================
-// READ INFORMATION ALOUD
+// SPEAK INFORMATION
 // ======================================
 
 function speakInformation(text) {
 
   if (!("speechSynthesis" in window)) {
 
-    speechControls.hidden = false;
+    speechControls.style.display = "flex";
 
     speechStatus.textContent =
-      "Voice reading is not supported by this browser.";
+      "Your browser does not support voice reading.";
 
     return;
 
   }
 
-  stopSpeech();
+  // Stop any previous speech.
+
+  window.speechSynthesis.cancel();
 
   const cleanText = text
     .replace(/^#+\s*/gm, "")
@@ -203,57 +232,73 @@ function speakInformation(text) {
   utterance.volume = 1;
 
   utterance.onstart = function () {
-    speechStatus.textContent = "Reading information...";
+
+    speechStatus.textContent =
+      "🔊 Reading information...";
+
   };
 
   utterance.onend = function () {
-    speechStatus.textContent = "Reading completed.";
+
+    speechStatus.textContent =
+      "Reading completed.";
+
   };
 
   utterance.onerror = function (event) {
 
-    if (event.error !== "canceled" &&
-        event.error !== "interrupted") {
-
-      speechStatus.textContent =
-        "Unable to play the voice.";
-
-    }
+    speechStatus.textContent =
+      "Voice error: " + event.error;
 
   };
 
-  speechControls.hidden = false;
+  // Show buttons before starting speech.
+
+  speechControls.style.display = "flex";
+
+  speechStatus.textContent =
+    "Preparing voice...";
 
   window.speechSynthesis.speak(utterance);
 
 }
 
 // ======================================
-// PAUSE, RESUME AND STOP BUTTONS
+// PAUSE BUTTON
 // ======================================
 
 pauseSpeechBtn.addEventListener("click", function () {
 
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.pause();
-    speechStatus.textContent = "Paused.";
-  }
+  window.speechSynthesis.pause();
+
+  speechStatus.textContent = "Speech paused.";
 
 });
+
+// ======================================
+// RESUME BUTTON
+// ======================================
 
 resumeSpeechBtn.addEventListener("click", function () {
 
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.resume();
-    speechStatus.textContent = "Reading information...";
-  }
+  window.speechSynthesis.resume();
+
+  speechStatus.textContent = "Resuming speech...";
 
 });
 
-stopSpeechBtn.addEventListener("click", stopSpeech);
+// ======================================
+// STOP BUTTON
+// ======================================
+
+stopSpeechBtn.addEventListener("click", function () {
+
+  stopSpeech();
+
+});
 
 // ======================================
-// AUTOMATICALLY LOAD FIXED MODEL
+// AUTOMATICALLY LOAD MODEL
 // ======================================
 
 async function loadModel() {
@@ -261,7 +306,8 @@ async function loadModel() {
   try {
 
     if (modelStatus) {
-      modelStatus.textContent = "Connecting to the model...";
+      modelStatus.textContent =
+        "Connecting to the model...";
     }
 
     if (classifyBtn) {
@@ -471,7 +517,7 @@ if (classifyBtn) {
 }
 
 // ======================================
-// DISPLAY INFORMATION AND START VOICE
+// DISPLAY INFORMATION AND PLAY VOICE
 // ======================================
 
 if (askBtn) {
@@ -502,7 +548,8 @@ if (askBtn) {
 
         promptBox.textContent = information;
 
-        // Automatically read the information aloud.
+        // Start voice reading.
+
         speakInformation(information);
 
       } else {
