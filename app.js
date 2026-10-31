@@ -3,7 +3,6 @@
 // Image Classification + Information + Voice
 // ==========================================
 
-// Teachable Machine model
 const MODEL_URL =
   "https://teachablemachine.withgoogle.com/models/ZPH5tuVS8/";
 
@@ -19,54 +18,54 @@ Overview:
 Cats are small, domesticated mammals commonly kept as pets. They belong to the family Felidae.
 
 Key Characteristics:
-- Cats have sharp claws and teeth.
-- They have excellent night vision.
-- They possess flexible bodies and good balance.
-- They use whiskers to sense their surroundings.
-- They are known for their grooming behavior.
+1. Cats have sharp claws and teeth.
+2. They have excellent night vision.
+3. They possess flexible bodies and good balance.
+4. They use whiskers to sense their surroundings.
+5. They are known for their grooming behavior.
 
 Uses and Importance:
-- Cats are popular companion animals.
-- They help control certain rodent populations.
-- They are valued for companionship and emotional support.
+1. Cats are popular companion animals.
+2. They help control certain rodent populations.
+3. They provide companionship to humans.
 
 Origin and History:
 Domestic cats are believed to have descended from the African wildcat. Their relationship with humans began thousands of years ago.
 
 Five Interesting Facts:
-1. Cats can rotate their ears to detect sounds.
-2. They spend many hours sleeping.
-3. Every cat has a unique nose-print pattern.
-4. Cats use different sounds to communicate.
-5. A group of cats is sometimes called a clowder.
+1. Cats spend many hours sleeping.
+2. Each cat has a unique nose pattern.
+3. Cats use whiskers to sense nearby objects.
+4. A group of cats is sometimes called a clowder.
+5. Cats can rotate their ears to detect sounds.
 `,
 
   DOGS: `
 DOGS
 
 Overview:
-Dogs are domesticated mammals belonging to the family Canidae. They are known for their intelligence, loyalty, and close relationship with humans.
+Dogs are domesticated mammals belonging to the family Canidae. They are known for their intelligence and close relationship with humans.
 
 Key Characteristics:
-- Dogs have a strong sense of smell.
-- They have an excellent sense of hearing.
-- They communicate through barking, body language, and scent.
-- They come in many breeds, shapes, and sizes.
-- They are social animals.
+1. Dogs have a strong sense of smell.
+2. They have an excellent sense of hearing.
+3. They communicate through barking and body language.
+4. They come in many breeds and sizes.
+5. They are social animals.
 
 Uses and Importance:
-- Dogs are kept as companion animals.
-- They can help with search and rescue operations.
-- Some dogs assist people with disabilities.
-- They can work in herding and guarding.
-- Trained dogs help in detecting certain substances.
+1. Dogs are kept as companion animals.
+2. They help in search and rescue operations.
+3. Some dogs assist people with disabilities.
+4. They can help with herding and guarding.
+5. Trained dogs can detect certain substances.
 
 Origin and History:
 Dogs descended from ancient wolf populations. Their domestication began tens of thousands of years ago.
 
 Five Interesting Facts:
-1. Dogs have a much stronger sense of smell than humans.
-2. Each dog's nose-print is unique.
+1. Dogs have a powerful sense of smell.
+2. Every dog's nose-print is unique.
 3. Dogs can understand many human gestures.
 4. Puppies are born with their eyes closed.
 5. Dogs use their tails and ears to communicate.
@@ -94,79 +93,72 @@ const copyStatus = document.getElementById("copyStatus");
 const removeBtn = document.getElementById("remove");
 
 // ==========================================
-// VARIABLES
-// ==========================================
-
-let model = null;
-let predictedCategory = "";
-
-let speechChunks = [];
-let currentChunk = 0;
-let speechSession = 0;
-let isSpeechPaused = false;
-
-// ==========================================
-// CREATE VOICE CONTROL BUTTONS
+// VOICE CONTROL INTERFACE
 // ==========================================
 
 const speechControls = document.createElement("div");
 
-speechControls.id = "speechControls";
-
 speechControls.style.display = "none";
-speechControls.style.gap = "10px";
 speechControls.style.flexWrap = "wrap";
+speechControls.style.gap = "10px";
 speechControls.style.marginTop = "15px";
 
 speechControls.innerHTML = `
   <button id="pauseSpeech" type="button">Pause</button>
   <button id="resumeSpeech" type="button">Resume</button>
   <button id="stopSpeech" type="button">Stop</button>
+  <p id="speechStatus" style="width:100%; margin-top:10px;">
+    Ready
+  </p>
 `;
 
-if (promptBox) {
-  promptBox.insertAdjacentElement("afterend", speechControls);
-}
+promptBox.insertAdjacentElement("afterend", speechControls);
 
 const pauseSpeechBtn = document.getElementById("pauseSpeech");
 const resumeSpeechBtn = document.getElementById("resumeSpeech");
 const stopSpeechBtn = document.getElementById("stopSpeech");
+const speechStatus = document.getElementById("speechStatus");
 
 // ==========================================
-// SPEECH FUNCTIONS
+// SPEECH VARIABLES
+// ==========================================
+
+let speechChunks = [];
+let currentChunk = 0;
+
+let speechSession = 0;
+let utteranceToken = 0;
+
+let isSpeechPaused = false;
+
+// ==========================================
+// SPLIT INFORMATION INTO SENTENCES
 // ==========================================
 
 function splitIntoChunks(text) {
-  const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
-
-  const chunks = [];
-
-  sentences.forEach(sentence => {
-    const cleanSentence = sentence.trim();
-
-    if (!cleanSentence) return;
-
-    // Split very long sentences into smaller parts.
-    if (cleanSentence.length > 180) {
-      for (let i = 0; i < cleanSentence.length; i += 180) {
-        chunks.push(cleanSentence.substring(i, i + 180));
-      }
-    } else {
-      chunks.push(cleanSentence);
-    }
-  });
-
-  return chunks;
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map(sentence => sentence.trim())
+    .filter(sentence => sentence.length > 0);
 }
+
+// ==========================================
+// SPEAK NEXT SENTENCE
+// ==========================================
 
 function speakNextChunk(session) {
   if (session !== speechSession) return;
   if (isSpeechPaused) return;
 
   if (currentChunk >= speechChunks.length) {
+    speechStatus.textContent = "Reading completed.";
     speechControls.style.display = "none";
     return;
   }
+
+  // A unique token prevents old speech callbacks
+  // from interfering with resumed speech.
+  const token = ++utteranceToken;
 
   const utterance = new SpeechSynthesisUtterance(
     speechChunks[currentChunk]
@@ -176,27 +168,45 @@ function speakNextChunk(session) {
   utterance.rate = 1;
   utterance.pitch = 1;
 
+  utterance.onstart = function () {
+    if (session !== speechSession) return;
+    if (token !== utteranceToken) return;
+
+    speechStatus.textContent = "Reading information...";
+  };
+
   utterance.onend = function () {
-    if (session !== speechSession || isSpeechPaused) return;
+    if (session !== speechSession) return;
+    if (token !== utteranceToken) return;
+    if (isSpeechPaused) return;
 
     currentChunk++;
+
     speakNextChunk(session);
   };
 
   utterance.onerror = function (event) {
     if (session !== speechSession) return;
+    if (token !== utteranceToken) return;
 
-    if (event.error !== "canceled" && event.error !== "interrupted") {
-      console.log("Speech error:", event.error);
+    if (
+      event.error !== "canceled" &&
+      event.error !== "interrupted"
+    ) {
+      speechStatus.textContent = "Voice playback encountered an error.";
     }
   };
 
   window.speechSynthesis.speak(utterance);
 }
 
+// ==========================================
+// START INFORMATION NARRATION
+// ==========================================
+
 function speakInformation(text) {
   if (!("speechSynthesis" in window)) {
-    alert("Sorry, voice narration is not supported by this browser.");
+    alert("Voice narration is not supported by this browser.");
     return;
   }
 
@@ -209,31 +219,60 @@ function speakInformation(text) {
   const session = speechSession;
 
   speechControls.style.display = "flex";
+  speechStatus.textContent = "Starting narration...";
 
   speakNextChunk(session);
 }
+
+// ==========================================
+// PAUSE SPEECH
+// ==========================================
 
 function pauseSpeech() {
   if (speechChunks.length === 0 || isSpeechPaused) return;
 
   isSpeechPaused = true;
 
-  // Cancel the current sentence so Resume can restart it reliably.
+  // Invalidate the current utterance before cancelling it.
+  utteranceToken++;
+
   window.speechSynthesis.cancel();
+
+  speechStatus.textContent = "Speech paused.";
 }
+
+// ==========================================
+// RESUME SPEECH
+// ==========================================
 
 function resumeSpeech() {
   if (!isSpeechPaused || speechChunks.length === 0) return;
 
   isSpeechPaused = false;
 
+  speechStatus.textContent = "Resuming speech...";
+
   const session = speechSession;
 
-  speakNextChunk(session);
+  // Clear any leftover browser speech queue.
+  window.speechSynthesis.cancel();
+
+  // Start the paused sentence again.
+  setTimeout(function () {
+    if (session !== speechSession) return;
+    if (isSpeechPaused) return;
+
+    speakNextChunk(session);
+  }, 150);
 }
+
+// ==========================================
+// STOP SPEECH
+// ==========================================
 
 function stopSpeech() {
   speechSession++;
+  utteranceToken++;
 
   isSpeechPaused = false;
   speechChunks = [];
@@ -249,12 +288,13 @@ function stopSpeech() {
 }
 
 // Voice button events
+
 pauseSpeechBtn.addEventListener("click", pauseSpeech);
 resumeSpeechBtn.addEventListener("click", resumeSpeech);
 stopSpeechBtn.addEventListener("click", stopSpeech);
 
 // ==========================================
-// LOAD MODEL
+// LOAD AI MODEL
 // ==========================================
 
 async function loadModel() {
@@ -339,12 +379,11 @@ classifyBtn.addEventListener("click", async function () {
     predictions.innerHTML = "";
 
     results.forEach(result => {
-      const percentage = (result.probability * 100).toFixed(2);
-
       const item = document.createElement("p");
 
       item.textContent =
-        result.className + " — " + percentage + "%";
+        result.className + " — " +
+        (result.probability * 100).toFixed(2) + "%";
 
       predictions.appendChild(item);
     });
@@ -372,7 +411,7 @@ classifyBtn.addEventListener("click", async function () {
 });
 
 // ==========================================
-// GET INFORMATION + START NARRATION
+// GENERATE INFORMATION + VOICE
 // ==========================================
 
 askBtn.addEventListener("click", function () {
@@ -386,6 +425,7 @@ askBtn.addEventListener("click", function () {
 
     copyBtn.style.display = "none";
     stopSpeech();
+
     return;
   }
 
@@ -395,7 +435,6 @@ askBtn.addEventListener("click", function () {
   copyStatus.textContent = "";
 
   speakInformation(information);
-
 });
 
 // ==========================================
@@ -410,7 +449,7 @@ copyBtn.addEventListener("click", async function () {
 
   } catch (error) {
     copyStatus.textContent =
-      "Unable to copy. Please select and copy the text manually.";
+      "Unable to copy. Please copy the text manually.";
   }
 });
 
@@ -433,6 +472,7 @@ removeBtn.addEventListener("click", function () {
   predictedCategory = "";
 
   promptBox.textContent = "";
+
   copyBtn.style.display = "none";
   copyStatus.textContent = "";
 
