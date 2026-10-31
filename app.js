@@ -93,29 +93,21 @@ const copyStatus = document.getElementById("copyStatus");
 const removeBtn = document.getElementById("remove");
 
 // ==========================================
-// VOICE CONTROL INTERFACE
+// STOP BUTTON
 // ==========================================
 
 const speechControls = document.createElement("div");
 
 speechControls.style.display = "none";
-speechControls.style.flexWrap = "wrap";
-speechControls.style.gap = "10px";
 speechControls.style.marginTop = "15px";
 
 speechControls.innerHTML = `
-  <button id="pauseSpeech" type="button">Pause</button>
-  <button id="resumeSpeech" type="button">Resume</button>
   <button id="stopSpeech" type="button">Stop</button>
-  <p id="speechStatus" style="width:100%; margin-top:10px;">
-    Ready
-  </p>
+  <p id="speechStatus" style="margin-top:10px;"></p>
 `;
 
 promptBox.insertAdjacentElement("afterend", speechControls);
 
-const pauseSpeechBtn = document.getElementById("pauseSpeech");
-const resumeSpeechBtn = document.getElementById("resumeSpeech");
 const stopSpeechBtn = document.getElementById("stopSpeech");
 const speechStatus = document.getElementById("speechStatus");
 
@@ -125,14 +117,10 @@ const speechStatus = document.getElementById("speechStatus");
 
 let speechChunks = [];
 let currentChunk = 0;
-
 let speechSession = 0;
-let utteranceToken = 0;
-
-let isSpeechPaused = false;
 
 // ==========================================
-// SPLIT INFORMATION INTO SENTENCES
+// SPLIT TEXT INTO SENTENCES
 // ==========================================
 
 function splitIntoChunks(text) {
@@ -148,17 +136,12 @@ function splitIntoChunks(text) {
 
 function speakNextChunk(session) {
   if (session !== speechSession) return;
-  if (isSpeechPaused) return;
 
   if (currentChunk >= speechChunks.length) {
     speechStatus.textContent = "Reading completed.";
     speechControls.style.display = "none";
     return;
   }
-
-  // A unique token prevents old speech callbacks
-  // from interfering with resumed speech.
-  const token = ++utteranceToken;
 
   const utterance = new SpeechSynthesisUtterance(
     speechChunks[currentChunk]
@@ -169,25 +152,20 @@ function speakNextChunk(session) {
   utterance.pitch = 1;
 
   utterance.onstart = function () {
-    if (session !== speechSession) return;
-    if (token !== utteranceToken) return;
-
-    speechStatus.textContent = "Reading information...";
+    if (session === speechSession) {
+      speechStatus.textContent = "Reading information...";
+    }
   };
 
   utterance.onend = function () {
     if (session !== speechSession) return;
-    if (token !== utteranceToken) return;
-    if (isSpeechPaused) return;
 
     currentChunk++;
-
     speakNextChunk(session);
   };
 
   utterance.onerror = function (event) {
     if (session !== speechSession) return;
-    if (token !== utteranceToken) return;
 
     if (
       event.error !== "canceled" &&
@@ -201,7 +179,7 @@ function speakNextChunk(session) {
 }
 
 // ==========================================
-// START INFORMATION NARRATION
+// START NARRATION
 // ==========================================
 
 function speakInformation(text) {
@@ -214,67 +192,22 @@ function speakInformation(text) {
 
   speechChunks = splitIntoChunks(text);
   currentChunk = 0;
-  isSpeechPaused = false;
 
   const session = speechSession;
 
-  speechControls.style.display = "flex";
+  speechControls.style.display = "block";
   speechStatus.textContent = "Starting narration...";
 
   speakNextChunk(session);
 }
 
 // ==========================================
-// PAUSE SPEECH
-// ==========================================
-
-function pauseSpeech() {
-  if (speechChunks.length === 0 || isSpeechPaused) return;
-
-  isSpeechPaused = true;
-
-  // Invalidate the current utterance before cancelling it.
-  utteranceToken++;
-
-  window.speechSynthesis.cancel();
-
-  speechStatus.textContent = "Speech paused.";
-}
-
-// ==========================================
-// RESUME SPEECH
-// ==========================================
-
-function resumeSpeech() {
-  if (!isSpeechPaused || speechChunks.length === 0) return;
-
-  isSpeechPaused = false;
-
-  speechStatus.textContent = "Resuming speech...";
-
-  const session = speechSession;
-
-  // Clear any leftover browser speech queue.
-  window.speechSynthesis.cancel();
-
-  // Start the paused sentence again.
-  setTimeout(function () {
-    if (session !== speechSession) return;
-    if (isSpeechPaused) return;
-
-    speakNextChunk(session);
-  }, 150);
-}
-
-// ==========================================
-// STOP SPEECH
+// STOP NARRATION
 // ==========================================
 
 function stopSpeech() {
   speechSession++;
-  utteranceToken++;
 
-  isSpeechPaused = false;
   speechChunks = [];
   currentChunk = 0;
 
@@ -282,15 +215,9 @@ function stopSpeech() {
     window.speechSynthesis.cancel();
   }
 
-  if (speechControls) {
-    speechControls.style.display = "none";
-  }
+  speechControls.style.display = "none";
 }
 
-// Voice button events
-
-pauseSpeechBtn.addEventListener("click", pauseSpeech);
-resumeSpeechBtn.addEventListener("click", resumeSpeech);
 stopSpeechBtn.addEventListener("click", stopSpeech);
 
 // ==========================================
@@ -425,7 +352,6 @@ askBtn.addEventListener("click", function () {
 
     copyBtn.style.display = "none";
     stopSpeech();
-
     return;
   }
 
