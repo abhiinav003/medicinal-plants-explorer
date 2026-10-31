@@ -1,7 +1,8 @@
 // ======================================
-// MAJOR CROPS DETECTOR - APP.JS
+// MEDICINAL PLANTS EXPLORER - APP.JS
 // Built-in Information System
 // Fixed Teachable Machine Model
+// With Text-to-Speech Voice Feature
 // ======================================
 
 const MODEL_URL =
@@ -117,6 +118,141 @@ dogs for companionship and different working roles.
 };
 
 // ======================================
+// TEXT-TO-SPEECH VOICE CONTROLS
+// ======================================
+
+const speechControls = document.createElement("div");
+
+speechControls.id = "speechControls";
+speechControls.hidden = true;
+
+speechControls.style.marginTop = "15px";
+speechControls.style.display = "flex";
+speechControls.style.flexWrap = "wrap";
+speechControls.style.gap = "10px";
+
+speechControls.innerHTML = `
+  <button type="button" id="speakPause">Pause</button>
+  <button type="button" id="speakResume">Resume</button>
+  <button type="button" id="speakStop">Stop</button>
+  <p id="speechStatus" aria-live="polite" style="width:100%;"></p>
+`;
+
+if (promptBox) {
+  promptBox.insertAdjacentElement("afterend", speechControls);
+}
+
+const pauseSpeechBtn =
+  document.getElementById("speakPause");
+
+const resumeSpeechBtn =
+  document.getElementById("speakResume");
+
+const stopSpeechBtn =
+  document.getElementById("speakStop");
+
+const speechStatus =
+  document.getElementById("speechStatus");
+
+// ======================================
+// STOP VOICE
+// ======================================
+
+function stopSpeech() {
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  speechControls.hidden = true;
+
+  speechStatus.textContent = "";
+
+}
+
+// ======================================
+// READ INFORMATION ALOUD
+// ======================================
+
+function speakInformation(text) {
+
+  if (!("speechSynthesis" in window)) {
+
+    speechControls.hidden = false;
+
+    speechStatus.textContent =
+      "Voice reading is not supported by this browser.";
+
+    return;
+
+  }
+
+  stopSpeech();
+
+  const cleanText = text
+    .replace(/^#+\s*/gm, "")
+    .replace(/[*_`]/g, "")
+    .replace(/[-•]/g, "");
+
+  const utterance =
+    new SpeechSynthesisUtterance(cleanText);
+
+  utterance.lang = "en-US";
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  utterance.onstart = function () {
+    speechStatus.textContent = "Reading information...";
+  };
+
+  utterance.onend = function () {
+    speechStatus.textContent = "Reading completed.";
+  };
+
+  utterance.onerror = function (event) {
+
+    if (event.error !== "canceled" &&
+        event.error !== "interrupted") {
+
+      speechStatus.textContent =
+        "Unable to play the voice.";
+
+    }
+
+  };
+
+  speechControls.hidden = false;
+
+  window.speechSynthesis.speak(utterance);
+
+}
+
+// ======================================
+// PAUSE, RESUME AND STOP BUTTONS
+// ======================================
+
+pauseSpeechBtn.addEventListener("click", function () {
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.pause();
+    speechStatus.textContent = "Paused.";
+  }
+
+});
+
+resumeSpeechBtn.addEventListener("click", function () {
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.resume();
+    speechStatus.textContent = "Reading information...";
+  }
+
+});
+
+stopSpeechBtn.addEventListener("click", stopSpeech);
+
+// ======================================
 // AUTOMATICALLY LOAD FIXED MODEL
 // ======================================
 
@@ -185,6 +321,8 @@ if (fileInput) {
       return;
 
     }
+
+    stopSpeech();
 
     selectedImage = file;
     predictedCategory = "";
@@ -333,7 +471,7 @@ if (classifyBtn) {
 }
 
 // ======================================
-// DISPLAY BUILT-IN INFORMATION
+// DISPLAY INFORMATION AND START VOICE
 // ======================================
 
 if (askBtn) {
@@ -364,11 +502,16 @@ if (askBtn) {
 
         promptBox.textContent = information;
 
+        // Automatically read the information aloud.
+        speakInformation(information);
+
       } else {
 
         promptBox.textContent =
           "Information for " + predictedCategory +
           " is not available in the built-in library yet.";
+
+        stopSpeech();
 
       }
 
@@ -430,6 +573,8 @@ if (copyBtn) {
 if (removeBtn) {
 
   removeBtn.addEventListener("click", function () {
+
+    stopSpeech();
 
     selectedImage = null;
     predictedCategory = "";
