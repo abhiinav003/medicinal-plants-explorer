@@ -1,80 +1,18 @@
-// ==========================================
-// MEDICINAL PLANTS EXPLORER
-// Image Classification + Information + Voice
-// ==========================================
+// ======================================
+// MEDICINAL PLANTS EXPLORER - APP.JS
+// Teachable Machine + Information + Voice
+// ======================================
 
 const MODEL_URL =
   "https://teachablemachine.withgoogle.com/models/ZPH5tuVS8/";
 
-// ==========================================
-// INFORMATION LIBRARY
-// ==========================================
+let model = null;
+let selectedImage = null;
+let predictedCategory = "";
 
-const informationLibrary = {
-  CATS: `
-CATS
-
-Overview:
-Cats are small, domesticated mammals commonly kept as pets. They belong to the family Felidae.
-
-Key Characteristics:
-1. Cats have sharp claws and teeth.
-2. They have excellent night vision.
-3. They possess flexible bodies and good balance.
-4. They use whiskers to sense their surroundings.
-5. They are known for their grooming behavior.
-
-Uses and Importance:
-1. Cats are popular companion animals.
-2. They help control certain rodent populations.
-3. They provide companionship to humans.
-
-Origin and History:
-Domestic cats are believed to have descended from the African wildcat. Their relationship with humans began thousands of years ago.
-
-Five Interesting Facts:
-1. Cats spend many hours sleeping.
-2. Each cat has a unique nose pattern.
-3. Cats use whiskers to sense nearby objects.
-4. A group of cats is sometimes called a clowder.
-5. Cats can rotate their ears to detect sounds.
-`,
-
-  DOGS: `
-DOGS
-
-Overview:
-Dogs are domesticated mammals belonging to the family Canidae. They are known for their intelligence and close relationship with humans.
-
-Key Characteristics:
-1. Dogs have a strong sense of smell.
-2. They have an excellent sense of hearing.
-3. They communicate through barking and body language.
-4. They come in many breeds and sizes.
-5. They are social animals.
-
-Uses and Importance:
-1. Dogs are kept as companion animals.
-2. They help in search and rescue operations.
-3. Some dogs assist people with disabilities.
-4. They can help with herding and guarding.
-5. Trained dogs can detect certain substances.
-
-Origin and History:
-Dogs descended from ancient wolf populations. Their domestication began tens of thousands of years ago.
-
-Five Interesting Facts:
-1. Dogs have a powerful sense of smell.
-2. Every dog's nose-print is unique.
-3. Dogs can understand many human gestures.
-4. Puppies are born with their eyes closed.
-5. Dogs use their tails and ears to communicate.
-`
-};
-
-// ==========================================
+// ======================================
 // HTML ELEMENTS
-// ==========================================
+// ======================================
 
 const fileInput = document.getElementById("file");
 const preview = document.getElementById("preview");
@@ -82,7 +20,8 @@ const previewBox = document.getElementById("previewBox");
 const fileStatus = document.getElementById("fileStatus");
 
 const classifyBtn = document.getElementById("classify");
-const predictions = document.getElementById("predictions");
+const predictionsBox = document.getElementById("predictions");
+
 const modelStatus = document.getElementById("modelStatus");
 const categoryStatus = document.getElementById("categoryStatus");
 
@@ -91,360 +30,656 @@ const promptBox = document.getElementById("promptBox");
 
 const copyBtn = document.getElementById("copy");
 const copyStatus = document.getElementById("copyStatus");
-
 const removeBtn = document.getElementById("remove");
 
-// ==========================================
-// APPLICATION VARIABLES
-// ==========================================
+// ======================================
+// BUILT-IN INFORMATION LIBRARY
+// ======================================
 
-let model = null;
-let predictedCategory = "";
+const informationLibrary = {
 
-let speechChunks = [];
-let currentChunk = 0;
-let speechSession = 0;
+  CATS: `
+# CATS
 
-// ==========================================
-// STOP-ONLY VOICE CONTROL
-// ==========================================
+## 1. Overview
+Cats are small, domesticated mammals belonging to the
+family Felidae. They are commonly kept as pets and are
+known for their independent and curious nature.
+
+## 2. Key Characteristics
+- Cats have four legs and a flexible body.
+- They have sharp claws and teeth.
+- They possess excellent night vision.
+- They have sensitive hearing.
+- Their whiskers help them sense their surroundings.
+- They communicate through sounds and body language.
+
+## 3. Uses and Importance
+- Cats are popular companion animals.
+- They can help control rodents such as mice.
+- They are important members of many households.
+- They contribute to human companionship and enjoyment.
+
+## 4. Origin and History
+Domestic cats are descended primarily from the African
+wildcat. Their relationship with humans developed
+thousands of years ago, particularly alongside early
+agricultural communities.
+
+## 5. Five Interesting Facts
+1. Cats spend a large part of their day sleeping.
+2. Each cat has a unique nose pattern.
+3. Cats use their whiskers to sense nearby objects.
+4. A group of cats is sometimes called a clowder.
+5. Cats can rotate their ears to detect sounds.
+`,
+
+  DOGS: `
+# DOGS
+
+## 1. Overview
+Dogs are domesticated mammals belonging to the family
+Canidae. They are among the earliest animals domesticated
+by humans and are widely known for their loyalty and
+social behaviour.
+
+## 2. Key Characteristics
+- Dogs have four legs and a strong sense of smell.
+- They have an excellent sense of hearing.
+- They communicate through barking and body language.
+- They come in many breeds, shapes and sizes.
+- They are social animals.
+- They can learn commands and tasks through training.
+
+## 3. Uses and Importance
+- Dogs are popular companion animals.
+- Some dogs assist people with disabilities.
+- Some are trained for search and rescue work.
+- Some help in detecting certain substances.
+- Herding dogs assist in managing livestock.
+- Guard dogs can help protect property.
+
+## 4. Origin and History
+Dogs descended from ancient wolf populations.
+Their domestication began at least 15,000 years ago,
+and possibly earlier. Over generations, humans bred
+dogs for companionship and different working roles.
+
+## 5. Five Interesting Facts
+1. Dogs have an extremely powerful sense of smell.
+2. Every dog's nose pattern is unique.
+3. Dogs communicate using body language and sounds.
+4. Different dog breeds have different abilities.
+5. Dogs can learn many words and commands.
+`
+
+};
+
+// ======================================
+// CREATE VOICE CONTROL BUTTONS
+// ======================================
 
 const speechControls = document.createElement("div");
 
+speechControls.id = "speechControls";
+
 speechControls.style.display = "none";
+speechControls.style.flexWrap = "wrap";
+speechControls.style.gap = "10px";
 speechControls.style.marginTop = "15px";
+speechControls.style.padding = "12px";
+speechControls.style.borderRadius = "10px";
+speechControls.style.background = "#f1f5f9";
 
 speechControls.innerHTML = `
-  <button id="stopSpeech" type="button">Stop</button>
-  <p id="speechStatus" style="margin-top:10px;"></p>
+  <button type="button" id="speakPause">
+    Pause
+  </button>
+
+  <button type="button" id="speakResume">
+    Resume
+  </button>
+
+  <button type="button" id="speakStop">
+    Stop
+  </button>
+
+  <p id="speechStatus"
+     aria-live="polite"
+     style="width:100%; margin:5px 0;">
+  </p>
 `;
 
-promptBox.insertAdjacentElement("afterend", speechControls);
+// Insert controls after the information box.
 
-const stopSpeechBtn = document.getElementById("stopSpeech");
-const speechStatus = document.getElementById("speechStatus");
+if (promptBox && promptBox.parentElement) {
 
-// ==========================================
-// SPLIT TEXT INTO SENTENCES
-// ==========================================
-
-function splitIntoChunks(text) {
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map(sentence => sentence.trim())
-    .filter(sentence => sentence.length > 0);
-}
-
-// ==========================================
-// SPEAK NEXT SENTENCE
-// ==========================================
-
-function speakNextChunk(session) {
-  if (session !== speechSession) return;
-
-  if (currentChunk >= speechChunks.length) {
-    speechStatus.textContent = "Reading completed.";
-    speechControls.style.display = "none";
-    return;
-  }
-
-  const utterance = new SpeechSynthesisUtterance(
-    speechChunks[currentChunk]
+  promptBox.insertAdjacentElement(
+    "afterend",
+    speechControls
   );
 
-  utterance.lang = "en-US";
-  utterance.rate = 1;
-  utterance.pitch = 1;
+} else {
 
-  utterance.onstart = function () {
-    if (session === speechSession) {
-      speechStatus.textContent = "Reading information...";
-    }
-  };
+  console.error("Information box not found.");
 
-  utterance.onend = function () {
-    if (session !== speechSession) return;
-
-    currentChunk++;
-    speakNextChunk(session);
-  };
-
-  utterance.onerror = function (event) {
-    if (session !== speechSession) return;
-
-    if (
-      event.error !== "canceled" &&
-      event.error !== "interrupted"
-    ) {
-      speechStatus.textContent =
-        "Voice playback encountered an error.";
-    }
-  };
-
-  window.speechSynthesis.speak(utterance);
 }
 
-// ==========================================
-// START NARRATION
-// ==========================================
+// ======================================
+// VOICE ELEMENTS
+// ======================================
 
-function speakInformation(text) {
-  if (!("speechSynthesis" in window)) {
-    alert("Voice narration is not supported by this browser.");
-    return;
-  }
+const pauseSpeechBtn =
+  document.getElementById("speakPause");
 
-  stopSpeech();
+const resumeSpeechBtn =
+  document.getElementById("speakResume");
 
-  speechChunks = splitIntoChunks(text);
-  currentChunk = 0;
+const stopSpeechBtn =
+  document.getElementById("speakStop");
 
-  const session = speechSession;
+const speechStatus =
+  document.getElementById("speechStatus");
 
-  speechControls.style.display = "block";
-  speechStatus.textContent = "Starting narration...";
-
-  speakNextChunk(session);
-}
-
-// ==========================================
-// STOP NARRATION
-// ==========================================
+// ======================================
+// STOP SPEECH
+// ======================================
 
 function stopSpeech() {
-  speechSession++;
-
-  speechChunks = [];
-  currentChunk = 0;
 
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
 
   speechControls.style.display = "none";
+
+  speechStatus.textContent = "";
+
 }
 
-stopSpeechBtn.addEventListener("click", stopSpeech);
+// ======================================
+// SPEAK INFORMATION
+// ======================================
 
-// ==========================================
-// LOAD AI MODEL
-// ==========================================
+function speakInformation(text) {
+
+  if (!("speechSynthesis" in window)) {
+
+    speechControls.style.display = "flex";
+
+    speechStatus.textContent =
+      "Your browser does not support voice reading.";
+
+    return;
+
+  }
+
+  // Stop any previous speech.
+
+  window.speechSynthesis.cancel();
+
+  const cleanText = text
+    .replace(/^#+\s*/gm, "")
+    .replace(/[*_`]/g, "")
+    .replace(/[-•]/g, "");
+
+  const utterance =
+    new SpeechSynthesisUtterance(cleanText);
+
+  utterance.lang = "en-US";
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  utterance.onstart = function () {
+
+    speechStatus.textContent =
+      "🔊 Reading information...";
+
+  };
+
+  utterance.onend = function () {
+
+    speechStatus.textContent =
+      "Reading completed.";
+
+  };
+
+  utterance.onerror = function (event) {
+
+    speechStatus.textContent =
+      "Voice error: " + event.error;
+
+  };
+
+  // Show buttons before starting speech.
+
+  speechControls.style.display = "flex";
+
+  speechStatus.textContent =
+    "Preparing voice...";
+
+  window.speechSynthesis.speak(utterance);
+
+}
+
+// ======================================
+// PAUSE BUTTON
+// ======================================
+
+pauseSpeechBtn.addEventListener("click", function () {
+
+  window.speechSynthesis.pause();
+
+  speechStatus.textContent = "Speech paused.";
+
+});
+
+// ======================================
+// RESUME BUTTON
+// ======================================
+
+resumeSpeechBtn.addEventListener("click", function () {
+
+  window.speechSynthesis.resume();
+
+  speechStatus.textContent = "Resuming speech...";
+
+});
+
+// ======================================
+// STOP BUTTON
+// ======================================
+
+stopSpeechBtn.addEventListener("click", function () {
+
+  stopSpeech();
+
+});
+
+// ======================================
+// AUTOMATICALLY LOAD MODEL
+// ======================================
 
 async function loadModel() {
+
   try {
-    modelStatus.textContent = "Loading AI model...";
+
+    if (modelStatus) {
+      modelStatus.textContent =
+        "Connecting to the model...";
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
+    }
 
     model = await tmImage.load(
       MODEL_URL + "model.json",
       MODEL_URL + "metadata.json"
     );
 
-    modelStatus.textContent = "AI model loaded successfully.";
-    classifyBtn.disabled = false;
+    if (modelStatus) {
+      modelStatus.textContent =
+        "Model connected successfully! Ready to classify.";
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = !selectedImage;
+    }
 
   } catch (error) {
-    console.error(error);
 
-    modelStatus.textContent =
-      "Unable to connect to the model. Please refresh the page.";
+    console.error("Model loading error:", error);
+
+    model = null;
+
+    if (modelStatus) {
+      modelStatus.textContent =
+        "Unable to connect to the model. Please refresh the page.";
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
+    }
+
   }
+
 }
 
-// ==========================================
-// IMAGE UPLOAD
-// ==========================================
+// ======================================
+// SELECT AND PREVIEW IMAGE
+// ======================================
 
-fileInput.addEventListener("change", function () {
-  const file = fileInput.files[0];
+if (fileInput) {
 
-  stopSpeech();
+  fileInput.addEventListener("change", function () {
 
-  if (!file) return;
+    const file = this.files[0];
 
-  if (!file.type.startsWith("image/")) {
-    fileStatus.textContent = "Please select an image file.";
-    return;
-  }
+    if (!file) return;
 
-  const reader = new FileReader();
+    if (!file.type.startsWith("image/")) {
 
-  reader.onload = function (event) {
-    preview.onload = function () {
-      previewBox.hidden = false;
-      previewBox.style.display = "block";
+      alert("Please select a valid image.");
 
-      classifyBtn.disabled = false;
+      fileInput.value = "";
+      return;
 
-      fileStatus.textContent = "Image uploaded successfully.";
+    }
 
-      predictions.innerHTML = "";
-      predictions.hidden = true;
-
-      categoryStatus.textContent =
-        "Image uploaded. Now identify the plant.";
-
-      promptBox.textContent = "";
-      promptBox.hidden = true;
-
-      askBtn.disabled = true;
-
-      copyBtn.hidden = true;
-      copyStatus.textContent = "";
-
-      predictedCategory = "";
-    };
-
-    preview.src = event.target.result;
-  };
-
-  reader.readAsDataURL(file);
-});
-
-// ==========================================
-// CLASSIFY IMAGE
-// ==========================================
-
-classifyBtn.addEventListener("click", async function () {
-  if (!model || !preview.src) {
-    alert("Please upload an image first.");
-    return;
-  }
-
-  try {
     stopSpeech();
 
-    classifyBtn.disabled = true;
-    classifyBtn.textContent = "Classifying...";
+    selectedImage = file;
+    predictedCategory = "";
 
-    const results = await model.predict(preview);
+    if (fileStatus) {
+      fileStatus.textContent =
+        "Picture selected: " + file.name;
+    }
 
-    results.sort((a, b) => b.probability - a.probability);
+    if (classifyBtn) {
+      classifyBtn.disabled = !model;
+    }
 
-    predictions.innerHTML = "";
+    if (askBtn) {
+      askBtn.disabled = true;
+    }
 
-    results.forEach(result => {
-      const item = document.createElement("p");
+    if (predictionsBox) {
+      predictionsBox.innerHTML = "";
+      predictionsBox.hidden = true;
+    }
 
-      item.textContent =
-        result.className + " — " +
-        (result.probability * 100).toFixed(2) + "%";
+    if (categoryStatus) {
+      categoryStatus.textContent =
+        "Image selected. Ready to classify.";
+    }
 
-      predictions.appendChild(item);
-    });
+    if (promptBox) {
+      promptBox.textContent = "";
+      promptBox.hidden = true;
+    }
 
-    predictions.hidden = false;
+    if (copyBtn) {
+      copyBtn.hidden = true;
+    }
 
-    predictedCategory = results[0].className;
+    if (copyStatus) {
+      copyStatus.textContent = "";
+    }
 
-    categoryStatus.textContent =
-      "Predicted category: " + predictedCategory;
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+
+      preview.src = event.target.result;
+
+      if (previewBox) {
+        previewBox.hidden = false;
+      }
+
+    };
+
+    reader.onerror = function () {
+
+      if (fileStatus) {
+        fileStatus.textContent =
+          "Unable to read this image.";
+      }
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+}
+
+// ======================================
+// CLASSIFY IMAGE
+// ======================================
+
+if (classifyBtn) {
+
+  classifyBtn.addEventListener("click", async function () {
+
+    try {
+
+      if (!selectedImage) {
+        alert("Please select an image first.");
+        return;
+      }
+
+      if (!model) {
+        alert("The model is still loading. Please wait.");
+        return;
+      }
+
+      classifyBtn.disabled = true;
+      classifyBtn.textContent = "Classifying...";
+
+      const results = await model.predict(preview);
+
+      results.sort(
+        (a, b) => b.probability - a.probability
+      );
+
+      predictedCategory = results[0].className;
+
+      if (predictionsBox) {
+
+        predictionsBox.innerHTML = "";
+        predictionsBox.hidden = false;
+
+        results.forEach(result => {
+
+          const item = document.createElement("p");
+
+          item.textContent =
+            result.className + " — " +
+            (result.probability * 100).toFixed(1) + "%";
+
+          predictionsBox.appendChild(item);
+
+        });
+
+      }
+
+      if (categoryStatus) {
+
+        categoryStatus.textContent =
+          "Predicted category: " + predictedCategory;
+
+      }
+
+      if (askBtn) {
+        askBtn.disabled = false;
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Image classification failed.");
+
+    } finally {
+
+      classifyBtn.disabled = !model || !selectedImage;
+
+      classifyBtn.textContent =
+        "Classify uploaded picture";
+
+    }
+
+  });
+
+}
+
+// ======================================
+// DISPLAY INFORMATION AND PLAY VOICE
+// ======================================
+
+if (askBtn) {
+
+  askBtn.addEventListener("click", function () {
+
+    if (!predictedCategory) {
+
+      alert("Please classify an image first.");
+      return;
+
+    }
+
+    askBtn.disabled = true;
+    askBtn.textContent = "Loading information...";
+
+    if (promptBox) {
+
+      promptBox.hidden = false;
+
+      const category =
+        predictedCategory.trim().toUpperCase();
+
+      const information =
+        informationLibrary[category];
+
+      if (information) {
+
+        promptBox.textContent = information;
+
+        // Start voice reading.
+
+        speakInformation(information);
+
+      } else {
+
+        promptBox.textContent =
+          "Information for " + predictedCategory +
+          " is not available in the built-in library yet.";
+
+        stopSpeech();
+
+      }
+
+    }
+
+    if (copyBtn) {
+      copyBtn.hidden = false;
+    }
+
+    if (copyStatus) {
+      copyStatus.textContent = "";
+    }
 
     askBtn.disabled = false;
 
-    promptBox.textContent = "";
-    promptBox.hidden = true;
+    askBtn.textContent =
+      "Get information about this category";
 
-    copyBtn.hidden = true;
-    copyStatus.textContent = "";
+  });
 
-  } catch (error) {
-    console.error(error);
+}
 
-    categoryStatus.textContent =
-      "Classification failed. Please try again.";
-
-  } finally {
-    classifyBtn.disabled = false;
-    classifyBtn.textContent = "Identify plant";
-  }
-});
-
-// ==========================================
-// GENERATE INFORMATION + VOICE
-// ==========================================
-
-askBtn.addEventListener("click", function () {
-  const category = predictedCategory.toUpperCase();
-  const information = informationLibrary[category];
-
-  stopSpeech();
-
-  promptBox.hidden = false;
-  promptBox.style.display = "block";
-
-  if (!information) {
-    promptBox.textContent =
-      "Information for this category is not available yet.";
-
-    copyBtn.hidden = true;
-    return;
-  }
-
-  promptBox.textContent = information;
-
-  copyBtn.hidden = false;
-  copyBtn.style.display = "inline-block";
-
-  copyStatus.textContent = "";
-
-  speakInformation(information);
-});
-
-// ==========================================
+// ======================================
 // COPY INFORMATION
-// ==========================================
+// ======================================
 
-copyBtn.addEventListener("click", async function () {
-  try {
-    await navigator.clipboard.writeText(promptBox.textContent);
+if (copyBtn) {
 
-    copyStatus.textContent =
-      "Information copied successfully.";
+  copyBtn.addEventListener("click", async function () {
 
-  } catch (error) {
-    copyStatus.textContent =
-      "Unable to copy. Please copy the text manually.";
-  }
-});
+    try {
 
-// ==========================================
-// REMOVE IMAGE AND RESET
-// ==========================================
+      await navigator.clipboard.writeText(
+        promptBox.textContent
+      );
 
-removeBtn.addEventListener("click", function () {
-  stopSpeech();
+      if (copyStatus) {
+        copyStatus.textContent =
+          "Copied successfully!";
+      }
 
-  fileInput.value = "";
-  preview.src = "";
+    } catch (error) {
 
-  previewBox.hidden = true;
-  previewBox.style.display = "none";
+      if (copyStatus) {
+        copyStatus.textContent =
+          "Unable to copy.";
+      }
 
-  fileStatus.textContent = "No picture selected yet.";
+    }
 
-  predictions.innerHTML = "";
-  predictions.hidden = true;
+  });
 
-  categoryStatus.textContent =
-    "First select a plant picture and identify it.";
+}
 
-  predictedCategory = "";
+// ======================================
+// REMOVE SELECTED IMAGE
+// ======================================
 
-  promptBox.textContent = "";
-  promptBox.hidden = true;
+if (removeBtn) {
 
-  copyBtn.hidden = true;
-  copyStatus.textContent = "";
+  removeBtn.addEventListener("click", function () {
 
-  askBtn.disabled = true;
-  classifyBtn.disabled = true;
-});
+    stopSpeech();
 
-// ==========================================
-// START APPLICATION
-// ==========================================
+    selectedImage = null;
+    predictedCategory = "";
 
-classifyBtn.disabled = true;
-askBtn.disabled = true;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    if (preview) {
+      preview.src = "";
+    }
+
+    if (previewBox) {
+      previewBox.hidden = true;
+    }
+
+    if (fileStatus) {
+      fileStatus.textContent =
+        "No picture selected yet.";
+    }
+
+    if (predictionsBox) {
+      predictionsBox.innerHTML = "";
+      predictionsBox.hidden = true;
+    }
+
+    if (promptBox) {
+      promptBox.textContent = "";
+      promptBox.hidden = true;
+    }
+
+    if (categoryStatus) {
+      categoryStatus.textContent =
+        "First select a picture and classify the picture.";
+    }
+
+    if (askBtn) {
+      askBtn.disabled = true;
+    }
+
+    if (classifyBtn) {
+      classifyBtn.disabled = true;
+    }
+
+    if (copyBtn) {
+      copyBtn.hidden = true;
+    }
+
+    if (copyStatus) {
+      copyStatus.textContent = "";
+    }
+
+  });
+
+}
+
+// ======================================
+// LOAD MODEL WHEN WEBSITE OPENS
+// ======================================
 
 loadModel();
