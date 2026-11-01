@@ -1,6 +1,6 @@
 /* =========================================
    MEDICINAL PLANTS EXPLORER
-   Complete app.js
+   Complete JavaScript
 ========================================= */
 
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/j0LiEqAHw/";
@@ -332,7 +332,6 @@ function setupPlantOfTheDay() {
     );
 
     const startNumber = Math.floor(Date.UTC(2026, 0, 1) / 86400000);
-
     const daysPassed = todayNumber - startNumber;
 
     const index =
@@ -345,22 +344,135 @@ function setupPlantOfTheDay() {
 
     if (!welcome || !plant) return;
 
+    // Add independent styling to prevent conflicts with style.css.
+    if (!document.getElementById("dailyPlantCardStyles")) {
+        const style = document.createElement("style");
+
+        style.id = "dailyPlantCardStyles";
+
+        style.textContent = `
+            #plantOfTheDay {
+                display: block !important;
+                box-sizing: border-box !important;
+                width: calc(100% - 36px) !important;
+                max-width: 650px !important;
+                margin: 35px auto !important;
+                padding: 28px 25px !important;
+                background: #ffffff !important;
+                color: #304638 !important;
+                border: 1px solid #e1eae0 !important;
+                border-radius: 32px !important;
+                box-shadow: 0 8px 28px rgba(40,80,50,0.10) !important;
+                text-align: left !important;
+                overflow: hidden !important;
+                position: relative !important;
+                float: none !important;
+                flex: none !important;
+                grid-column: 1 / -1 !important;
+                min-width: 0 !important;
+            }
+
+            #plantOfTheDay .daily-plant-icon {
+                font-size: 34px;
+                margin-bottom: 12px;
+            }
+
+            #plantOfTheDay .daily-plant-label {
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 1.2px;
+                color: #718b75;
+                margin: 0 0 12px;
+                line-height: 1.5;
+            }
+
+            #plantOfTheDay .daily-plant-name {
+                display: block;
+                font-size: 30px;
+                line-height: 1.25;
+                font-weight: 750;
+                margin: 0 0 10px;
+                color: #304638;
+                overflow-wrap: anywhere;
+            }
+
+            #plantOfTheDay .daily-plant-scientific {
+                display: block;
+                font-size: 19px;
+                line-height: 1.5;
+                margin: 0 0 12px;
+                color: #465b4b;
+                overflow-wrap: anywhere;
+            }
+
+            #plantOfTheDay .daily-plant-description {
+                display: block;
+                font-size: 17px;
+                line-height: 1.7;
+                margin: 0;
+                color: #526458;
+                overflow-wrap: anywhere;
+            }
+
+            body.dark-mode #plantOfTheDay {
+                background: #26372d !important;
+                color: #e7eee8 !important;
+                border-color: #405748 !important;
+            }
+
+            body.dark-mode #plantOfTheDay .daily-plant-name,
+            body.dark-mode #plantOfTheDay .daily-plant-scientific,
+            body.dark-mode #plantOfTheDay .daily-plant-description {
+                color: #e7eee8 !important;
+            }
+
+            @media (max-width: 480px) {
+                #plantOfTheDay {
+                    width: calc(100% - 36px) !important;
+                    padding: 25px 22px !important;
+                    margin: 28px auto !important;
+                }
+
+                #plantOfTheDay .daily-plant-name {
+                    font-size: 28px;
+                }
+
+                #plantOfTheDay .daily-plant-description {
+                    font-size: 16px;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
     let card = document.getElementById("plantOfTheDay");
 
     if (!card) {
         card = document.createElement("section");
         card.id = "plantOfTheDay";
-        card.className = "plant-day-card";
 
         welcome.insertAdjacentElement("afterend", card);
     }
 
     card.innerHTML = `
-        <div class="plant-day-icon">🌿</div>
-        <p class="plant-day-label">TODAY'S FEATURED PLANT</p>
-        <h2>${plantName}</h2>
-        <p class="plant-day-scientific"><em>${plant.scientific}</em></p>
-        <p class="plant-day-description">${plant.overview}</p>
+        <div class="daily-plant-icon">🌿</div>
+
+        <p class="daily-plant-label">
+            TODAY'S FEATURED PLANT
+        </p>
+
+        <h2 class="daily-plant-name">
+            ${plantName}
+        </h2>
+
+        <p class="daily-plant-scientific">
+            <em>${plant.scientific}</em>
+        </p>
+
+        <p class="daily-plant-description">
+            ${plant.overview}
+        </p>
     `;
 }
 
@@ -393,20 +505,18 @@ function setupTheme() {
             card.style.color = dark ? "#e7eee8" : "";
         });
 
-        const dailyCard = document.getElementById("plantOfTheDay");
-
-        if (dailyCard) {
-            dailyCard.style.background = dark ? "#26372d" : "";
-            dailyCard.style.color = dark ? "#e7eee8" : "";
-        }
-
         document.body.style.background = dark ? "#17251d" : "";
         document.body.style.color = dark ? "#e7eee8" : "";
 
-        localStorage.setItem("plantExplorerDarkMode", dark ? "true" : "false");
+        localStorage.setItem(
+            "plantExplorerDarkMode",
+            dark ? "true" : "false"
+        );
     }
 
-    applyTheme(localStorage.getItem("plantExplorerDarkMode") === "true");
+    applyTheme(
+        localStorage.getItem("plantExplorerDarkMode") === "true"
+    );
 
     button.addEventListener("click", () => {
         applyTheme(!document.body.classList.contains("dark-mode"));
@@ -427,12 +537,14 @@ async function loadModel() {
             MODEL_URL + "metadata.json"
         );
 
-        modelStatus.textContent = "AI model is ready. Upload an image.";
+        modelStatus.textContent =
+            "AI model is ready. Upload an image.";
 
         classifyButton.disabled = !selectedImage;
 
     } catch (error) {
         console.error(error);
+
         modelStatus.textContent =
             "Unable to load the AI model. Please refresh and try again.";
     }
@@ -465,8 +577,11 @@ fileInput.addEventListener("change", function(event) {
 
         classifyButton.disabled = !model;
 
-        predictionsBox.innerHTML =
-            '<p class="empty-message">Tap Identify Image to classify your picture.</p>';
+        predictionsBox.innerHTML = `
+            <p class="empty-message">
+                Tap Identify Image to classify your picture.
+            </p>
+        `;
 
         categoryStatus.textContent = "";
         askButton.hidden = true;
@@ -502,24 +617,44 @@ classifyButton.addEventListener("click", async function() {
 
         const predictions = await model.predict(image);
 
-        predictions.sort((a, b) => b.probability - a.probability);
+        predictions.sort(
+            (a, b) => b.probability - a.probability
+        );
 
         predictionsBox.innerHTML = "";
 
         predictions.forEach(prediction => {
-            const percentage = (prediction.probability * 100).toFixed(1);
+            const percentage =
+                (prediction.probability * 100).toFixed(1);
 
             const row = document.createElement("div");
+
             row.style.margin = "12px 0";
 
             row.innerHTML = `
-                <div style="display:flex;justify-content:space-between;gap:10px;font-weight:600;margin-bottom:5px;">
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:10px;
+                    font-weight:600;
+                    margin-bottom:5px;
+                ">
                     <span>${prediction.className}</span>
                     <span>${percentage}%</span>
                 </div>
 
-                <div style="height:12px;background:#dce8dc;border-radius:20px;overflow:hidden;">
-                    <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,#91ad91,#477653);border-radius:20px;"></div>
+                <div style="
+                    height:12px;
+                    background:#dce8dc;
+                    border-radius:20px;
+                    overflow:hidden;
+                ">
+                    <div style="
+                        height:100%;
+                        width:${percentage}%;
+                        background:linear-gradient(90deg,#91ad91,#477653);
+                        border-radius:20px;
+                    "></div>
                 </div>
             `;
 
@@ -528,12 +663,14 @@ classifyButton.addEventListener("click", async function() {
 
         currentPlant = predictions[0].className;
 
-        categoryStatus.textContent = "Top prediction: " + currentPlant;
+        categoryStatus.textContent =
+            "Top prediction: " + currentPlant;
 
         askButton.hidden = false;
 
     } catch (error) {
         console.error(error);
+
         predictionsBox.innerHTML =
             "<p>Something went wrong while identifying the image. Please try again.</p>";
 
@@ -549,21 +686,30 @@ classifyButton.addEventListener("click", async function() {
 ========================================= */
 
 function setupSpeechControls() {
-    // Stop any previous narration.
     speechSynthesis.cancel();
 
-    // Read the information before adding the controls.
+    // Capture information before adding speech controls.
     const textToRead = informationBox.innerText;
 
     const controls = document.createElement("div");
+
     controls.className = "speech-controls";
     controls.style.margin = "20px 0";
 
     controls.innerHTML = `
         <h3>🔊 Voice Narration</h3>
-        <button id="pauseButton" type="button">⏸ Pause</button>
-        <button id="resumeButton" type="button">▶️ Resume</button>
-        <button id="stopButton" type="button">⏹ Stop</button>
+
+        <button id="pauseButton" type="button">
+            ⏸ Pause
+        </button>
+
+        <button id="resumeButton" type="button">
+            ▶️ Resume
+        </button>
+
+        <button id="stopButton" type="button">
+            ⏹ Stop
+        </button>
     `;
 
     informationBox.appendChild(controls);
@@ -584,8 +730,9 @@ function setupSpeechControls() {
         speechSynthesis.cancel();
     });
 
-    // Start narration automatically.
+    // Automatically start narration.
     speechUtterance = new SpeechSynthesisUtterance(textToRead);
+
     speechUtterance.lang = "en-IN";
     speechUtterance.rate = 0.9;
 
@@ -600,7 +747,6 @@ function setupSpeechControls() {
 function displayPlantInformation(plantName) {
     const plant = plantInformation[plantName];
 
-    // Stop any narration that may already be running.
     speechSynthesis.cancel();
 
     promptBox.hidden = false;
@@ -608,9 +754,21 @@ function displayPlantInformation(plantName) {
     if (!plant) {
         informationBox.innerHTML = `
             <h2>${plantName}</h2>
-            <p>Detailed information for this category is not available yet.</p>
-            <p>Please verify the AI prediction using a reliable plant identification source.</p>
-            <p><strong>Educational Disclaimer:</strong> This website provides general information only, not medical advice. Plant identification may be incorrect. Consult a qualified healthcare professional before using any plant for health purposes.</p>
+
+            <p>
+                Detailed information for this category is not available yet.
+            </p>
+
+            <p>
+                Please verify the AI prediction using a reliable plant identification source.
+            </p>
+
+            <p>
+                <strong>Educational Disclaimer:</strong>
+                This website provides general information only, not medical advice.
+                Plant identification may be incorrect. Consult a qualified healthcare
+                professional before using any plant for health purposes.
+            </p>
         `;
 
         setupSpeechControls();
@@ -636,6 +794,7 @@ function displayPlantInformation(plantName) {
         <p>${plant.origin}</p>
 
         <h3>✨ Interesting Facts</h3>
+
         <ul>
             ${plant.facts.map(fact => `<li>${fact}</li>`).join("")}
         </ul>
@@ -651,7 +810,7 @@ function displayPlantInformation(plantName) {
         </p>
     `;
 
-    // Automatically start reading as soon as information is displayed.
+    // Start reading automatically when information appears.
     setupSpeechControls();
 
     promptBox.scrollIntoView({
@@ -681,7 +840,10 @@ copyButton.addEventListener("click", async function() {
 
     try {
         await navigator.clipboard.writeText(text);
-        copyStatus.textContent = "Information copied successfully.";
+
+        copyStatus.textContent =
+            "Information copied successfully.";
+
     } catch (error) {
         copyStatus.textContent =
             "Copy is unavailable in this browser. Please select and copy the text manually.";
@@ -701,7 +863,8 @@ chatGPTButton.addEventListener("click", function() {
         "Do not give treatment, dosage, or self-medication instructions.\n\n" +
         text;
 
-    const url = "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+    const url =
+        "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
 
     window.open(url, "_blank");
 });
