@@ -1,7 +1,6 @@
 // ======================================
 // MEDICINAL PLANTS EXPLORER
 // DOGS & CATS TESTING VERSION
-// PREMIUM BOTANICAL FEATURES
 // ======================================
 
 // MODEL CONFIGURATION
@@ -98,7 +97,6 @@ Dogs are domesticated mammals belonging to the family Canidae. They are among th
 - They come in many breeds, shapes, and sizes.
 - They are social animals.
 - They can learn commands and tasks through training.
-- They have a well-developed sense of smell.
 
 ## 3. Uses and Importance
 
@@ -107,7 +105,6 @@ Dogs are domesticated mammals belonging to the family Canidae. They are among th
 - Some are trained for search and rescue work.
 - Some help in detecting certain substances.
 - Herding dogs assist in managing livestock.
-- Guard dogs can help protect property.
 - They provide companionship to people.
 
 ## 4. Origin and History
@@ -126,7 +123,7 @@ Dogs descended from ancient wolf populations. Their domestication began at least
 };
 
 // ======================================
-// INFORMATION DISPLAY
+// DISPLAY INFORMATION
 // ======================================
 
 function displayInformation(text) {
@@ -135,7 +132,7 @@ function displayInformation(text) {
 
   let html = "";
   let inList = false;
-  let inOrderedList = false;
+  let inNumberedList = false;
 
   lines.forEach(line => {
 
@@ -150,9 +147,9 @@ function displayInformation(text) {
         inList = false;
       }
 
-      if (inOrderedList) {
+      if (inNumberedList) {
         html += "</ol>";
-        inOrderedList = false;
+        inNumberedList = false;
       }
 
       html += `<h2>${trimmed.substring(2)}</h2>`;
@@ -164,18 +161,18 @@ function displayInformation(text) {
         inList = false;
       }
 
-      if (inOrderedList) {
+      if (inNumberedList) {
         html += "</ol>";
-        inOrderedList = false;
+        inNumberedList = false;
       }
 
       html += `<h3>${trimmed.substring(3)}</h3>`;
 
     } else if (trimmed.startsWith("- ")) {
 
-      if (inOrderedList) {
+      if (inNumberedList) {
         html += "</ol>";
-        inOrderedList = false;
+        inNumberedList = false;
       }
 
       if (!inList) {
@@ -192,9 +189,9 @@ function displayInformation(text) {
         inList = false;
       }
 
-      if (!inOrderedList) {
+      if (!inNumberedList) {
         html += "<ol>";
-        inOrderedList = true;
+        inNumberedList = true;
       }
 
       html += `<li>${trimmed.replace(/^\d+\.\s/, "")}</li>`;
@@ -206,22 +203,20 @@ function displayInformation(text) {
         inList = false;
       }
 
-      if (inOrderedList) {
+      if (inNumberedList) {
         html += "</ol>";
-        inOrderedList = false;
+        inNumberedList = false;
       }
 
       html += `<p>${trimmed}</p>`;
-
     }
 
   });
 
   if (inList) html += "</ul>";
-  if (inOrderedList) html += "</ol>";
+  if (inNumberedList) html += "</ol>";
 
   informationBox.innerHTML = html;
-
 }
 
 // ======================================
@@ -231,15 +226,16 @@ function displayInformation(text) {
 function setupTheme() {
 
   const header = document.querySelector("header");
-
   if (!header) return;
 
-  const themeButton = document.createElement("button");
+  let themeButton = document.getElementById("themeToggle");
 
-  themeButton.id = "themeToggle";
-  themeButton.type = "button";
-
-  header.appendChild(themeButton);
+  if (!themeButton) {
+    themeButton = document.createElement("button");
+    themeButton.id = "themeToggle";
+    themeButton.type = "button";
+    header.appendChild(themeButton);
+  }
 
   function applyTheme(theme) {
 
@@ -253,7 +249,6 @@ function setupTheme() {
     } catch (error) {
       console.warn("Theme preference could not be saved.");
     }
-
   }
 
   let savedTheme = "light";
@@ -275,7 +270,6 @@ function setupTheme() {
     applyTheme(currentTheme === "dark" ? "light" : "dark");
 
   });
-
 }
 
 // ======================================
@@ -288,9 +282,9 @@ speechControls.className = "speech-controls";
 speechControls.hidden = true;
 
 speechControls.innerHTML = `
-  <button type="button" id="speakPause">⏸ Pause</button>
-  <button type="button" id="speakResume">▶ Resume</button>
-  <button type="button" id="speakStop">⏹ Stop</button>
+  <button type="button" id="speakPause">Pause</button>
+  <button type="button" id="speakResume">Resume</button>
+  <button type="button" id="speakStop">Stop</button>
   <p id="speechStatus" aria-live="polite"></p>
 `;
 
@@ -303,8 +297,6 @@ const resumeSpeechBtn = document.getElementById("speakResume");
 const stopSpeechBtn = document.getElementById("speakStop");
 const speechStatus = document.getElementById("speechStatus");
 
-// STOP SPEECH
-
 function stopSpeech() {
 
   if ("speechSynthesis" in window) {
@@ -313,16 +305,12 @@ function stopSpeech() {
 
   speechControls.hidden = true;
   speechStatus.textContent = "";
-
 }
-
-// SPEAK INFORMATION
 
 function speakInformation(text) {
 
   if (!("speechSynthesis" in window)) {
-    speechStatus.textContent =
-      "Voice reading is not supported in this browser.";
+    speechStatus.textContent = "Voice reading is not supported.";
     return;
   }
 
@@ -331,8 +319,7 @@ function speakInformation(text) {
   const cleanText = text
     .replace(/^#+\s*/gm, "")
     .replace(/[*_`]/g, "")
-    .replace(/[-•]/g, "")
-    .replace(/^\d+\.\s*/gm, "");
+    .replace(/[-•]/g, "");
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
 
@@ -356,7 +343,6 @@ function speakInformation(text) {
   speechStatus.textContent = "Preparing voice...";
 
   window.speechSynthesis.speak(utterance);
-
 }
 
 pauseSpeechBtn.addEventListener("click", () => {
@@ -408,9 +394,7 @@ async function loadModel() {
       "Unable to connect to the model. Please refresh the page.";
 
     classifyBtn.disabled = true;
-
   }
-
 }
 
 // ======================================
@@ -420,16 +404,12 @@ async function loadModel() {
 fileInput.addEventListener("change", function () {
 
   const file = this.files[0];
-
   if (!file) return;
 
   if (!file.type.startsWith("image/")) {
-
     alert("Please select a valid image.");
-
     fileInput.value = "";
     return;
-
   }
 
   stopSpeech();
@@ -454,8 +434,7 @@ fileInput.addEventListener("change", function () {
   predictionsBox.innerHTML = "";
   predictionsBox.hidden = true;
 
-  categoryStatus.textContent =
-    "Image selected. Ready to classify.";
+  categoryStatus.textContent = "Image selected. Ready to classify.";
 
   promptBox.hidden = true;
   informationBox.innerHTML = "";
@@ -464,76 +443,59 @@ fileInput.addEventListener("change", function () {
   copyStatus.textContent = "";
 
   preview.onload = () => {
-
     previewBox.hidden = false;
     classifyBtn.disabled = !model;
-
   };
 
   preview.onerror = () => {
-
     fileStatus.textContent = "Unable to display this image.";
     classifyBtn.disabled = true;
-
   };
 
   preview.src = imageObjectURL;
-
 });
 
 // ======================================
-// ANIMATED CONFIDENCE GRAPHS
+// ANIMATED CONFIDENCE BARS
 // ======================================
 
 function createConfidenceBar(result, index) {
 
-  const percentage =
-    (result.probability * 100).toFixed(1);
+  const percentage = (result.probability * 100).toFixed(1);
 
   const item = document.createElement("div");
-
   item.className = "confidence-item";
 
   const heading = document.createElement("div");
-
   heading.className = "confidence-heading";
 
   const category = document.createElement("span");
-
   category.textContent = result.className;
 
   const value = document.createElement("strong");
-
   value.textContent = percentage + "%";
 
   heading.append(category, value);
 
   const track = document.createElement("div");
-
   track.className = "confidence-track";
 
   const bar = document.createElement("div");
-
   bar.className = "confidence-fill";
-
   bar.style.width = "0%";
 
   track.appendChild(bar);
-
   item.append(heading, track);
 
   requestAnimationFrame(() => {
 
     setTimeout(() => {
-
       bar.style.width = percentage + "%";
-
-    }, index * 150);
+    }, 150 + index * 180);
 
   });
 
   return item;
-
 }
 
 // ======================================
@@ -549,8 +511,7 @@ classifyBtn.addEventListener("click", async function () {
     classifyBtn.disabled = true;
     classifyBtn.textContent = "Scanning Image...";
 
-    categoryStatus.textContent =
-      "Analyzing your image...";
+    categoryStatus.textContent = "Analyzing your image...";
 
     askBtn.hidden = true;
     askBtn.disabled = true;
@@ -580,7 +541,6 @@ classifyBtn.addEventListener("click", async function () {
 
     askBtn.hidden = false;
     askBtn.disabled = false;
-
     askBtn.textContent = "✨ Get AI Information";
 
   } catch (error) {
@@ -593,11 +553,9 @@ classifyBtn.addEventListener("click", async function () {
   } finally {
 
     classifyBtn.disabled = !model || !selectedImage;
-
     classifyBtn.textContent = "Identify Image";
 
   }
-
 });
 
 // ======================================
@@ -608,14 +566,11 @@ askBtn.addEventListener("click", function () {
 
   if (!predictedCategory) return;
 
-  const information =
-    informationLibrary[predictedCategory];
+  const information = informationLibrary[predictedCategory];
 
   if (!information) {
-
     alert("Information for this category is not available.");
     return;
-
   }
 
   stopSpeech();
@@ -625,9 +580,7 @@ askBtn.addEventListener("click", function () {
   displayInformation(information);
 
   promptBox.hidden = false;
-
   copyBtn.hidden = false;
-
   copyStatus.textContent = "";
 
   promptBox.scrollIntoView({
@@ -636,7 +589,6 @@ askBtn.addEventListener("click", function () {
   });
 
   speakInformation(information);
-
 });
 
 // ======================================
@@ -658,7 +610,6 @@ copyBtn.addEventListener("click", async function () {
       "Unable to copy. Please try again.";
 
   }
-
 });
 
 // ======================================
@@ -686,7 +637,6 @@ Do not identify or inspect any image. Explain only the named category.
     "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
 
   window.open(chatGPTURL, "_blank");
-
 });
 
 // ======================================
@@ -702,10 +652,8 @@ removeBtn.addEventListener("click", function () {
   currentInformation = "";
 
   if (imageObjectURL) {
-
     URL.revokeObjectURL(imageObjectURL);
     imageObjectURL = null;
-
   }
 
   fileInput.value = "";
@@ -721,8 +669,7 @@ removeBtn.addEventListener("click", function () {
   promptBox.hidden = true;
   informationBox.innerHTML = "";
 
-  categoryStatus.textContent =
-    "Select an image to begin.";
+  categoryStatus.textContent = "Select an image to begin.";
 
   askBtn.hidden = true;
   askBtn.disabled = true;
@@ -731,7 +678,6 @@ removeBtn.addEventListener("click", function () {
 
   copyBtn.hidden = true;
   copyStatus.textContent = "";
-
 });
 
 // ======================================
