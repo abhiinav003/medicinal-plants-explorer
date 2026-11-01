@@ -1,13 +1,10 @@
-// ==========================================
+// ======================================
 // MEDICINAL PLANTS EXPLORER
 // DOGS & CATS TESTING VERSION
-// UPGRADED APP.JS
-// ==========================================
-
-// MODEL CONFIGURATION
+// ======================================
 
 const MODEL_URL =
-  "https://teachablemachine.withgoogle.com/models/ZPH5tuVS8/";
+    "https://teachablemachine.withgoogle.com/models/ZPH5tuVS8/";
 
 let model = null;
 let selectedImage = null;
@@ -15,9 +12,9 @@ let predictedCategory = "";
 let imageObjectURL = null;
 let currentInformation = "";
 
-// ==========================================
+// ======================================
 // HTML ELEMENTS
-// ==========================================
+// ======================================
 
 const fileInput = document.getElementById("file");
 const preview = document.getElementById("preview");
@@ -39,13 +36,13 @@ const copyStatus = document.getElementById("copyStatus");
 const removeBtn = document.getElementById("remove");
 const openChatGPTBtn = document.getElementById("openChatGPT");
 
-// ==========================================
+// ======================================
 // INFORMATION LIBRARY
-// ==========================================
+// ======================================
 
 const informationLibrary = {
 
-  CATS: `
+    CATS: `
 # 🐈 CATS
 
 ## 1. Overview
@@ -66,9 +63,8 @@ Cats are small, domesticated mammals belonging to the family Felidae. They are c
 
 - Cats are popular companion animals.
 - They can help control rodents such as mice.
-- They are important members of many households.
 - They provide companionship and enjoyment.
-- They contribute to human-animal relationships.
+- They are important members of many households.
 
 ## 4. Origin and History
 
@@ -83,7 +79,7 @@ Domestic cats are descended primarily from the African wildcat. Their relationsh
 5. Cats can rotate their ears to detect sounds.
 `,
 
-  DOGS: `
+    DOGS: `
 # 🐕 DOGS
 
 ## 1. Overview
@@ -98,16 +94,14 @@ Dogs are domesticated mammals belonging to the family Canidae. They are among th
 - They come in many breeds, shapes, and sizes.
 - They are social animals.
 - They can learn commands and tasks through training.
-- They have a well-developed sense of smell.
 
 ## 3. Uses and Importance
 
 - Dogs are popular companion animals.
 - Some dogs assist people with disabilities.
 - Some are trained for search and rescue work.
-- Some help in detecting certain substances.
+- Some help detect certain substances.
 - Herding dogs assist in managing livestock.
-- Guard dogs can help protect property.
 - They provide companionship to people.
 
 ## 4. Origin and History
@@ -122,225 +116,234 @@ Dogs descended from ancient wolf populations. Their domestication began at least
 4. Different dog breeds have different abilities.
 5. Dogs can learn many words and commands.
 `
-
 };
 
-// ==========================================
-// DISPLAY INFORMATION
-// ==========================================
+// ======================================
+// FORMAT INFORMATION
+// ======================================
 
 function displayInformation(text) {
 
-  const lines = text.trim().split("\n");
+    const lines = text.trim().split("\n");
+    let html = "";
+    let inList = false;
 
-  let html = "";
-  let inList = false;
+    lines.forEach(line => {
 
-  lines.forEach(line => {
+        const trimmed = line.trim();
 
-    const trimmed = line.trim();
+        if (!trimmed) return;
 
-    if (!trimmed) return;
+        if (trimmed.startsWith("# ")) {
 
-    if (trimmed.startsWith("# ")) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
 
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
+            html += `<h2>${trimmed.substring(2)}</h2>`;
 
-      html += `<h2>${trimmed.substring(2)}</h2>`;
+        } else if (trimmed.startsWith("## ")) {
 
-    } else if (trimmed.startsWith("## ")) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
 
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
+            html += `<h3>${trimmed.substring(3)}</h3>`;
 
-      html += `<h3>${trimmed.substring(3)}</h3>`;
+        } else if (trimmed.startsWith("- ")) {
 
-    } else if (trimmed.startsWith("- ")) {
+            if (!inList) {
+                html += "<ul>";
+                inList = true;
+            }
 
-      if (!inList) {
-        html += "<ul>";
-        inList = true;
-      }
+            html += `<li>${trimmed.substring(2)}</li>`;
 
-      html += `<li>${trimmed.substring(2)}</li>`;
+        } else if (/^\d+\.\s/.test(trimmed)) {
 
-    } else if (/^\d+\.\s/.test(trimmed)) {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
 
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
+            html += `<p>${trimmed}</p>`;
 
-      html += `<p>${trimmed}</p>`;
+        } else {
 
-    } else {
+            if (inList) {
+                html += "</ul>";
+                inList = false;
+            }
 
-      if (inList) {
-        html += "</ul>";
-        inList = false;
-      }
+            html += `<p>${trimmed}</p>`;
+        }
+    });
 
-      html += `<p>${trimmed}</p>`;
+    if (inList) html += "</ul>";
 
-    }
-
-  });
-
-  if (inList) {
-    html += "</ul>";
-  }
-
-  informationBox.innerHTML = html;
+    informationBox.innerHTML = html;
 }
 
-// ==========================================
+// ======================================
 // DARK MODE
-// ==========================================
+// ======================================
 
 function setupTheme() {
 
-  const header = document.querySelector("header");
+    const header = document.querySelector(".site-header");
+    if (!header) return;
 
-  if (!header) return;
+    const themeButton = document.createElement("button");
 
-  let themeButton = document.getElementById("themeToggle");
-
-  if (!themeButton) {
-
-    themeButton = document.createElement("button");
     themeButton.id = "themeToggle";
     themeButton.type = "button";
 
     header.appendChild(themeButton);
-  }
 
-  function applyTheme(theme) {
+    function applyTheme(theme) {
 
-    document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.theme = theme;
 
-    themeButton.textContent =
-      theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+        themeButton.textContent =
+            theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+
+        try {
+            localStorage.setItem("plantExplorerTheme", theme);
+        } catch (error) {
+            console.warn("Theme preference could not be saved.");
+        }
+    }
+
+    let savedTheme = "light";
 
     try {
-      localStorage.setItem("plantExplorerTheme", theme);
+        savedTheme =
+            localStorage.getItem("plantExplorerTheme") || "light";
     } catch (error) {
-      console.warn("Theme preference could not be saved.");
+        console.warn("Theme preference could not be loaded.");
     }
-  }
 
-  let savedTheme = "light";
+    applyTheme(savedTheme);
 
-  try {
-    savedTheme =
-      localStorage.getItem("plantExplorerTheme") || "light";
-  } catch (error) {
-    console.warn("Theme preference could not be loaded.");
-  }
+    themeButton.addEventListener("click", function () {
 
-  applyTheme(savedTheme);
+        const currentTheme =
+            document.documentElement.dataset.theme;
 
-  themeButton.addEventListener("click", function () {
-
-    const currentTheme =
-      document.documentElement.dataset.theme;
-
-    applyTheme(currentTheme === "dark" ? "light" : "dark");
-
-  });
+        applyTheme(currentTheme === "dark" ? "light" : "dark");
+    });
 }
 
-// ==========================================
+// ======================================
 // PLANT OF THE DAY
-// ==========================================
+// ======================================
 
 function setupPlantOfTheDay() {
 
-  const main = document.querySelector("main");
+    const main = document.querySelector("main");
+    if (!main) return;
 
-  if (!main || document.querySelector(".plant-day-card")) return;
+    const plants = [
+        {
+            name: "Tulsi",
+            scientific: "Ocimum tenuiflorum",
+            fact: "Tulsi is an aromatic plant widely grown in Indian households."
+        },
+        {
+            name: "Neem",
+            scientific: "Azadirachta indica",
+            fact: "Neem is an evergreen tree native to the Indian subcontinent."
+        },
+        {
+            name: "Aloe Vera",
+            scientific: "Aloe barbadensis miller",
+            fact: "Aloe vera is a succulent plant known for its thick leaves."
+        },
+        {
+            name: "Mint",
+            scientific: "Mentha",
+            fact: "Mint plants are known for their refreshing aroma."
+        },
+        {
+            name: "Turmeric",
+            scientific: "Curcuma longa",
+            fact: "Turmeric is a tropical plant whose rhizome is widely used as a spice."
+        },
+        {
+            name: "Ginger",
+            scientific: "Zingiber officinale",
+            fact: "Ginger is cultivated for its aromatic rhizome."
+        },
+        {
+            name: "Ashwagandha",
+            scientific: "Withania somnifera",
+            fact: "Ashwagandha is a plant native to parts of Asia and Africa."
+        }
+    ];
 
-  const plants = [
-    {
-      name: "Tulsi",
-      scientific: "Ocimum tenuiflorum",
-      fact: "Tulsi is an aromatic plant widely grown in Indian households."
-    },
-    {
-      name: "Neem",
-      scientific: "Azadirachta indica",
-      fact: "Neem is an evergreen tree native to the Indian subcontinent."
-    },
-    {
-      name: "Aloe Vera",
-      scientific: "Aloe barbadensis miller",
-      fact: "Aloe vera is a succulent plant known for its thick leaves."
-    },
-    {
-      name: "Mint",
-      scientific: "Mentha",
-      fact: "Mint plants are known for their refreshing aroma."
-    },
-    {
-      name: "Turmeric",
-      scientific: "Curcuma longa",
-      fact: "Turmeric is a tropical plant whose rhizome is widely used as a spice."
-    },
-    {
-      name: "Ginger",
-      scientific: "Zingiber officinale",
-      fact: "Ginger is cultivated for its aromatic rhizome."
-    },
-    {
-      name: "Ashwagandha",
-      scientific: "Withania somnifera",
-      fact: "Ashwagandha is a plant native to parts of Asia and Africa."
+    const today = new Date();
+
+    const dayNumber = Math.floor(
+        Date.UTC(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        ) / 86400000
+    );
+
+    const plant = plants[
+        ((dayNumber % plants.length) + plants.length) % plants.length
+    ];
+
+    const plantCard = document.createElement("section");
+
+    plantCard.className = "card plant-day-card";
+
+    plantCard.innerHTML = `
+        <div class="plant-day-icon">🌿</div>
+        <div class="plant-day-content">
+            <span class="plant-day-label">TODAY'S FEATURED PLANT</span>
+            <h2>${plant.name}</h2>
+            <p class="plant-scientific">${plant.scientific}</p>
+            <p>${plant.fact}</p>
+        </div>
+    `;
+
+    const welcome = main.querySelector(".welcome-section");
+
+    if (welcome) {
+        welcome.insertAdjacentElement("afterend", plantCard);
+    } else {
+        main.prepend(plantCard);
     }
-  ];
-
-  const today = new Date();
-
-  const dayNumber = Math.floor(
-    Date.UTC(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    ) / 86400000
-  );
-
-  const plant =
-    plants[((dayNumber % plants.length) + plants.length) % plants.length];
-
-  const plantCard = document.createElement("section");
-
-  plantCard.className = "card plant-day-card";
-
-  plantCard.innerHTML = `
-    <div class="plant-day-icon">🌿</div>
-    <div class="plant-day-content">
-      <span class="plant-day-label">TODAY'S FEATURED PLANT</span>
-      <h2>${plant.name}</h2>
-      <p class="plant-scientific">${plant.scientific}</p>
-      <p>${plant.fact}</p>
-    </div>
-  `;
-
-  const welcome = main.querySelector(".welcome-section");
-
-  if (welcome) {
-    welcome.insertAdjacentElement("afterend", plantCard);
-  } else {
-    main.prepend(plantCard);
-  }
 }
 
-// ==========================================
+// ======================================
+// HORIZONTAL ACTION BUTTONS
+// ======================================
+
+function setupActionButtons() {
+
+    if (!copyBtn || !openChatGPTBtn || !removeBtn) return;
+
+    const actionContainer = document.createElement("div");
+
+    actionContainer.className = "action-buttons";
+
+    copyBtn.parentNode.insertBefore(actionContainer, copyBtn);
+
+    actionContainer.append(
+        copyBtn,
+        openChatGPTBtn,
+        removeBtn
+    );
+}
+
+// ======================================
 // VOICE CONTROLS
-// ==========================================
+// ======================================
 
 const speechControls = document.createElement("div");
 
@@ -348,14 +351,14 @@ speechControls.className = "speech-controls";
 speechControls.hidden = true;
 
 speechControls.innerHTML = `
-  <button type="button" id="speakPause">Pause</button>
-  <button type="button" id="speakResume">Resume</button>
-  <button type="button" id="speakStop">Stop</button>
-  <p id="speechStatus" aria-live="polite"></p>
+    <button type="button" id="speakPause">Pause</button>
+    <button type="button" id="speakResume">Resume</button>
+    <button type="button" id="speakStop">Stop</button>
+    <p id="speechStatus" aria-live="polite"></p>
 `;
 
 if (promptBox && promptBox.parentElement) {
-  promptBox.insertAdjacentElement("afterend", speechControls);
+    promptBox.insertAdjacentElement("afterend", speechControls);
 }
 
 const pauseSpeechBtn = document.getElementById("speakPause");
@@ -365,478 +368,390 @@ const speechStatus = document.getElementById("speechStatus");
 
 function stopSpeech() {
 
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
 
-  speechControls.hidden = true;
-
-  speechStatus.textContent = "";
+    speechControls.hidden = true;
+    speechStatus.textContent = "";
 }
 
 function speakInformation(text) {
 
-  if (!("speechSynthesis" in window)) return;
+    if (!("speechSynthesis" in window)) {
+        speechStatus.textContent = "Voice is not supported in this browser.";
+        speechControls.hidden = false;
+        return;
+    }
 
-  window.speechSynthesis.cancel();
+    window.speechSynthesis.cancel();
 
-  const cleanText = text
-    .replace(/^#+\s*/gm, "")
-    .replace(/[*_`]/g, "")
-    .replace(/[-•]/g, "");
+    const cleanText = text
+        .replace(/^#+\s*/gm, "")
+        .replace(/[*_`]/g, "")
+        .replace(/[-•]/g, "");
 
-  const utterance = new SpeechSynthesisUtterance(cleanText);
+    const utterance = new SpeechSynthesisUtterance(cleanText);
 
-  utterance.lang = "en-US";
-  utterance.rate = 0.9;
-  utterance.pitch = 1;
+    utterance.lang = "en-US";
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
 
-  utterance.onstart = () => {
-    speechStatus.textContent = "🔊 Reading information...";
-  };
+    utterance.onstart = () => {
+        speechStatus.textContent = "🔊 Reading information...";
+    };
 
-  utterance.onend = () => {
-    speechStatus.textContent = "Reading completed.";
-  };
+    utterance.onend = () => {
+        speechStatus.textContent = "Reading completed.";
+    };
 
-  utterance.onerror = () => {
-    speechStatus.textContent = "Unable to play voice.";
-  };
+    utterance.onerror = () => {
+        speechStatus.textContent =
+            "Voice playback is unavailable in this browser.";
+    };
 
-  speechControls.hidden = false;
-  speechStatus.textContent = "Preparing voice...";
+    speechControls.hidden = false;
+    speechStatus.textContent = "Preparing voice...";
 
-  window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
 }
 
 pauseSpeechBtn.addEventListener("click", () => {
-
-  window.speechSynthesis.pause();
-
-  speechStatus.textContent = "Speech paused.";
-
+    window.speechSynthesis.pause();
+    speechStatus.textContent = "Speech paused.";
 });
 
 resumeSpeechBtn.addEventListener("click", () => {
-
-  window.speechSynthesis.resume();
-
-  speechStatus.textContent = "Resuming speech...";
-
+    window.speechSynthesis.resume();
+    speechStatus.textContent = "Resuming speech...";
 });
 
 stopSpeechBtn.addEventListener("click", stopSpeech);
 
-// ==========================================
-// IMPROVE BUTTON SPACING
-// ==========================================
-
-classifyBtn.style.display = "block";
-classifyBtn.style.marginTop = "24px";
-classifyBtn.style.marginBottom = "12px";
-classifyBtn.style.position = "relative";
-
-// ==========================================
-// LOAD TEACHABLE MACHINE MODEL
-// ==========================================
+// ======================================
+// LOAD MODEL
+// ======================================
 
 async function loadModel() {
 
-  try {
+    try {
 
-    modelStatus.textContent = "Connecting to the model...";
+        modelStatus.textContent = "Connecting to the model...";
+        classifyBtn.disabled = true;
 
-    classifyBtn.disabled = true;
+        model = await tmImage.load(
+            MODEL_URL + "model.json",
+            MODEL_URL + "metadata.json"
+        );
 
-    model = await tmImage.load(
-      MODEL_URL + "model.json",
-      MODEL_URL + "metadata.json"
-    );
+        modelStatus.textContent =
+            "Model connected successfully! Ready to classify.";
 
-    modelStatus.textContent =
-      "Model connected successfully! Ready to classify.";
+        classifyBtn.disabled = !selectedImage;
 
-    classifyBtn.disabled = !selectedImage;
+    } catch (error) {
 
-  } catch (error) {
+        console.error("Model loading error:", error);
 
-    console.error("Model loading error:", error);
+        modelStatus.textContent =
+            "Unable to connect to the model. Please refresh the page.";
 
-    modelStatus.textContent =
-      "Unable to connect to the model. Please refresh the page.";
-
-    classifyBtn.disabled = true;
-
-  }
+        classifyBtn.disabled = true;
+    }
 }
 
-// ==========================================
+// ======================================
 // SELECT IMAGE
-// ==========================================
+// ======================================
 
 fileInput.addEventListener("change", function () {
 
-  const file = this.files[0];
+    const file = this.files[0];
+    if (!file) return;
 
-  if (!file) return;
+    if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image.");
+        fileInput.value = "";
+        return;
+    }
 
-  if (!file.type.startsWith("image/")) {
+    stopSpeech();
 
-    alert("Please select a valid image.");
+    selectedImage = file;
+    predictedCategory = "";
+    currentInformation = "";
 
-    fileInput.value = "";
+    if (imageObjectURL) {
+        URL.revokeObjectURL(imageObjectURL);
+    }
 
-    return;
-  }
+    imageObjectURL = URL.createObjectURL(file);
 
-  stopSpeech();
-
-  selectedImage = file;
-  predictedCategory = "";
-  currentInformation = "";
-
-  if (imageObjectURL) {
-    URL.revokeObjectURL(imageObjectURL);
-  }
-
-  imageObjectURL = URL.createObjectURL(file);
-
-  fileStatus.textContent = "Picture selected: " + file.name;
-
-  askBtn.hidden = true;
-  askBtn.disabled = true;
-
-  classifyBtn.disabled = !model;
-
-  predictionsBox.innerHTML = "";
-  predictionsBox.hidden = true;
-
-  categoryStatus.textContent =
-    "Image selected. Ready to classify.";
-
-  promptBox.hidden = true;
-  informationBox.innerHTML = "";
-
-  copyBtn.hidden = true;
-  copyStatus.textContent = "";
-
-  preview.onload = () => {
-
-    previewBox.hidden = false;
-
-    classifyBtn.disabled = !model;
-
-  };
-
-  preview.onerror = () => {
-
-    fileStatus.textContent = "Unable to display this image.";
-
-    classifyBtn.disabled = true;
-
-  };
-
-  preview.src = imageObjectURL;
-
-});
-
-// ==========================================
-// GRAPHICAL CONFIDENCE BARS
-// ==========================================
-
-function createConfidenceBar(result, index) {
-
-  const percentage =
-    (result.probability * 100).toFixed(1);
-
-  const item = document.createElement("div");
-
-  item.className = "confidence-item";
-
-  // Card appearance
-
-  item.style.margin = "16px 0";
-  item.style.padding = "18px";
-  item.style.borderRadius = "20px";
-  item.style.background = "var(--surface-soft, #e7f0e5)";
-
-  const heading = document.createElement("div");
-
-  heading.className = "confidence-heading";
-
-  heading.style.display = "flex";
-  heading.style.justifyContent = "space-between";
-  heading.style.alignItems = "center";
-  heading.style.gap = "12px";
-  heading.style.marginBottom = "14px";
-  heading.style.fontWeight = "700";
-
-  const category = document.createElement("span");
-
-  category.textContent = result.className;
-
-  const value = document.createElement("strong");
-
-  value.textContent = percentage + "%";
-
-  heading.append(category, value);
-
-  // Progress bar background
-
-  const track = document.createElement("div");
-
-  track.className = "confidence-track";
-
-  track.style.width = "100%";
-  track.style.height = "12px";
-  track.style.overflow = "hidden";
-  track.style.borderRadius = "20px";
-  track.style.background = "rgba(100, 130, 105, 0.15)";
-
-  // Animated progress
-
-  const bar = document.createElement("div");
-
-  bar.className = "confidence-fill";
-
-  bar.style.width = "0%";
-  bar.style.height = "100%";
-  bar.style.borderRadius = "20px";
-  bar.style.background =
-    "linear-gradient(90deg, #86a98b, #28634a)";
-  bar.style.transition =
-    "width 1.1s cubic-bezier(.2,.8,.2,1)";
-
-  track.appendChild(bar);
-
-  item.append(heading, track);
-
-  requestAnimationFrame(() => {
-
-    setTimeout(() => {
-
-      bar.style.width = percentage + "%";
-
-    }, 150 + index * 180);
-
-  });
-
-  return item;
-}
-
-// ==========================================
-// CLASSIFY IMAGE
-// ==========================================
-
-classifyBtn.addEventListener("click", async function () {
-
-  if (!selectedImage || !model) return;
-
-  try {
-
-    classifyBtn.disabled = true;
-
-    classifyBtn.textContent = "Scanning Image...";
-
-    categoryStatus.textContent =
-      "Analyzing your image...";
+    fileStatus.textContent = "Picture selected: " + file.name;
 
     askBtn.hidden = true;
     askBtn.disabled = true;
 
-    stopSpeech();
-
-    const results = await model.predict(preview);
-
-    results.sort(
-      (a, b) => b.probability - a.probability
-    );
-
-    predictedCategory =
-      results[0].className.trim().toUpperCase();
+    classifyBtn.disabled = !model;
 
     predictionsBox.innerHTML = "";
+    predictionsBox.hidden = true;
 
-    predictionsBox.hidden = false;
+    categoryStatus.textContent = "Image selected. Ready to classify.";
 
-    results.forEach((result, index) => {
+    promptBox.hidden = true;
+    informationBox.innerHTML = "";
 
-      predictionsBox.appendChild(
-        createConfidenceBar(result, index)
-      );
+    copyBtn.hidden = true;
+    openChatGPTBtn.hidden = true;
+    removeBtn.hidden = true;
 
-    });
+    copyStatus.textContent = "";
 
-    categoryStatus.textContent =
-      "Predicted category: " + predictedCategory;
+    preview.onload = () => {
+        previewBox.hidden = false;
+        classifyBtn.disabled = !model;
+    };
 
-    askBtn.hidden = false;
-    askBtn.disabled = false;
+    preview.onerror = () => {
+        fileStatus.textContent = "Unable to display this image.";
+        classifyBtn.disabled = true;
+    };
 
-    askBtn.textContent = "✨ Get AI Information";
-
-  } catch (error) {
-
-    console.error("Classification error:", error);
-
-    categoryStatus.textContent =
-      "Classification failed. Please try again.";
-
-  } finally {
-
-    classifyBtn.disabled = !model || !selectedImage;
-
-    classifyBtn.textContent = "Identify Image";
-
-  }
+    preview.src = imageObjectURL;
 });
 
-// ==========================================
+// ======================================
+// CONFIDENCE GRAPH
+// ======================================
+
+function createConfidenceBar(result, index) {
+
+    const percentage = (result.probability * 100).toFixed(1);
+
+    const item = document.createElement("div");
+    item.className = "confidence-item";
+
+    const heading = document.createElement("div");
+    heading.className = "confidence-heading";
+
+    const category = document.createElement("span");
+    category.textContent = result.className;
+
+    const value = document.createElement("strong");
+    value.textContent = percentage + "%";
+
+    heading.append(category, value);
+
+    const track = document.createElement("div");
+    track.className = "confidence-track";
+
+    const bar = document.createElement("div");
+    bar.className = "confidence-fill";
+
+    bar.style.width = "0%";
+
+    track.appendChild(bar);
+    item.append(heading, track);
+
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            bar.style.width = percentage + "%";
+        }, index * 120);
+    });
+
+    return item;
+}
+
+// ======================================
+// CLASSIFY IMAGE
+// ======================================
+
+classifyBtn.addEventListener("click", async function () {
+
+    if (!selectedImage || !model) return;
+
+    try {
+
+        classifyBtn.disabled = true;
+        classifyBtn.textContent = "Scanning Image...";
+
+        categoryStatus.textContent = "Analyzing your image...";
+
+        askBtn.hidden = true;
+        askBtn.disabled = true;
+
+        stopSpeech();
+
+        const results = await model.predict(preview);
+
+        results.sort((a, b) => b.probability - a.probability);
+
+        predictedCategory =
+            results[0].className.trim().toUpperCase();
+
+        predictionsBox.innerHTML = "";
+        predictionsBox.hidden = false;
+
+        results.forEach((result, index) => {
+            predictionsBox.appendChild(
+                createConfidenceBar(result, index)
+            );
+        });
+
+        categoryStatus.textContent =
+            "Predicted category: " + predictedCategory;
+
+        askBtn.hidden = false;
+        askBtn.disabled = false;
+
+    } catch (error) {
+
+        console.error("Classification error:", error);
+
+        categoryStatus.textContent =
+            "Classification failed. Please try again.";
+
+    } finally {
+
+        classifyBtn.disabled = !model || !selectedImage;
+        classifyBtn.textContent = "Identify Image";
+    }
+});
+
+// ======================================
 // GET CATEGORY INFORMATION
-// ==========================================
+// ======================================
 
 askBtn.addEventListener("click", function () {
 
-  if (!predictedCategory) return;
+    if (!predictedCategory) return;
 
-  stopSpeech();
+    const information = informationLibrary[predictedCategory];
 
-  const information =
-    informationLibrary[predictedCategory];
+    if (!information) {
+        alert("Information for this category is not available.");
+        return;
+    }
 
-  if (!information) {
+    stopSpeech();
 
-    alert("Information for this category is not available.");
+    currentInformation = information;
 
-    return;
-  }
+    displayInformation(information);
 
-  currentInformation = information;
+    promptBox.hidden = false;
 
-  displayInformation(information);
+    copyBtn.hidden = false;
+    openChatGPTBtn.hidden = false;
+    removeBtn.hidden = false;
 
-  promptBox.hidden = false;
+    copyStatus.textContent = "";
 
-  copyBtn.hidden = false;
+    speakInformation(information);
 
-  copyStatus.textContent = "";
-
-  speakInformation(information);
-
-  promptBox.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
+    promptBox.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 });
 
-// ==========================================
+// ======================================
 // COPY INFORMATION
-// ==========================================
+// ======================================
 
 copyBtn.addEventListener("click", async function () {
 
-  try {
+    try {
 
-    await navigator.clipboard.writeText(currentInformation);
+        await navigator.clipboard.writeText(currentInformation);
 
-    copyStatus.textContent =
-      "Information copied successfully!";
+        copyStatus.textContent =
+            "Information copied successfully!";
 
-  } catch (error) {
+    } catch (error) {
 
-    copyStatus.textContent =
-      "Unable to copy. Please try again.";
-
-  }
-
+        copyStatus.textContent =
+            "Unable to copy. Please try again.";
+    }
 });
 
-// ==========================================
+// ======================================
 // OPEN CHATGPT
-// ==========================================
+// ======================================
 
 openChatGPTBtn.addEventListener("click", function () {
 
-  if (!predictedCategory) return;
+    if (!predictedCategory) return;
 
-  const prompt = `
+    const prompt = `
 My Teachable Machine image classifier predicted the category "${predictedCategory}".
 
-Please provide a detailed educational explanation of this category, including:
+Explain only this category with:
 1. Overview
 2. Key characteristics
 3. Uses and importance
 4. Origin and history
 5. Five interesting facts
 
-Do not identify or inspect any image. Explain only the named category.
+Do not inspect or identify any image.
 `;
 
-  const chatGPTURL =
-    "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+    const chatGPTURL =
+        "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
 
-  window.open(chatGPTURL, "_blank");
-
+    window.open(chatGPTURL, "_blank");
 });
 
-// ==========================================
+// ======================================
 // REMOVE IMAGE
-// ==========================================
+// ======================================
 
 removeBtn.addEventListener("click", function () {
 
-  stopSpeech();
+    stopSpeech();
 
-  selectedImage = null;
-  predictedCategory = "";
-  currentInformation = "";
+    selectedImage = null;
+    predictedCategory = "";
+    currentInformation = "";
 
-  if (imageObjectURL) {
+    if (imageObjectURL) {
+        URL.revokeObjectURL(imageObjectURL);
+        imageObjectURL = null;
+    }
 
-    URL.revokeObjectURL(imageObjectURL);
+    fileInput.value = "";
+    preview.src = "";
 
-    imageObjectURL = null;
+    previewBox.hidden = true;
 
-  }
+    fileStatus.textContent = "No image selected.";
 
-  fileInput.value = "";
+    predictionsBox.innerHTML = "";
+    predictionsBox.hidden = true;
 
-  preview.src = "";
+    promptBox.hidden = true;
+    informationBox.innerHTML = "";
 
-  previewBox.hidden = true;
+    categoryStatus.textContent = "Select an image to begin.";
 
-  fileStatus.textContent = "No image selected.";
+    askBtn.hidden = true;
+    askBtn.disabled = true;
 
-  predictionsBox.innerHTML = "";
+    classifyBtn.disabled = true;
 
-  predictionsBox.hidden = true;
+    copyBtn.hidden = true;
+    openChatGPTBtn.hidden = true;
+    removeBtn.hidden = true;
 
-  promptBox.hidden = true;
-
-  informationBox.innerHTML = "";
-
-  categoryStatus.textContent =
-    "Select an image to begin.";
-
-  askBtn.hidden = true;
-
-  askBtn.disabled = true;
-
-  classifyBtn.disabled = true;
-
-  copyBtn.hidden = true;
-
-  copyStatus.textContent = "";
-
+    copyStatus.textContent = "";
 });
 
-// ==========================================
+// ======================================
 // INITIALIZE WEBSITE
-// ==========================================
+// ======================================
 
 setupTheme();
-
 setupPlantOfTheDay();
-
+setupActionButtons();
 loadModel();
