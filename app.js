@@ -1,6 +1,5 @@
 // ============================================
 // MEDICINAL PLANTS EXPLORER
-// 20-CATEGORY TEACHABLE MACHINE MODEL
 // ============================================
 
 const MODEL_URL =
@@ -9,6 +8,7 @@ const MODEL_URL =
 let model = null;
 let selectedImage = false;
 let currentPlant = null;
+
 
 // ============================================
 // PLANT INFORMATION DATABASE
@@ -21,7 +21,7 @@ const plantInformation = {
     family: "Lamiaceae",
     type: "Aromatic herb",
     overview: "Mint is a widely cultivated aromatic herb valued for its refreshing smell and cooling taste. Different species grow in temperate and subtropical regions. It is commonly grown in home gardens and commercial herb farms.",
-    appearance: "Mint has green, usually opposite leaves with serrated edges and a wrinkled surface. It produces small flowers in clusters and spreads through underground stems or creeping stems in many species.",
+    appearance: "Mint has green, usually opposite leaves with serrated edges and a wrinkled surface. It produces small flowers in clusters and spreads through underground or creeping stems in many species.",
     parts: "Leaves and essential oil.",
     uses: "Mint leaves are used in chutneys, salads, sauces, teas, beverages and other dishes. Mint oil is also used in flavoring, oral-care products and fragrances.",
     facts: [
@@ -355,6 +355,7 @@ const plantInformation = {
       "It is one of the well-known plants in Indian traditional medicine."
     ]
   }
+
 };
 
 
@@ -416,7 +417,92 @@ function setupTheme() {
 
     themeBtn.textContent =
       isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+
   });
+}
+
+
+// ============================================
+// DAILY MEDICINAL PLANT
+// ============================================
+
+function setupPlantOfTheDay() {
+
+  const welcomeSection =
+    document.querySelector(".welcome-section");
+
+  if (!welcomeSection ||
+      document.getElementById("plantOfTheDay")) {
+    return;
+  }
+
+  const plantNames = Object.keys(plantInformation);
+
+  const today = new Date();
+
+  const dateKey =
+    today.getFullYear() * 10000 +
+    (today.getMonth() + 1) * 100 +
+    today.getDate();
+
+  const plantIndex = dateKey % plantNames.length;
+
+  const plantName = plantNames[plantIndex];
+
+  const plant = plantInformation[plantName];
+
+  const card = document.createElement("section");
+
+  card.id = "plantOfTheDay";
+  card.className = "plant-day-card";
+
+  const label = document.createElement("p");
+
+  label.className = "plant-day-label";
+  label.textContent = "🌿 PLANT OF THE DAY";
+
+  const heading = document.createElement("h2");
+
+  heading.textContent = plantName;
+
+  const scientific = document.createElement("p");
+
+  scientific.className = "plant-day-scientific";
+  scientific.textContent = plant.scientific;
+
+  const description = document.createElement("p");
+
+  description.textContent = plant.overview;
+
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.textContent = "Explore This Plant";
+
+  button.addEventListener("click", () => {
+
+    currentPlant = plantName;
+
+    displayPlantInformation(plantName);
+
+    promptBox.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  });
+
+  card.appendChild(label);
+  card.appendChild(heading);
+  card.appendChild(scientific);
+  card.appendChild(description);
+  card.appendChild(button);
+
+  welcomeSection.insertAdjacentElement(
+    "afterend",
+    card
+  );
+
 }
 
 
@@ -439,11 +525,12 @@ function setupActionButtons() {
   wrapper.appendChild(copyBtn);
   wrapper.appendChild(openChatGPTBtn);
   wrapper.appendChild(removeBtn);
+
 }
 
 
 // ============================================
-// LOAD MODEL
+// LOAD TEACHABLE MACHINE MODEL
 // ============================================
 
 async function loadModel() {
@@ -471,7 +558,9 @@ async function loadModel() {
       "❌ Model could not load. Please refresh the website.";
 
     classifyBtn.disabled = true;
+
   }
+
 }
 
 
@@ -487,9 +576,11 @@ fileInput.addEventListener("change", (event) => {
 
   if (!file.type.startsWith("image/")) {
 
-    fileStatus.textContent = "Please select a valid image.";
+    fileStatus.textContent =
+      "Please select a valid image.";
 
     return;
+
   }
 
   selectedImage = true;
@@ -499,19 +590,26 @@ fileInput.addEventListener("change", (event) => {
   reader.onload = (e) => {
 
     preview.src = e.target.result;
+
     previewBox.hidden = false;
 
-    fileStatus.textContent = "Image uploaded successfully.";
+    fileStatus.textContent =
+      "Image uploaded successfully.";
 
     predictionsBox.innerHTML = "";
+
     categoryStatus.textContent = "";
+
     promptBox.hidden = true;
+
     askBtn.hidden = true;
 
     classifyBtn.disabled = !model;
+
   };
 
   reader.readAsDataURL(file);
+
 });
 
 
@@ -533,25 +631,32 @@ function displayPredictions(predictions) {
       (prediction.probability * 100).toFixed(1);
 
     const item = document.createElement("div");
+
     item.className = "confidence-item";
 
     const label = document.createElement("div");
+
     label.className = "confidence-label";
 
     const name = document.createElement("span");
+
     name.textContent = prediction.className;
 
     const score = document.createElement("span");
+
     score.textContent = percentage + "%";
 
     label.appendChild(name);
     label.appendChild(score);
 
     const track = document.createElement("div");
+
     track.className = "confidence-track";
 
     const fill = document.createElement("div");
+
     fill.className = "confidence-fill";
+
     fill.style.width = "0%";
 
     track.appendChild(fill);
@@ -562,22 +667,26 @@ function displayPredictions(predictions) {
     predictionsBox.appendChild(item);
 
     requestAnimationFrame(() => {
+
       fill.style.width = percentage + "%";
+
     });
 
   });
 
   return sorted;
+
 }
 
 
 // ============================================
-// VOICE CONTROL BUTTONS
+// VOICE CONTROLS
 // ============================================
 
 function createSpeechControls() {
 
-  let controls = document.getElementById("speechControls");
+  let controls =
+    document.getElementById("speechControls");
 
   if (controls) return controls;
 
@@ -587,16 +696,19 @@ function createSpeechControls() {
   controls.className = "speech-controls";
 
   const pauseBtn = document.createElement("button");
+
   pauseBtn.id = "pauseSpeech";
   pauseBtn.type = "button";
   pauseBtn.textContent = "⏸ Pause";
 
   const resumeBtn = document.createElement("button");
+
   resumeBtn.id = "resumeSpeech";
   resumeBtn.type = "button";
   resumeBtn.textContent = "▶ Resume";
 
   const stopBtn = document.createElement("button");
+
   stopBtn.id = "stopSpeech";
   stopBtn.type = "button";
   stopBtn.textContent = "⏹ Stop";
@@ -639,6 +751,7 @@ function createSpeechControls() {
   });
 
   return controls;
+
 }
 
 
@@ -660,34 +773,52 @@ function displayPlantInformation(plantName) {
     promptBox.hidden = false;
 
     return;
+
   }
 
   function addSection(title, text) {
 
     const titleElement = document.createElement("h3");
+
     titleElement.textContent = title;
 
     const paragraph = document.createElement("p");
+
     paragraph.textContent = text;
 
     informationBox.appendChild(titleElement);
     informationBox.appendChild(paragraph);
+
   }
 
   const heading = document.createElement("h2");
+
   heading.textContent = plantName;
 
   informationBox.appendChild(heading);
 
   addSection("Scientific Name", info.scientific);
+
   addSection("Family", info.family);
+
   addSection("Plant Type", info.type);
+
   addSection("Overview", info.overview);
-  addSection("Appearance and Characteristics", info.appearance);
+
+  addSection(
+    "Appearance and Characteristics",
+    info.appearance
+  );
+
   addSection("Parts Used", info.parts);
-  addSection("Traditional Importance and Common Uses", info.uses);
+
+  addSection(
+    "Traditional Importance and Common Uses",
+    info.uses
+  );
 
   const factsHeading = document.createElement("h3");
+
   factsHeading.textContent = "Five Interesting Facts";
 
   informationBox.appendChild(factsHeading);
@@ -697,6 +828,7 @@ function displayPlantInformation(plantName) {
   info.facts.forEach((fact) => {
 
     const item = document.createElement("li");
+
     item.textContent = fact;
 
     list.appendChild(item);
@@ -705,7 +837,7 @@ function displayPlantInformation(plantName) {
 
   informationBox.appendChild(list);
 
-  // DISCLAIMER IS ALWAYS THE LAST INFORMATION SECTION
+  // DISCLAIMER AT THE VERY BOTTOM
 
   const disclaimer = document.createElement("div");
 
@@ -713,7 +845,8 @@ function displayPlantInformation(plantName) {
 
   const disclaimerHeading = document.createElement("h3");
 
-  disclaimerHeading.textContent = "Important Medical Disclaimer";
+  disclaimerHeading.textContent =
+    "Important Medical Disclaimer";
 
   const disclaimerText = document.createElement("p");
 
@@ -721,6 +854,7 @@ function displayPlantInformation(plantName) {
     "This website provides educational information only and is not a substitute for professional medical advice. Traditional uses do not establish that a plant can treat or cure a disease. Plants and their extracts may cause side effects or interact with medicines. Do not consume, apply or use any medicinal plant as a treatment without first consulting a qualified healthcare professional or your doctor.";
 
   disclaimer.appendChild(disclaimerHeading);
+
   disclaimer.appendChild(disclaimerText);
 
   informationBox.appendChild(disclaimer);
@@ -728,6 +862,7 @@ function displayPlantInformation(plantName) {
   createSpeechControls();
 
   promptBox.hidden = false;
+
 }
 
 
@@ -742,6 +877,7 @@ classifyBtn.addEventListener("click", async () => {
   try {
 
     classifyBtn.disabled = true;
+
     classifyBtn.textContent = "Scanning...";
 
     predictionsBox.innerHTML =
@@ -750,15 +886,20 @@ classifyBtn.addEventListener("click", async () => {
     categoryStatus.textContent = "";
 
     promptBox.hidden = true;
+
     askBtn.hidden = true;
 
     if ("speechSynthesis" in window) {
+
       window.speechSynthesis.cancel();
+
     }
 
-    const predictions = await model.predict(preview);
+    const predictions =
+      await model.predict(preview);
 
-    const sorted = displayPredictions(predictions);
+    const sorted =
+      displayPredictions(predictions);
 
     currentPlant = sorted[0].className;
 
@@ -777,6 +918,7 @@ classifyBtn.addEventListener("click", async () => {
   } finally {
 
     classifyBtn.disabled = false;
+
     classifyBtn.textContent = "Identify Plant";
 
   }
@@ -836,7 +978,8 @@ openChatGPTBtn.addEventListener("click", () => {
     "\n\nAvoid unsupported medical claims.";
 
   const url =
-    "https://chatgpt.com/?q=" + encodeURIComponent(text);
+    "https://chatgpt.com/?q=" +
+    encodeURIComponent(text);
 
   window.open(url, "_blank");
 
@@ -850,57 +993,23 @@ openChatGPTBtn.addEventListener("click", () => {
 removeBtn.addEventListener("click", () => {
 
   if ("speechSynthesis" in window) {
+
     window.speechSynthesis.cancel();
+
   }
 
   fileInput.value = "";
+
   preview.src = "";
 
   selectedImage = false;
+
   currentPlant = null;
 
   previewBox.hidden = true;
+
   promptBox.hidden = true;
+
   askBtn.hidden = true;
 
-  predictionsBox.innerHTML = "";
-  categoryStatus.textContent = "";
-  fileStatus.textContent = "";
-  copyStatus.textContent = "";
-
-  classifyBtn.disabled = true;
-
-});
-
-
-// ============================================
-// VOICE NARRATION
-// ============================================
-
-function speakInformation() {
-
-  if (!("speechSynthesis" in window)) return;
-
-  window.speechSynthesis.cancel();
-
-  const speech = new SpeechSynthesisUtterance(
-    informationBox.innerText
-  );
-
-  speech.rate = 0.95;
-  speech.pitch = 1;
-
-  window.speechSynthesis.speak(speech);
-
-}
-
-
-// ============================================
-// INITIALIZE WEBSITE
-// ============================================
-
-setupTheme();
-
-setupActionButtons();
-
-loadModel();
+  predictionsBox.inner
