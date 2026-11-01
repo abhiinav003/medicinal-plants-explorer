@@ -37,6 +37,8 @@ html {
 
 body {
     margin: 0;
+    position: relative;
+    isolation: isolate;
     background:
         radial-gradient(ellipse at 10% 20%, rgba(179, 216, 176, 0.2), transparent 35%),
         radial-gradient(ellipse at 90% 75%, rgba(179, 216, 176, 0.2), transparent 35%),
@@ -55,11 +57,17 @@ body::before,
 body::after {
     content: "🌿";
     position: fixed;
-    z-index: -1;
+    z-index: 0;
     font-size: 125px;
     opacity: 0.09;
     pointer-events: none;
     animation: floatingLeaf 8s ease-in-out infinite;
+}
+
+/* Keep website content above the floating leaves */
+body > * {
+    position: relative;
+    z-index: 1;
 }
 
 body::before {
@@ -75,10 +83,20 @@ body::after {
     animation-delay: 2s;
 }
 
+/* Make floating leaves visible in dark mode too */
+:root[data-theme="dark"] body::before,
+:root[data-theme="dark"] body::after,
+body.dark-mode::before,
+body.dark-mode::after {
+    opacity: 0.17;
+    filter: brightness(1.35) saturate(1.15);
+}
+
 @keyframes floatingLeaf {
     0%, 100% {
         translate: 0 0;
     }
+
     50% {
         translate: 0 -15px;
     }
@@ -376,6 +394,43 @@ button:disabled {
 
 #information ul {
     padding-left: 25px;
+}
+
+/* =========================================
+   DARK MODE INFORMATION READABILITY
+========================================= */
+
+/* Support both theme methods used by the website */
+:root[data-theme="dark"] #information h2,
+:root[data-theme="dark"] #information h3,
+:root[data-theme="dark"] #information h4,
+body.dark-mode #information h2,
+body.dark-mode #information h3,
+body.dark-mode #information h4 {
+    color: #a9dfb5 !important;
+}
+
+:root[data-theme="dark"] #information p,
+:root[data-theme="dark"] #information li,
+:root[data-theme="dark"] #information span,
+:root[data-theme="dark"] #information strong,
+:root[data-theme="dark"] #information em,
+body.dark-mode #information p,
+body.dark-mode #information li,
+body.dark-mode #information span,
+body.dark-mode #information strong,
+body.dark-mode #information em {
+    color: #e5eee7 !important;
+}
+
+:root[data-theme="dark"] #information ul,
+body.dark-mode #information ul {
+    color: #e5eee7 !important;
+}
+
+:root[data-theme="dark"] #information hr,
+body.dark-mode #information hr {
+    border-color: #60796a !important;
 }
 
 /* =========================================
