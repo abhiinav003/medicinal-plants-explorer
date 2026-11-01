@@ -1,6 +1,7 @@
 // ======================================
 // MEDICINAL PLANTS EXPLORER
 // DOGS & CATS TESTING VERSION
+// PREMIUM BOTANICAL FEATURES
 // ======================================
 
 // MODEL CONFIGURATION
@@ -125,7 +126,7 @@ Dogs descended from ancient wolf populations. Their domestication began at least
 };
 
 // ======================================
-// SIMPLE MARKDOWN DISPLAY
+// INFORMATION DISPLAY
 // ======================================
 
 function displayInformation(text) {
@@ -134,6 +135,7 @@ function displayInformation(text) {
 
   let html = "";
   let inList = false;
+  let inOrderedList = false;
 
   lines.forEach(line => {
 
@@ -148,6 +150,11 @@ function displayInformation(text) {
         inList = false;
       }
 
+      if (inOrderedList) {
+        html += "</ol>";
+        inOrderedList = false;
+      }
+
       html += `<h2>${trimmed.substring(2)}</h2>`;
 
     } else if (trimmed.startsWith("## ")) {
@@ -157,9 +164,19 @@ function displayInformation(text) {
         inList = false;
       }
 
+      if (inOrderedList) {
+        html += "</ol>";
+        inOrderedList = false;
+      }
+
       html += `<h3>${trimmed.substring(3)}</h3>`;
 
     } else if (trimmed.startsWith("- ")) {
+
+      if (inOrderedList) {
+        html += "</ol>";
+        inOrderedList = false;
+      }
 
       if (!inList) {
         html += "<ul>";
@@ -175,7 +192,12 @@ function displayInformation(text) {
         inList = false;
       }
 
-      html += `<p>${trimmed}</p>`;
+      if (!inOrderedList) {
+        html += "<ol>";
+        inOrderedList = true;
+      }
+
+      html += `<li>${trimmed.replace(/^\d+\.\s/, "")}</li>`;
 
     } else {
 
@@ -184,15 +206,19 @@ function displayInformation(text) {
         inList = false;
       }
 
+      if (inOrderedList) {
+        html += "</ol>";
+        inOrderedList = false;
+      }
+
       html += `<p>${trimmed}</p>`;
 
     }
 
   });
 
-  if (inList) {
-    html += "</ul>";
-  }
+  if (inList) html += "</ul>";
+  if (inOrderedList) html += "</ol>";
 
   informationBox.innerHTML = html;
 
@@ -205,6 +231,7 @@ function displayInformation(text) {
 function setupTheme() {
 
   const header = document.querySelector("header");
+
   if (!header) return;
 
   const themeButton = document.createElement("button");
@@ -252,92 +279,6 @@ function setupTheme() {
 }
 
 // ======================================
-// PLANT OF THE DAY
-// ======================================
-
-function setupPlantOfTheDay() {
-
-  const main = document.querySelector("main");
-  if (!main) return;
-
-  const plants = [
-    {
-      name: "Tulsi",
-      scientific: "Ocimum tenuiflorum",
-      fact: "Tulsi is an aromatic plant widely grown in Indian households."
-    },
-    {
-      name: "Neem",
-      scientific: "Azadirachta indica",
-      fact: "Neem is an evergreen tree native to the Indian subcontinent."
-    },
-    {
-      name: "Aloe Vera",
-      scientific: "Aloe barbadensis miller",
-      fact: "Aloe vera is a succulent plant known for its thick leaves."
-    },
-    {
-      name: "Mint",
-      scientific: "Mentha",
-      fact: "Mint plants are known for their refreshing aroma."
-    },
-    {
-      name: "Turmeric",
-      scientific: "Curcuma longa",
-      fact: "Turmeric is a tropical plant whose rhizome is widely used as a spice."
-    },
-    {
-      name: "Ginger",
-      scientific: "Zingiber officinale",
-      fact: "Ginger is cultivated for its aromatic rhizome."
-    },
-    {
-      name: "Ashwagandha",
-      scientific: "Withania somnifera",
-      fact: "Ashwagandha is a plant native to parts of Asia and Africa."
-    }
-  ];
-
-  const today = new Date();
-
-  const dayNumber = Math.floor(
-    Date.UTC(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate()
-    ) / 86400000
-  );
-
-  const plant = plants[
-    ((dayNumber % plants.length) + plants.length) %
-    plants.length
-  ];
-
-  const plantCard = document.createElement("section");
-
-  plantCard.className = "card plant-day-card";
-
-  plantCard.innerHTML = `
-    <div class="plant-day-icon">🌿</div>
-    <div class="plant-day-content">
-      <span class="plant-day-label">TODAY'S FEATURED PLANT</span>
-      <h2>${plant.name}</h2>
-      <p class="plant-scientific">${plant.scientific}</p>
-      <p>${plant.fact}</p>
-    </div>
-  `;
-
-  const welcome = main.querySelector(".welcome-section");
-
-  if (welcome) {
-    welcome.insertAdjacentElement("afterend", plantCard);
-  } else {
-    main.prepend(plantCard);
-  }
-
-}
-
-// ======================================
 // VOICE CONTROLS
 // ======================================
 
@@ -347,9 +288,9 @@ speechControls.className = "speech-controls";
 speechControls.hidden = true;
 
 speechControls.innerHTML = `
-  <button type="button" id="speakPause">Pause</button>
-  <button type="button" id="speakResume">Resume</button>
-  <button type="button" id="speakStop">Stop</button>
+  <button type="button" id="speakPause">⏸ Pause</button>
+  <button type="button" id="speakResume">▶ Resume</button>
+  <button type="button" id="speakStop">⏹ Stop</button>
   <p id="speechStatus" aria-live="polite"></p>
 `;
 
@@ -371,7 +312,6 @@ function stopSpeech() {
   }
 
   speechControls.hidden = true;
-
   speechStatus.textContent = "";
 
 }
@@ -380,14 +320,19 @@ function stopSpeech() {
 
 function speakInformation(text) {
 
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window)) {
+    speechStatus.textContent =
+      "Voice reading is not supported in this browser.";
+    return;
+  }
 
   window.speechSynthesis.cancel();
 
   const cleanText = text
     .replace(/^#+\s*/gm, "")
     .replace(/[*_`]/g, "")
-    .replace(/[-•]/g, "");
+    .replace(/[-•]/g, "")
+    .replace(/^\d+\.\s*/gm, "");
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
 
@@ -415,13 +360,21 @@ function speakInformation(text) {
 }
 
 pauseSpeechBtn.addEventListener("click", () => {
-  window.speechSynthesis.pause();
-  speechStatus.textContent = "Speech paused.";
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.pause();
+    speechStatus.textContent = "Speech paused.";
+  }
+
 });
 
 resumeSpeechBtn.addEventListener("click", () => {
-  window.speechSynthesis.resume();
-  speechStatus.textContent = "Resuming speech...";
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.resume();
+    speechStatus.textContent = "Resuming speech...";
+  }
+
 });
 
 stopSpeechBtn.addEventListener("click", stopSpeech);
@@ -467,12 +420,16 @@ async function loadModel() {
 fileInput.addEventListener("change", function () {
 
   const file = this.files[0];
+
   if (!file) return;
 
   if (!file.type.startsWith("image/")) {
+
     alert("Please select a valid image.");
+
     fileInput.value = "";
     return;
+
   }
 
   stopSpeech();
@@ -492,12 +449,13 @@ fileInput.addEventListener("change", function () {
   askBtn.hidden = true;
   askBtn.disabled = true;
 
-  classifyBtn.disabled = !model;
+  classifyBtn.disabled = true;
 
   predictionsBox.innerHTML = "";
   predictionsBox.hidden = true;
 
-  categoryStatus.textContent = "Image selected. Ready to classify.";
+  categoryStatus.textContent =
+    "Image selected. Ready to classify.";
 
   promptBox.hidden = true;
   informationBox.innerHTML = "";
@@ -506,13 +464,17 @@ fileInput.addEventListener("change", function () {
   copyStatus.textContent = "";
 
   preview.onload = () => {
+
     previewBox.hidden = false;
     classifyBtn.disabled = !model;
+
   };
 
   preview.onerror = () => {
+
     fileStatus.textContent = "Unable to display this image.";
     classifyBtn.disabled = true;
+
   };
 
   preview.src = imageObjectURL;
@@ -520,41 +482,54 @@ fileInput.addEventListener("change", function () {
 });
 
 // ======================================
-// CONFIDENCE BARS
+// ANIMATED CONFIDENCE GRAPHS
 // ======================================
 
 function createConfidenceBar(result, index) {
 
-  const percentage = (result.probability * 100).toFixed(1);
+  const percentage =
+    (result.probability * 100).toFixed(1);
 
   const item = document.createElement("div");
+
   item.className = "confidence-item";
 
   const heading = document.createElement("div");
+
   heading.className = "confidence-heading";
 
   const category = document.createElement("span");
+
   category.textContent = result.className;
 
   const value = document.createElement("strong");
+
   value.textContent = percentage + "%";
 
   heading.append(category, value);
 
   const track = document.createElement("div");
+
   track.className = "confidence-track";
 
   const bar = document.createElement("div");
+
   bar.className = "confidence-fill";
+
   bar.style.width = "0%";
 
   track.appendChild(bar);
+
   item.append(heading, track);
 
   requestAnimationFrame(() => {
+
     setTimeout(() => {
+
       bar.style.width = percentage + "%";
-    }, index * 120);
+
+    }, index * 150);
+
   });
 
   return item;
@@ -574,7 +549,8 @@ classifyBtn.addEventListener("click", async function () {
     classifyBtn.disabled = true;
     classifyBtn.textContent = "Scanning Image...";
 
-    categoryStatus.textContent = "Analyzing your image...";
+    categoryStatus.textContent =
+      "Analyzing your image...";
 
     askBtn.hidden = true;
     askBtn.disabled = true;
@@ -585,24 +561,26 @@ classifyBtn.addEventListener("click", async function () {
 
     results.sort((a, b) => b.probability - a.probability);
 
-    predictedCategory = results[0].className.trim().toUpperCase();
+    predictedCategory =
+      results[0].className.trim().toUpperCase();
 
     predictionsBox.innerHTML = "";
     predictionsBox.hidden = false;
 
     results.forEach((result, index) => {
+
       predictionsBox.appendChild(
         createConfidenceBar(result, index)
       );
+
     });
 
     categoryStatus.textContent =
       "Predicted category: " + predictedCategory;
 
-    // RESTORE INFORMATION BUTTON
-
     askBtn.hidden = false;
     askBtn.disabled = false;
+
     askBtn.textContent = "✨ Get AI Information";
 
   } catch (error) {
@@ -630,9 +608,8 @@ askBtn.addEventListener("click", function () {
 
   if (!predictedCategory) return;
 
-  stopSpeech();
-
-  const information = informationLibrary[predictedCategory];
+  const information =
+    informationLibrary[predictedCategory];
 
   if (!information) {
 
@@ -640,6 +617,8 @@ askBtn.addEventListener("click", function () {
     return;
 
   }
+
+  stopSpeech();
 
   currentInformation = information;
 
@@ -651,14 +630,12 @@ askBtn.addEventListener("click", function () {
 
   copyStatus.textContent = "";
 
-  speechControls.hidden = false;
-
-  speakInformation(information);
-
   promptBox.scrollIntoView({
     behavior: "smooth",
     block: "start"
   });
+
+  speakInformation(information);
 
 });
 
@@ -672,7 +649,8 @@ copyBtn.addEventListener("click", async function () {
 
     await navigator.clipboard.writeText(currentInformation);
 
-    copyStatus.textContent = "Information copied successfully!";
+    copyStatus.textContent =
+      "Information copied successfully!";
 
   } catch (error) {
 
@@ -724,8 +702,10 @@ removeBtn.addEventListener("click", function () {
   currentInformation = "";
 
   if (imageObjectURL) {
+
     URL.revokeObjectURL(imageObjectURL);
     imageObjectURL = null;
+
   }
 
   fileInput.value = "";
@@ -741,7 +721,8 @@ removeBtn.addEventListener("click", function () {
   promptBox.hidden = true;
   informationBox.innerHTML = "";
 
-  categoryStatus.textContent = "Select an image to begin.";
+  categoryStatus.textContent =
+    "Select an image to begin.";
 
   askBtn.hidden = true;
   askBtn.disabled = true;
@@ -758,5 +739,4 @@ removeBtn.addEventListener("click", function () {
 // ======================================
 
 setupTheme();
-setupPlantOfTheDay();
 loadModel();
