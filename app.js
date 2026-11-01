@@ -1,6 +1,6 @@
 /* =========================================
    MEDICINAL PLANTS EXPLORER
-   Complete JavaScript
+   Complete app.js
 ========================================= */
 
 const MODEL_URL = "https://teachablemachine.withgoogle.com/models/j0LiEqAHw/";
@@ -8,6 +8,8 @@ const MODEL_URL = "https://teachablemachine.withgoogle.com/models/j0LiEqAHw/";
 let model = null;
 let selectedImage = null;
 let currentPlant = null;
+let speechUtterance = null;
+
 
 /* =========================================
    PLANT INFORMATION
@@ -316,42 +318,20 @@ const chatGPTButton = document.getElementById("openChatGPT");
 
 function setupPlantOfTheDay() {
     const plants = [
-        "Mint",
-        "Turmeric",
-        "Tulsi",
-        "Neem",
-        "Aloevera",
-        "Ginger",
-        "Garlic",
-        "Curry",
-        "Rosemary",
-        "Lavender",
-        "Chamomile",
-        "Aamla",
-        "Brahmi",
-        "Moringa",
-        "Lemongrass",
-        "Eucalyptus",
-        "Cinnamon",
-        "Clove",
-        "Hibiscus",
-        "Gotu Kola",
-        "Ashwagandha"
+        "Mint", "Turmeric", "Tulsi", "Neem", "Aloevera",
+        "Ginger", "Garlic", "Curry", "Rosemary", "Lavender",
+        "Chamomile", "Aamla", "Brahmi", "Moringa",
+        "Lemongrass", "Eucalyptus", "Cinnamon", "Clove",
+        "Hibiscus", "Gotu Kola", "Ashwagandha"
     ];
 
     const today = new Date();
 
     const todayNumber = Math.floor(
-        Date.UTC(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-        ) / 86400000
+        Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86400000
     );
 
-    const startNumber = Math.floor(
-        Date.UTC(2026, 0, 1) / 86400000
-    );
+    const startNumber = Math.floor(Date.UTC(2026, 0, 1) / 86400000);
 
     const daysPassed = todayNumber - startNumber;
 
@@ -370,40 +350,17 @@ function setupPlantOfTheDay() {
     if (!card) {
         card = document.createElement("section");
         card.id = "plantOfTheDay";
-
-        Object.assign(card.style, {
-            background: "rgba(255,255,255,0.94)",
-            color: "#304638",
-            padding: "28px",
-            margin: "25px 0",
-            borderRadius: "30px",
-            boxShadow: "0 8px 28px rgba(40,80,50,0.10)",
-            border: "1px solid #e1eae0",
-            position: "relative",
-            zIndex: "2"
-        });
+        card.className = "plant-day-card";
 
         welcome.insertAdjacentElement("afterend", card);
     }
 
     card.innerHTML = `
-        <div style="font-size:30px;">🌿</div>
-
-        <p style="font-size:17px; margin:8px 0;">
-            TODAY'S FEATURED PLANT
-        </p>
-
-        <h2 style="font-size:30px; margin:8px 0;">
-            ${plantName}
-        </h2>
-
-        <p style="font-size:20px; margin:4px 0;">
-            <em>${plant.scientific}</em>
-        </p>
-
-        <p style="font-size:17px;">
-            ${plant.overview}
-        </p>
+        <div class="plant-day-icon">🌿</div>
+        <p class="plant-day-label">TODAY'S FEATURED PLANT</p>
+        <h2>${plantName}</h2>
+        <p class="plant-day-scientific"><em>${plant.scientific}</em></p>
+        <p class="plant-day-description">${plant.overview}</p>
     `;
 }
 
@@ -421,28 +378,15 @@ function setupTheme() {
 
     button.id = "themeToggle";
     button.type = "button";
-
-    Object.assign(button.style, {
-        display: "block",
-        margin: "15px auto 0",
-        background: "rgba(255,255,255,0.2)",
-        border: "1px solid rgba(255,255,255,0.4)"
-    });
+    button.style.display = "block";
+    button.style.margin = "15px auto 0";
 
     header.appendChild(button);
 
     function applyTheme(dark) {
         document.body.classList.toggle("dark-mode", dark);
 
-        if (dark) {
-            document.body.style.background = "#17251d";
-            document.body.style.color = "#e7eee8";
-            button.textContent = "☀️ Light Mode";
-        } else {
-            document.body.style.background = "";
-            document.body.style.color = "";
-            button.textContent = "🌙 Dark Mode";
-        }
+        button.textContent = dark ? "☀️ Light Mode" : "🌙 Dark Mode";
 
         document.querySelectorAll(".card").forEach(card => {
             card.style.background = dark ? "#26372d" : "";
@@ -452,17 +396,17 @@ function setupTheme() {
         const dailyCard = document.getElementById("plantOfTheDay");
 
         if (dailyCard) {
-            dailyCard.style.background = dark ? "#26372d" : "rgba(255,255,255,0.94)";
-            dailyCard.style.color = dark ? "#e7eee8" : "#304638";
-            dailyCard.style.borderColor = dark ? "#405748" : "#e1eae0";
+            dailyCard.style.background = dark ? "#26372d" : "";
+            dailyCard.style.color = dark ? "#e7eee8" : "";
         }
+
+        document.body.style.background = dark ? "#17251d" : "";
+        document.body.style.color = dark ? "#e7eee8" : "";
 
         localStorage.setItem("plantExplorerDarkMode", dark ? "true" : "false");
     }
 
-    const savedTheme = localStorage.getItem("plantExplorerDarkMode") === "true";
-
-    applyTheme(savedTheme);
+    applyTheme(localStorage.getItem("plantExplorerDarkMode") === "true");
 
     button.addEventListener("click", () => {
         applyTheme(!document.body.classList.contains("dark-mode"));
@@ -489,7 +433,6 @@ async function loadModel() {
 
     } catch (error) {
         console.error(error);
-
         modelStatus.textContent =
             "Unable to load the AI model. Please refresh and try again.";
     }
@@ -528,6 +471,8 @@ fileInput.addEventListener("change", function(event) {
         categoryStatus.textContent = "";
         askButton.hidden = true;
         promptBox.hidden = true;
+
+        speechSynthesis.cancel();
     };
 
     reader.readAsDataURL(file);
@@ -548,7 +493,6 @@ classifyButton.addEventListener("click", async function() {
 
     try {
         const image = new Image();
-
         image.src = preview.src;
 
         await new Promise((resolve, reject) => {
@@ -562,55 +506,34 @@ classifyButton.addEventListener("click", async function() {
 
         predictionsBox.innerHTML = "";
 
-        predictions.forEach((prediction, index) => {
+        predictions.forEach(prediction => {
             const percentage = (prediction.probability * 100).toFixed(1);
 
             const row = document.createElement("div");
-
             row.style.margin = "12px 0";
 
             row.innerHTML = `
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    gap:10px;
-                    font-weight:600;
-                    margin-bottom:5px;
-                ">
+                <div style="display:flex;justify-content:space-between;gap:10px;font-weight:600;margin-bottom:5px;">
                     <span>${prediction.className}</span>
                     <span>${percentage}%</span>
                 </div>
 
-                <div style="
-                    height:12px;
-                    background:#dce8dc;
-                    border-radius:20px;
-                    overflow:hidden;
-                ">
-                    <div style="
-                        height:100%;
-                        width:${percentage}%;
-                        background:linear-gradient(90deg,#91ad91,#477653);
-                        border-radius:20px;
-                    "></div>
+                <div style="height:12px;background:#dce8dc;border-radius:20px;overflow:hidden;">
+                    <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,#91ad91,#477653);border-radius:20px;"></div>
                 </div>
             `;
 
             predictionsBox.appendChild(row);
         });
 
-        const best = predictions[0];
+        currentPlant = predictions[0].className;
 
-        currentPlant = best.className;
-
-        categoryStatus.textContent =
-            "Top prediction: " + best.className;
+        categoryStatus.textContent = "Top prediction: " + currentPlant;
 
         askButton.hidden = false;
 
     } catch (error) {
         console.error(error);
-
         predictionsBox.innerHTML =
             "<p>Something went wrong while identifying the image. Please try again.</p>";
 
@@ -622,11 +545,63 @@ classifyButton.addEventListener("click", async function() {
 
 
 /* =========================================
+   AUTOMATIC SPEECH NARRATION
+========================================= */
+
+function setupSpeechControls() {
+    // Stop any previous narration.
+    speechSynthesis.cancel();
+
+    // Read the information before adding the controls.
+    const textToRead = informationBox.innerText;
+
+    const controls = document.createElement("div");
+    controls.className = "speech-controls";
+    controls.style.margin = "20px 0";
+
+    controls.innerHTML = `
+        <h3>🔊 Voice Narration</h3>
+        <button id="pauseButton" type="button">⏸ Pause</button>
+        <button id="resumeButton" type="button">▶️ Resume</button>
+        <button id="stopButton" type="button">⏹ Stop</button>
+    `;
+
+    informationBox.appendChild(controls);
+
+    document.getElementById("pauseButton").addEventListener("click", () => {
+        if (speechSynthesis.speaking) {
+            speechSynthesis.pause();
+        }
+    });
+
+    document.getElementById("resumeButton").addEventListener("click", () => {
+        if (speechSynthesis.paused) {
+            speechSynthesis.resume();
+        }
+    });
+
+    document.getElementById("stopButton").addEventListener("click", () => {
+        speechSynthesis.cancel();
+    });
+
+    // Start narration automatically.
+    speechUtterance = new SpeechSynthesisUtterance(textToRead);
+    speechUtterance.lang = "en-IN";
+    speechUtterance.rate = 0.9;
+
+    speechSynthesis.speak(speechUtterance);
+}
+
+
+/* =========================================
    DISPLAY PLANT INFORMATION
 ========================================= */
 
 function displayPlantInformation(plantName) {
     const plant = plantInformation[plantName];
+
+    // Stop any narration that may already be running.
+    speechSynthesis.cancel();
 
     promptBox.hidden = false;
 
@@ -635,8 +610,10 @@ function displayPlantInformation(plantName) {
             <h2>${plantName}</h2>
             <p>Detailed information for this category is not available yet.</p>
             <p>Please verify the AI prediction using a reliable plant identification source.</p>
-            <p><strong>Educational disclaimer:</strong> This website provides general information only, not medical advice. Consult a qualified healthcare professional before using any plant for health purposes.</p>
+            <p><strong>Educational Disclaimer:</strong> This website provides general information only, not medical advice. Plant identification may be incorrect. Consult a qualified healthcare professional before using any plant for health purposes.</p>
         `;
+
+        setupSpeechControls();
         return;
     }
 
@@ -659,18 +636,13 @@ function displayPlantInformation(plantName) {
         <p>${plant.origin}</p>
 
         <h3>✨ Interesting Facts</h3>
-
         <ul>
             ${plant.facts.map(fact => `<li>${fact}</li>`).join("")}
         </ul>
 
         <hr>
 
-        <p style="
-            font-size:13px;
-            color:#718174;
-            margin-top:20px;
-        ">
+        <p style="font-size:13px;color:#718174;margin-top:20px;">
             <strong>Educational Disclaimer:</strong>
             This information is for educational purposes only and is not medical advice.
             Plant identification may be incorrect. Do not consume or use a plant for
@@ -678,6 +650,9 @@ function displayPlantInformation(plantName) {
             professional before using medicinal plants.
         </p>
     `;
+
+    // Automatically start reading as soon as information is displayed.
+    setupSpeechControls();
 
     promptBox.scrollIntoView({
         behavior: "smooth",
@@ -687,7 +662,7 @@ function displayPlantInformation(plantName) {
 
 
 /* =========================================
-   GET AI INFORMATION BUTTON
+   GET INFORMATION BUTTON
 ========================================= */
 
 askButton.addEventListener("click", function() {
@@ -695,55 +670,6 @@ askButton.addEventListener("click", function() {
 
     displayPlantInformation(currentPlant);
 });
-
-
-/* =========================================
-   SPEECH NARRATION
-========================================= */
-
-let speechText = "";
-let speechUtterance = null;
-
-function setupSpeechControls() {
-    const controls = document.createElement("div");
-
-    controls.style.margin = "20px 0";
-
-    controls.innerHTML = `
-        <h3>🔊 Listen to Information</h3>
-
-        <button id="speakButton" type="button">▶️ Play</button>
-        <button id="pauseButton" type="button">⏸ Pause</button>
-        <button id="resumeButton" type="button">▶️ Resume</button>
-        <button id="stopButton" type="button">⏹ Stop</button>
-    `;
-
-    informationBox.appendChild(controls);
-
-    document.getElementById("speakButton").onclick = function() {
-        speechText = informationBox.innerText;
-
-        speechSynthesis.cancel();
-
-        speechUtterance = new SpeechSynthesisUtterance(speechText);
-        speechUtterance.lang = "en-IN";
-        speechUtterance.rate = 0.9;
-
-        speechSynthesis.speak(speechUtterance);
-    };
-
-    document.getElementById("pauseButton").onclick = function() {
-        if (speechSynthesis.speaking) speechSynthesis.pause();
-    };
-
-    document.getElementById("resumeButton").onclick = function() {
-        if (speechSynthesis.paused) speechSynthesis.resume();
-    };
-
-    document.getElementById("stopButton").onclick = function() {
-        speechSynthesis.cancel();
-    };
-}
 
 
 /* =========================================
@@ -755,9 +681,7 @@ copyButton.addEventListener("click", async function() {
 
     try {
         await navigator.clipboard.writeText(text);
-
         copyStatus.textContent = "Information copied successfully.";
-
     } catch (error) {
         copyStatus.textContent =
             "Copy is unavailable in this browser. Please select and copy the text manually.";
@@ -777,8 +701,7 @@ chatGPTButton.addEventListener("click", function() {
         "Do not give treatment, dosage, or self-medication instructions.\n\n" +
         text;
 
-    const url =
-        "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+    const url = "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
 
     window.open(url, "_blank");
 });
@@ -789,6 +712,8 @@ chatGPTButton.addEventListener("click", function() {
 ========================================= */
 
 removeButton.addEventListener("click", function() {
+    speechSynthesis.cancel();
+
     fileInput.value = "";
     selectedImage = null;
     currentPlant = null;
@@ -811,8 +736,6 @@ removeButton.addEventListener("click", function() {
     askButton.hidden = true;
     promptBox.hidden = true;
 
-    speechSynthesis.cancel();
-
     window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -827,18 +750,6 @@ removeButton.addEventListener("click", function() {
 function initializeWebsite() {
     setupTheme();
     setupPlantOfTheDay();
-
-    // Add speech controls when plant information is displayed.
-    const originalDisplay = displayPlantInformation;
-
-    displayPlantInformation = function(plantName) {
-        originalDisplay(plantName);
-
-        if (!informationBox.querySelector("#speakButton")) {
-            setupSpeechControls();
-        }
-    };
-
     loadModel();
 }
 
