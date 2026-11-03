@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plant Rescue Mission</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf5e9;color:#20382a;font-family:Arial,system-ui,sans-serif}
+header{background:#245b43;color:white;text-align:center;padding:18px 12px}header h1{margin:0;font-size:28px}header p{margin:6px 0 0}
+main{max-width:760px;margin:14px auto;padding:0 12px}.card{background:#fff;border:1px solid #d5e4d2;border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 3px 12px #183c2110}
+label{font-weight:bold}select,button{font:inherit;padding:11px;border-radius:10px}select{width:100%;margin-top:7px;border:1px solid #b7cdb5;background:white}
+.plantbox{display:flex;gap:12px;align-items:center;background:#edf7e9;border-radius:13px;padding:12px;margin-top:12px}.plantemoji{font-size:42px}.plantbox h2{margin:0 0 4px;color:#245b43}.plantbox p{margin:0}
+.steps{background:#fff8df;border-left:4px solid #e1b957;padding:11px;border-radius:8px;line-height:1.5}
+.progress{height:9px;background:#e5ece2;border-radius:10px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:#4a9460;width:0}
+.casehead{background:#eaf4fa;border-radius:12px;text-align:center;padding:12px}.casehead .emoji{font-size:38px}.casehead h2{margin:4px}.clue{background:#fff7df;border-radius:9px;padding:10px;margin:8px 0;line-height:1.45}.clue b{color:#795c20}
+.answers{display:grid;gap:9px;margin-top:10px}.answers button{background:#f4f8f1;color:#20382a;border:2px solid #d2e1ce;text-align:left;line-height:1.35}.answers button:disabled{opacity:.85}.answers button.good{border-color:#388654;background:#e4f4e5}.answers button.bad{border-color:#c66b55;background:#fff0eb}
+.feedback{padding:12px;background:#f0f6ed;border-radius:10px;min-height:48px;margin-top:10px;line-height:1.45}
+.actions{display:flex;justify-content:space-between;gap:8px;margin-top:12px;flex-wrap:wrap}button.primary{background:#286447;color:white;border:0;font-weight:bold}button.light{background:#e7f1e7;color:#245b43;border:1px solid #c4d9c2}
+.stats{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:bold;color:#286447}.hidden{display:none!important}.lesson{background:#fff7df;border:1px solid #e8cf8b;border-radius:12px;padding:14px;line-height:1.5}.tiny{font-size:13px;color:#5b715f}
+</style>
+</head>
+<body>
+<header><h1>🚑 Plant Rescue Mission</h1><p>Learn how one plant can help people and the environment.</p></header>
+<main>
+<section class="card">
+<label for="plant">1. Choose the plant you want to learn about:</label>
+<select id="plant"></select>
+<div class="plantbox"><div class="plantemoji" id="plantEmoji">🌿</div><div><h2 id="plantName">Mint</h2><p id="plantIntro"></p></div></div>
+<div class="steps"><b>How to play</b><br>2. Read the village problem and the three clues.<br>3. Choose the best answer from four options.<br>4. You get 3 tries for each question. Earn points and finish 4 cases to unlock the plant lesson.</div>
+</section>
+<section class="card" id="game">
+<div class="stats"><span id="caseNumber">Case 1 of 4</span><span id="score">Score: 0</span><span id="tries">Tries left: 3</span></div>
+<div class="progress"><div id="bar"></div></div>
+<div class="casehead"><div class="emoji" id="caseEmoji">🏫</div><h2 id="caseTitle">The school garden</h2><p id="story"></p></div>
+<div class="clue"><b>Clue 1:</b> <span id="clue1"></span></div>
+<div class="clue"><b>Clue 2:</b> <span id="clue2"></span></div>
+<div class="clue"><b>Think carefully:</b> <span id="clue3"></span></div>
+<h3 id="question">What should the community do?</h3>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback">Choose the answer that is useful, realistic, and safe.</div>
+<div class="actions"><button class="light" onclick="restart()">Start again</button><button class="primary" id="next" onclick="nextCase()" disabled>Next case →</button></div>
+</section>
+<section class="card hidden" id="result"></section>
+<p class="tiny">Educational game only. It does not give medical advice. Traditional use does not prove that a plant cures disease. Never taste an unknown plant.</p>
+</main>
+<script>
+const plants={
+"Mint":{e:"🌿",intro:"A familiar herb used to flavour foods and drinks.",lesson:"Mint contributes to society as a culinary herb, a home-garden plant, and part of food culture. It can also be used to teach plant growing and identification.",cases:[
+["🏫","A school garden","Students want to grow mint and teach visitors about it.","Mint is commonly used in food.","A food use does not mean it is a proven medicine.","Which is the best school project?",["Grow mint as a labelled food herb and study how it grows.","Tell visitors mint cures stomach diseases.","Ask visitors to taste any wild plant that looks similar.","Replace medical advice with mint leaves."],0,"A school garden should teach correct identification and ordinary food uses—not promise cures."],
+["🧑‍🌾","A farmer's decision","A farmer wants to grow mint for local shops.","Mint leaves are used in some foods and drinks.","A crop can support livelihoods without being a medicine.","What should the farmer focus on?",["Sell it as a guaranteed treatment.","Grow good-quality mint for food markets and explain its culinary use.","Claim every mint-like plant is safe to eat.","Tell customers to stop their medicines."],1,"Growing a food crop can support farmers and local businesses."],
+["📚","A tradition display","Residents share stories about mint in family traditions.","Traditional knowledge is part of culture.","A traditional story is not the same as scientific proof.","How should the school describe the stories?",["Call every story a proven medical fact.","Hide the stories because tradition has no value.","Record the stories respectfully and explain that health claims need evidence.","Tell students to self-medicate."],2,"Respect community knowledge while clearly separating tradition from proven medical effects."],
+["🌍","A green neighbourhood","A neighbourhood wants a useful and attractive garden.","Mint can grow well in suitable garden conditions.","One useful plant should not replace all other plants.","What is the best plan?",["Grow only mint everywhere.","Remove local plants to make room for mint.","Plant it without checking the site.","Grow mint in a suitable area alongside a variety of plants."],3,"A diverse garden and suitable planting choices are better for a healthy green space."]]},
+"Turmeric":{e:"🟠",intro:"A rhizome widely used as a food spice and in cultural traditions.",lesson:"Turmeric connects farming, cooking, trade, and cultural heritage. It is a useful example of how crops become part of everyday life.",cases:[
+["🍲","A food festival","A group wants to feature turmeric in a cooking display.","Turmeric is used as a spice.","Its traditional reputation does not prove it cures illness.","What should the display focus on?",["Its role in food, farming, and cultural traditions.","A promise that it cures every disease.","Advice to stop prescribed treatment.","A claim that every yellow root is turmeric."],0,"Turmeric is a spice crop with food and cultural importance."],
+["🧑‍🌾","A farmer's plan","A farmer wants to grow a crop for local markets.","Turmeric grows from an underground rhizome.","A crop needs suitable soil, climate, and market planning.","What is the sensible next step?",["Advertise it as a cure-all.","Learn its growing needs and connect with food buyers.","Tell people to use it instead of medicine.","Harvest any similar-looking wild root."],1,"Crop knowledge and market connections can support farmers."],
+["📚","A history lesson","Students are studying how spices travelled between regions.","Turmeric has been part of food traditions for a long time.","History of use is not proof of medical effectiveness.","What should students explain?",["That old use proves every health claim.","That spices have no cultural value.","How cultivation, cooking, and trade connect communities.","That it replaces professional healthcare."],2,"Spices can teach us about agriculture, culture, and trade."],
+["🌱","A school project","The class wants to explain what a rhizome is.","Turmeric is an underground stem called a rhizome.","Not every underground plant part is turmeric.","Which activity is most accurate?",["Call every root turmeric.","Tell students to taste unknown roots.","Promise health benefits from any rhizome.","Show a labelled turmeric rhizome and explain its growth."],3,"Correct identification and plant science make a strong learning activity."]]},
+"Neem":{e:"🌳",intro:"A tree known for shade and its place in traditional plant knowledge.",lesson:"Neem can contribute through shade, urban greenery, habitat, and cultural knowledge. Planting choices should also consider local ecology and water conditions.",cases:[
+["🏘️","A hot neighbourhood","Residents want more shade along a street.","Neem is a tree that can provide shade.","The best tree for a place depends on local conditions.","What should planners do?",["Choose a suitable site and compare local tree options.","Plant neem everywhere without checking conditions.","Tell residents to eat its leaves.","Remove every other tree."],0,"Good urban planting considers shade, local ecology, and diversity."],
+["📖","A community exhibition","A group is documenting traditional knowledge about neem.","Traditional knowledge is culturally important.","It should not be presented as proof that a plant cures disease.","What is the responsible label?",["Neem is guaranteed to cure infections.","Record the tradition and explain that medical claims need evidence.","Tell visitors to replace treatment with neem.","Say traditional knowledge should be erased."],1,"Respect tradition while checking health claims carefully."],
+["🐦","A biodiversity project","A park wants to support birds and insects.","Trees can provide habitat and improve green spaces.","One tree species alone cannot support every species.","Which plan is better?",["Plant only neem across the entire park.","Cover the ground with concrete.","Use a mix of suitable local plants and protect habitat.","Remove flowering plants."],2,"Biodiversity is supported by varied, suitable habitats."],
+["🔎","A plant safety question","A visitor assumes all parts of neem are safe because it is natural.","Natural does not automatically mean harmless.","Different plant products can have different risks.","What should the guide say?",["Everything natural is safe.","Everyone should try the leaves.","Neem can replace medical care.","Do not consume or apply plant products based on a game; seek qualified advice."],3,"Natural products can still carry risks. This game is not a use guide."]]}
+};
+const general={
+"Garlic":["🧄","A widely used food ingredient and crop.","Garlic supports food culture, farming livelihoods, and local food businesses."],
+"Tulsi":["🌱","A culturally important aromatic plant grown in many homes.","Tulsi contributes to cultural heritage, home gardening, and awareness of plant diversity."],
+"Aamla":["🟢","A fruit-bearing tree whose fruit is used in foods.","Aamla supports fruit-growing, food processing, livelihoods, and food traditions."],
+"Moringa":["🌳","A multipurpose tree with edible leaves and pods in some food cultures.","Moringa can support food education, home gardens, and local food systems."],
+"Ginger":["🫚","A rhizome widely used as a spice.","Ginger connects farming, food culture, and learning about rhizomes."],
+"Curry Leaves":["🍃","A fragrant leaf used in South Asian cooking.","Curry leaves connect home gardening, cooking traditions, and local food knowledge."],
+"Rosemary":["🌿","An aromatic herb used in cooking and gardens.","Rosemary supports culinary learning and appreciation of aromatic plants."],
+"Lavender":["🪻","A flowering plant grown for fragrance and garden beauty.","Lavender can support attractive green spaces and pollinator awareness."],
+"Chamomile":["🌼","A daisy-like flowering plant known from herbal tea traditions.","Chamomile connects plant traditions, gardening, and pollinator education."],
+"Brahmi":["🌱","A name used for plants in traditional knowledge; correct identification matters.","Brahmi teaches why plant identification and careful recording of traditional knowledge matter."],
+"Lemongrass":["🌾","An aromatic grass used in some foods and drinks.","Lemongrass links farming, culinary traditions, and learning about useful grasses."],
+"Eucalyptus":["🌳","A group of trees with aromatic leaves.","Eucalyptus teaches communities to weigh planting benefits against water use and local ecological effects."],
+"Cinnamon":["🪵","A spice made from the bark of certain trees.","Cinnamon connects agriculture, food culture, and the history of trade."],
+"Clove":["🌸","A dried flower bud used as a spice.","Clove connects spice farming, trade, and culinary heritage."],
+"Hibiscus":["🌺","A flowering plant with many species and different uses.","Hibiscus supports green spaces, pollinator awareness, and learning about plant diversity."],
+"Gotu Kola":["🍀","A creeping herb also known as Indian pennywort.","Gotu Kola helps communities explore wetland plants, biodiversity, and traditional knowledge."],
+"Aloe Vera":["🪴","A succulent with thick water-storing leaves.","Aloe vera offers lessons about plant adaptation and household plant products."],
+"Ashwagandha":["🌿","A plant discussed in traditional systems of knowledge.","Ashwagandha offers a chance to study traditional knowledge and why health claims need careful evaluation."]
+};
+const select=document.getElementById('plant');
+Object.keys({...plants,...general}).sort().forEach(n=>{let o=document.createElement('option');o.value=n;o.textContent=n;select.appendChild(o)});
+let caseNo=0,score=0,tries=3,locked=false;
+function plantData(){let n=select.value;return plants[n]||{e:general[n][0],intro:general[n][1],lesson:general[n][2],cases:[
+["🏫","A school learning garden","Students want to learn about "+n+".","The plant has a place in plant knowledge or everyday life.","A traditional use does not automatically prove a medical effect.","What is the best school activity?",["Study and identify the plant, and explain known uses carefully.","Tell students it cures diseases.","Ask students to taste unknown parts.","Tell people to replace medical care with it."],0,"Plant education should focus on identification, evidence, and responsible knowledge."],
+["📚","A community knowledge display","Residents share stories about "+n+".","Community knowledge can be culturally valuable.","A story is not the same as clinical evidence.","What should the display do?",["Call every story proven science.","Record traditions respectfully and distinguish them from scientific evidence.","Ignore the community.","Recommend self-medication."],1,"Respect cultural knowledge while being honest about evidence."],
+["🌍","A green project","A community wants to include "+n+" in a project.","Plants can have educational, cultural, or environmental value.","Planting choices should suit local conditions.","What is the responsible plan?",["Plant it everywhere without checking.","Remove all other plants.","Check suitability and consider biodiversity.","Promise it solves every environmental problem."],2,"Responsible planting considers local conditions and biodiversity."],
+["⚠️","A safety question","A visitor assumes natural means safe.","Plant identity and preparation matter.","A game cannot confirm that a plant is safe to eat or use.","What should the guide say?",["Try a small amount to test it.","Natural products never cause harm.","Use it instead of professional care.","Do not taste or use it based on a game; ask a qualified professional."],3,"Never use an unknown plant based on a game."]
+]}}
+
+function extraCases(plantName, d){
+ const common = [
+ ["🏥","The claim-check challenge",
+  "A visitor says "+plantName+" is natural, so it must cure an illness.",
+  "Natural origin does not guarantee safety or effectiveness.",
+  "A strong claim needs reliable evidence, not just popularity.",
+  "What should the guide explain?",
+  ["Agree because natural products are always safe.","Ask the visitor to stop medical care.","Explain that traditional use and scientific proof are different.","Promise that it works for everyone."],2,
+  "Responsible plant education avoids cure promises and explains the limits of the evidence."],
+ ["🧭","The identification puzzle",
+  "A student finds a plant that looks a little like "+plantName+".",
+  "Many plants can look similar, especially to beginners.",
+  "A common name alone may not confirm the species.",
+  "What should the student do?",
+  ["Taste it to check.","Compare reliable identification features and ask a knowledgeable expert.","Assume it is the same plant.","Use it because it looks familiar."],1,
+  "Correct identification is essential. Never taste an unknown plant."],
+ ["🐝","The biodiversity decision",
+  "A community wants to create a garden featuring "+plantName+".",
+  "A healthy garden can support many kinds of living things.",
+  "Planting only one species may reduce diversity.",
+  "Which plan is better?",
+  ["Plant only this one species everywhere.","Remove all other plants.","Choose locally suitable plants and create a diverse garden.","Cover the soil with concrete."],2,
+  "A diverse garden with suitable plants can support local biodiversity."],
+ ["📜","The tradition-versus-evidence test",
+  "An elder shares a family tradition involving "+plantName+".",
+  "Community traditions can be valuable cultural knowledge.",
+  "A traditional account is not automatically a scientifically proven treatment.",
+  "How should students record it?",
+  ["Label it as a guaranteed cure.","Mock the tradition and ignore it.","Record it respectfully and distinguish tradition from tested evidence.","Tell everyone to try it."],2,
+  "Respect cultural knowledge while being clear about what scientific evidence establishes."],
+ ["🌱","The responsible growing plan",
+  "A school wants to grow "+plantName+" on its grounds.",
+  "Plants have different needs for soil, light, and water.",
+  "A plant that grows well in one place may not suit another.",
+  "What is the best first step?",
+  ["Plant it everywhere immediately.","Check its growing needs and whether it suits the local site.","Ignore the local climate.","Replace every other plant with it."],1,
+  "Responsible gardening starts by checking the plant's needs and local conditions."],
+ ["📰","The misleading poster",
+  "A poster says: “"+plantName+" solves every health problem!”",
+  "The poster gives no reliable evidence for this claim.",
+  "Words such as “every” and “guaranteed” are warning signs.",
+  "What should the community do?",
+  ["Share it because it sounds exciting.","Rewrite it as a cure advertisement.","Remove the unsupported claim and provide balanced, sourced information.","Tell people to use it instead of seeing a professional."],2,
+  "Public information should be accurate, balanced, and supported by reliable evidence."]
+ ];
+ return common;
+}
+function updatePlant(){let d=plantData();document.getElementById('plantEmoji').textContent=d.e;document.getElementById('plantName').textContent=select.value;document.getElementById('plantIntro').textContent=d.intro;start()}
+function start(){caseNo=0;score=0;showCase();document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden')}
+function allCases(){return plantData().cases.concat(extraCases(select.value,plantData()));}
+function showCase(){let d=plantData(),cases=allCases(),c=cases[caseNo];tries=3;locked=false;document.getElementById('caseNumber').textContent='Case '+(caseNo+1)+' of 10';document.getElementById('score').textContent='Score: '+score;document.getElementById('tries').textContent='Tries left: 3';document.getElementById('bar').style.width=(caseNo/10*100)+'%';document.getElementById('caseEmoji').textContent=c[0];document.getElementById('caseTitle').textContent=c[1];document.getElementById('story').textContent=c[2];document.getElementById('clue1').textContent=c[3];document.getElementById('clue2').textContent=c[4];document.getElementById('clue3').textContent='Avoid answers that promise a cure, ignore safety, or make a claim bigger than the clues support.';document.getElementById('question').textContent=c[5];let box=document.getElementById('answers');box.innerHTML='';let order=c[6].map((t,i)=>({t,i})).sort(()=>Math.random()-.5);order.forEach(x=>{let b=document.createElement('button');b.textContent=String.fromCharCode(65+x.i)+'. '+x.t;b.onclick=()=>pick(b,x.i===c[7],c[8]);box.appendChild(b)});document.getElementById('feedback').textContent='Read the plant name at the top, then all clues. You have 3 tries. There are 10 cases.';document.getElementById('next').disabled=true;document.getElementById('next').textContent=caseNo===9?'Finish mission':'Next case →'}
+function pick(btn,correct,why){if(locked||btn.disabled)return;if(correct){locked=true;score+=tries===3?10:tries===2?7:4;btn.classList.add('good');document.querySelectorAll('.answers button').forEach(x=>x.disabled=true);document.getElementById('feedback').textContent='Correct! '+why;document.getElementById('next').disabled=false;document.getElementById('score').textContent='Score: '+score}else{tries--;btn.classList.add('bad');btn.disabled=true;document.getElementById('tries').textContent='Tries left: '+tries;document.getElementById('feedback').textContent=tries?'Not quite. Re-read the clues and try another option.':'No tries left. Read the explanation, then continue.';if(tries===0){locked=true;document.querySelectorAll('.answers button').forEach(x=>x.disabled=true);let c=allCases()[caseNo];document.getElementById('feedback').textContent='The best answer was: '+c[6][c[7]]+'. '+c[8];document.getElementById('next').disabled=false}}}
+function nextCase(){if(!locked)return;if(caseNo<9){caseNo++;showCase()}else{let d=plantData();document.getElementById('game').classList.add('hidden');let r=document.getElementById('result');r.classList.remove('hidden');r.innerHTML='<h2>🏆 Mission completed!</h2><h2>'+d.e+' '+select.value+'</h2><p><b>Your score:</b> '+score+' points</p><h3>What this plant can contribute to society</h3><p>'+d.lesson+'</p><div class="steps"><b>Remember:</b> A plant may be important for food, culture, farming, education, or the environment. That does not automatically mean it cures disease or is safe to use. Correct identification matters.</div><p>Can you explain one useful contribution of '+select.value+' to a friend?</p><button class="primary" onclick="start()">Play again</button>'}}
+function restart(){start()}
+select.addEventListener('change',updatePlant);updatePlant();
+</script>
+</body></html>
