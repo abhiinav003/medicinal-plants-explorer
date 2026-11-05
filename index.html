@@ -10,13 +10,15 @@
 
   <link rel="stylesheet" href="style.css?v=4">
 
+  <!-- AI Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
+  <!-- Main Website JavaScript -->
   <script src="app.js?v=10" defer></script>
 
-  <!-- NEW: Plant Impact Animation -->
-  <script src="plant-impact-animation.js?v=1" defer></script>
+  <!-- Plant Animation JavaScript -->
+  <script src="plant-impact-animation.js?v=2" defer></script>
 
   <style>
     .games-section {
@@ -26,12 +28,19 @@
       border-radius: 22px;
       background: linear-gradient(135deg, #f4f8ef, #fffdf5);
     }
-    .games-intro { color: #526451; line-height: 1.6; margin: 8px 0 20px; }
+
+    .games-intro {
+      color: #526451;
+      line-height: 1.6;
+      margin: 8px 0 20px;
+    }
+
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 18px;
     }
+
     .game-card {
       display: flex;
       flex-direction: column;
@@ -41,9 +50,23 @@
       background: #fff;
       box-shadow: 0 8px 22px rgba(40, 70, 40, .07);
     }
-    .game-card-icon { font-size: 2.2rem; margin-bottom: 8px; }
-    .game-card h3 { margin: 5px 0 8px; color: #294b32; }
-    .game-card p { color: #5b685b; line-height: 1.55; flex: 1; }
+
+    .game-card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+    }
+
+    .game-card h3 {
+      margin: 5px 0 8px;
+      color: #294b32;
+    }
+
+    .game-card p {
+      color: #5b685b;
+      line-height: 1.55;
+      flex: 1;
+    }
+
     .game-link {
       display: inline-block;
       margin-top: 12px;
@@ -55,15 +78,22 @@
       text-decoration: none;
       font-weight: 700;
     }
-    .game-link:hover { background: #285536; }
+
+    .game-link:hover {
+      background: #285536;
+    }
+
     @media (max-width: 520px) {
-      .games-section { padding: 18px; }
+      .games-section {
+        padding: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
 
+  <!-- HEADER -->
   <header class="site-header">
     <div class="header-content">
       <div class="logo">🌿</div>
@@ -77,6 +107,7 @@
 
   <main class="container">
 
+    <!-- WELCOME SECTION -->
     <section class="welcome-section">
       <span class="welcome-tag">🌱 Explore • Discover • Learn</span>
 
@@ -88,12 +119,15 @@
       </p>
     </section>
 
+    <!-- IMAGE UPLOAD SECTION -->
     <section class="upload-card card">
 
       <div class="section-heading">
         <span class="section-icon">📸</span>
+
         <div>
           <h2>Upload an Image</h2>
+
           <p class="section-description">
             Choose an image from your device to get started.
           </p>
@@ -129,12 +163,15 @@
 
     </section>
 
+    <!-- AI RESULTS SECTION -->
     <section class="result-card card">
 
       <div class="section-heading">
         <span class="section-icon">🤖</span>
+
         <div>
           <h2>AI Classification Results</h2>
+
           <p class="section-description">
             See the categories predicted by the AI model.
           </p>
@@ -155,12 +192,15 @@
 
     </section>
 
+    <!-- PLANT INFORMATION SECTION -->
     <section id="promptBox" class="information-card card" hidden>
 
       <div class="section-heading">
         <span class="section-icon">🌿</span>
+
         <div>
           <h2>Explore the Information</h2>
+
           <p class="section-description">
             Learn more about the predicted category.
           </p>
@@ -189,13 +229,18 @@
 
     </section>
 
-    <!-- Interactive games section -->
+    <!-- INTERACTIVE PLANT GAMES -->
     <section class="games-section" id="plant-games">
+
       <div class="section-heading">
         <span class="section-icon">🎮</span>
+
         <div>
           <h2>Interactive Plant Games</h2>
-          <p class="section-description">Learn about plants through fun challenges.</p>
+
+          <p class="section-description">
+            Learn about plants through fun challenges.
+          </p>
         </div>
       </div>
 
@@ -205,29 +250,43 @@
       </p>
 
       <div class="games-grid">
+
         <article class="game-card">
           <div class="game-card-icon">🎨</div>
+
           <h3>Plant Creation Lab</h3>
+
           <p>
             Explore plant-based recipe challenges and learn about the role
             different plants can play in food and everyday life.
           </p>
-          <a class="game-link" href="plant_creation_lab.html">Play Plant Creation Lab →</a>
+
+          <a class="game-link" href="plant_creation_lab.html">
+            Play Plant Creation Lab →
+          </a>
         </article>
 
         <article class="game-card">
           <div class="game-card-icon">🌿</div>
+
           <h3>Plant Rescue Mission</h3>
+
           <p>
             Take on 10 cases, use clues, make thoughtful choices, and learn
             how plants can contribute to communities and the environment.
           </p>
-          <a class="game-link" href="plant_rescue_mission.html">Play Plant Rescue Mission →</a>
+
+          <a class="game-link" href="plant_rescue_mission.html">
+            Play Plant Rescue Mission →
+          </a>
         </article>
+
       </div>
     </section>
 
+    <!-- EDUCATIONAL DISCLAIMER -->
     <section class="note-section">
+
       <p>
         🌱 <strong>Learning note:</strong> AI predictions can sometimes be
         incorrect. Always verify plant identification using reliable sources.
@@ -235,13 +294,18 @@
         advice. Game content is educational and is not a recommendation to
         consume or use any plant medicinally.
       </p>
+
     </section>
 
   </main>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
+
     <p>Made with 🌿 for nature and learning</p>
+
     <p>Medicinal Plants Explorer</p>
+
   </footer>
 
 </body>
