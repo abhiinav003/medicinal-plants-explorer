@@ -1,12 +1,9 @@
 /* =========================================
    MEDICINAL PLANTS EXPLORER
-   TEACHABLE MACHINE AI
+   COMPLETE APP.JS
 ========================================= */
 
 "use strict";
-
-
-/* MODEL */
 
 const MODEL_URL =
 "https://teachablemachine.withgoogle.com/models/j0LiEqAHw/";
@@ -15,1023 +12,1047 @@ let model = null;
 let selectedImage = null;
 let cameraStream = null;
 
+/* =========================================
+   PLANT DATABASE
+========================================= */
 
-/* PLANT INFORMATION */
+const PLANTS = [
 
-const plants = {
+{
+name: "Mint",
+aliases: ["mint", "pudina"],
+scientific: "Mentha",
+emoji: "🌿",
+overview: "Mint is an aromatic herb widely used in food and traditional practices.",
+characteristics: "It has green leaves, a refreshing aroma and a spreading growth habit.",
+origin: "Mint species are native to different regions of Europe, Asia and Africa.",
+uses: [
+"Used as a flavouring ingredient in food and beverages.",
+"Commonly used to prepare chutneys and herbal drinks.",
+"Studied for its aromatic compounds."
+],
+facts: [
+"Mint belongs to the Lamiaceae family.",
+"It grows well in suitable moist conditions.",
+"Many varieties of mint exist."
+]
+},
 
-    mint: {
-        name: "Mint",
-        scientific: "Mentha",
-        overview: "Mint is an aromatic herb belonging to the Lamiaceae family. It is widely cultivated in gardens and used in food and beverages.",
-        characteristics: [
-            "Green aromatic leaves.",
-            "Square-shaped stems.",
-            "Small flowers.",
-            "Refreshing fragrance."
-        ],
-        uses: "Mint leaves are traditionally used in chutneys, beverages, food preparations and herbal traditions.",
-        origin: "Regions of Europe, Asia and Africa.",
-        facts: [
-            "Mint belongs to the Lamiaceae family.",
-            "It is a fast-growing aromatic herb.",
-            "There are many species of mint.",
-            "Its leaves contain aromatic oils.",
-            "Mint is commonly grown in home gardens."
-        ]
-    },
+{
+name: "Turmeric",
+aliases: ["turmeric", "haldi"],
+scientific: "Curcuma longa",
+emoji: "🟡",
+overview: "Turmeric is a flowering plant known for its yellow-orange rhizome.",
+characteristics: "It has broad green leaves and underground rhizomes.",
+origin: "Native to the Indian subcontinent and Southeast Asia.",
+uses: [
+"Used as a spice and natural food colouring.",
+"Used in traditional cultural practices.",
+"Curcumin is one of its widely studied compounds."
+],
+facts: [
+"Turmeric belongs to the ginger family.",
+"Its rhizome is commonly dried and powdered.",
+"It is an important crop in India."
+]
+},
 
-    turmeric: {
-        name: "Turmeric",
-        scientific: "Curcuma longa",
-        overview: "Turmeric is a flowering plant belonging to the ginger family. Its underground rhizome is widely used as a spice.",
-        characteristics: [
-            "Broad green leaves.",
-            "Underground orange-yellow rhizome.",
-            "Tropical herbaceous plant.",
-            "Distinctive earthy fragrance."
-        ],
-        uses: "Turmeric is traditionally used in cooking, colouring and cultural practices.",
-        origin: "South Asia.",
-        facts: [
-            "Turmeric belongs to the ginger family.",
-            "Its underground stem is called a rhizome.",
-            "It gives food a yellow colour.",
-            "It is widely used in Indian cuisine.",
-            "Curcumin is one of its studied compounds."
-        ]
-    },
+{
+name: "Tulsi",
+aliases: ["tulsi", "holy basil"],
+scientific: "Ocimum tenuiflorum",
+emoji: "🌱",
+overview: "Tulsi is an aromatic plant widely respected in Indian traditions.",
+characteristics: "It has aromatic leaves and small flowers.",
+origin: "Native to the Indian subcontinent and Southeast Asia.",
+uses: [
+"Used in traditional Indian practices.",
+"Leaves are used in herbal preparations.",
+"Also grown as an ornamental and cultural plant."
+],
+facts: [
+"Tulsi belongs to the mint family.",
+"It attracts certain pollinating insects.",
+"Different varieties of Tulsi are grown."
+]
+},
 
-    tulsi: {
-        name: "Tulsi",
-        scientific: "Ocimum tenuiflorum",
-        overview: "Tulsi, also called Holy Basil, is an aromatic plant that holds an important place in Indian culture and traditional botanical knowledge.",
-        characteristics: [
-            "Aromatic leaves.",
-            "Green or purplish stems.",
-            "Small flowers arranged in spikes.",
-            "Pleasant fragrance."
-        ],
-        uses: "Tulsi is traditionally used in cultural practices, household gardens and herbal preparations.",
-        origin: "Indian subcontinent and Southeast Asia.",
-        facts: [
-            "Tulsi is also called Holy Basil.",
-            "It belongs to the mint family.",
-            "It is commonly grown in Indian homes.",
-            "It is an aromatic plant.",
-            "It has cultural importance in India."
-        ]
-    },
+{
+name: "Neem",
+aliases: ["neem"],
+scientific: "Azadirachta indica",
+emoji: "🌳",
+overview: "Neem is a well-known evergreen tree found widely in tropical regions.",
+characteristics: "It has compound leaves and a spreading crown.",
+origin: "Native to the Indian subcontinent.",
+uses: [
+"Traditionally used in several cultural practices.",
+"Neem extracts are studied for agricultural applications.",
+"Neem oil is used in some commercial products."
+],
+facts: [
+"Neem can tolerate dry conditions.",
+"It is an important shade tree.",
+"Different parts of the tree have been studied."
+]
+},
 
-    neem: {
-        name: "Neem",
-        scientific: "Azadirachta indica",
-        overview: "Neem is a tropical evergreen tree known for its compound leaves and its importance in traditional Indian botanical knowledge.",
-        characteristics: [
-            "Compound leaves with serrated edges.",
-            "Small white flowers.",
-            "Rounded fruits that become yellow when ripe.",
-            "Can grow into a large tree."
-        ],
-        uses: "Neem has a long history of traditional use and is also studied for its natural plant compounds.",
-        origin: "Indian subcontinent.",
-        facts: [
-            "Neem is an evergreen tree.",
-            "Its botanical name is Azadirachta indica.",
-            "It belongs to the mahogany family.",
-            "Its leaves are compound.",
-            "Neem is adapted to warm climates."
-        ]
-    },
+{
+name: "Garlic",
+aliases: ["garlic", "lahsun"],
+scientific: "Allium sativum",
+emoji: "🧄",
+overview: "Garlic is a bulb-forming plant commonly grown as a food crop.",
+characteristics: "It has narrow leaves and underground bulbs made of cloves.",
+origin: "Central Asia is commonly recognised as its origin.",
+uses: [
+"Used as a flavouring ingredient.",
+"An important ingredient in many cuisines.",
+"Its sulphur-containing compounds are studied by researchers."
+],
+facts: [
+"Garlic belongs to the Amaryllis family.",
+"Each bulb contains several cloves.",
+"It is propagated using individual cloves."
+]
+},
 
-    garlic: {
-        name: "Garlic",
-        scientific: "Allium sativum",
-        overview: "Garlic is a bulb-producing plant belonging to the Amaryllidaceae family. It is commonly grown as a food crop.",
-        characteristics: [
-            "Underground bulb made of cloves.",
-            "Long narrow leaves.",
-            "Strong characteristic smell.",
-            "Small flowers in some varieties."
-        ],
-        uses: "Garlic is widely used as a flavouring ingredient in cooking and traditional food preparations.",
-        origin: "Central Asia.",
-        facts: [
-            "Garlic belongs to the onion family.",
-            "Its bulb contains several cloves.",
-            "It is grown as a food crop.",
-            "It has a distinctive smell.",
-            "It is widely used around the world."
-        ]
-    },
+{
+name: "Curry Leaf",
+aliases: ["curry leaf", "curry leaves", "kadi patta"],
+scientific: "Murraya koenigii",
+emoji: "🍃",
+overview: "Curry leaf is an aromatic plant used in South Asian cooking.",
+characteristics: "It has small, shiny and aromatic leaflets.",
+origin: "Native to the Indian subcontinent.",
+uses: [
+"Used to flavour curries and other dishes.",
+"Commonly added during tempering.",
+"Also grown in home gardens."
+],
+facts: [
+"It belongs to the Rutaceae family.",
+"Its leaves have a distinctive aroma.",
+"It can grow into a small tree."
+]
+},
 
-    curry: {
-        name: "Curry Leaf",
-        scientific: "Murraya koenigii",
-        overview: "Curry leaf is a small tropical tree whose aromatic leaves are widely used in Indian cooking.",
-        characteristics: [
-            "Compound leaves.",
-            "Glossy green leaflets.",
-            "Small white flowers.",
-            "Small dark fruits."
-        ],
-        uses: "Its aromatic leaves are commonly used to flavour curries, soups and other dishes.",
-        origin: "Indian subcontinent.",
-        facts: [
-            "Curry leaf is an aromatic tree.",
-            "Its leaves are compound.",
-            "It belongs to the Rutaceae family.",
-            "Its flowers are small and white.",
-            "It is common in Indian kitchens."
-        ]
-    },
+{
+name: "Rosemary",
+aliases: ["rosemary"],
+scientific: "Salvia rosmarinus",
+emoji: "🌿",
+overview: "Rosemary is an aromatic evergreen shrub.",
+characteristics: "It has narrow, needle-like leaves.",
+origin: "Native to the Mediterranean region.",
+uses: [
+"Used as a culinary herb.",
+"Used in fragrance products.",
+"Its aromatic compounds are studied."
+],
+facts: [
+"Rosemary belongs to the mint family.",
+"It is adapted to Mediterranean climates.",
+"It can be grown as an ornamental shrub."
+]
+},
 
-    rosemary: {
-        name: "Rosemary",
-        scientific: "Salvia rosmarinus",
-        overview: "Rosemary is an evergreen aromatic shrub with needle-like leaves. It is popular in gardens and cooking.",
-        characteristics: [
-            "Needle-like leaves.",
-            "Woody stems.",
-            "Blue or violet flowers.",
-            "Strong aromatic fragrance."
-        ],
-        uses: "Rosemary is traditionally used as a culinary herb and ornamental garden plant.",
-        origin: "Mediterranean region.",
-        facts: [
-            "Rosemary is an evergreen shrub.",
-            "It belongs to the mint family.",
-            "Its leaves are narrow and needle-like.",
-            "It is popular in Mediterranean cooking.",
-            "It attracts pollinating insects."
-        ]
-    },
+{
+name: "Lavender",
+aliases: ["lavender"],
+scientific: "Lavandula",
+emoji: "💜",
+overview: "Lavender is a flowering aromatic plant known for its fragrance.",
+characteristics: "It has narrow leaves and purple flower spikes in many varieties.",
+origin: "Native to regions around the Mediterranean.",
+uses: [
+"Used in perfumes and fragrance products.",
+"Used as an ornamental garden plant.",
+"Its essential oil is used in fragrance research."
+],
+facts: [
+"Lavender attracts pollinators.",
+"It belongs to the mint family.",
+"There are many lavender species."
+]
+},
 
-    lavender: {
-        name: "Lavender",
-        scientific: "Lavandula",
-        overview: "Lavender is a flowering aromatic plant known for its purple flowers and distinctive fragrance.",
-        characteristics: [
-            "Purple or violet flowers.",
-            "Narrow leaves.",
-            "Aromatic plant.",
-            "Woody base in many varieties."
-        ],
-        uses: "Lavender is used in gardening, fragrances and traditional aromatic preparations.",
-        origin: "Mediterranean region.",
-        facts: [
-            "Lavender belongs to the mint family.",
-            "Its flowers are often purple.",
-            "It attracts bees and butterflies.",
-            "It is cultivated as an ornamental plant.",
-            "It is known for its fragrance."
-        ]
-    },
+{
+name: "Chamomile",
+aliases: ["chamomile"],
+scientific: "Matricaria chamomilla",
+emoji: "🌼",
+overview: "Chamomile is a flowering herb with daisy-like flowers.",
+characteristics: "It has small white petals surrounding a yellow centre.",
+origin: "Native to Europe and parts of western Asia.",
+uses: [
+"Flowers are used in herbal tea preparations.",
+"Used in fragrance and cosmetic products.",
+"Studied for its natural plant compounds."
+],
+facts: [
+"It belongs to the daisy family.",
+"Its flowers attract insects.",
+"It is an annual herb."
+]
+},
 
-    chamomile: {
-        name: "Chamomile",
-        scientific: "Matricaria chamomilla",
-        overview: "Chamomile is a flowering herb known for its small daisy-like flowers.",
-        characteristics: [
-            "White petals.",
-            "Yellow central flower disc.",
-            "Feathery leaves.",
-            "Aromatic flowers."
-        ],
-        uses: "Chamomile is traditionally used in herbal infusions and aromatic preparations.",
-        origin: "Europe and western Asia.",
-        facts: [
-            "Chamomile belongs to the daisy family.",
-            "Its flowers resemble small daisies.",
-            "It is an annual herb.",
-            "It has feathery leaves.",
-            "It is grown in many regions."
-        ]
-    },
+{
+name: "Amla",
+aliases: ["amla", "aamla", "indian gooseberry"],
+scientific: "Phyllanthus emblica",
+emoji: "🟢",
+overview: "Amla is a fruit-bearing tree known for its green fruits.",
+characteristics: "It has small leaves arranged along branchlets and round fruits.",
+origin: "Native to tropical parts of Asia, including India.",
+uses: [
+"Fruits are used in food products.",
+"Used in traditional Indian preparations.",
+"It is known for its vitamin C content."
+],
+facts: [
+"Amla is also called Indian gooseberry.",
+"It is an important fruit crop.",
+"Its fruits have a sour and astringent taste."
+]
+},
 
-    aamla: {
-        name: "Amla",
-        scientific: "Phyllanthus emblica",
-        overview: "Amla, also known as Indian gooseberry, is a small to medium-sized tree that produces greenish-yellow fruits.",
-        characteristics: [
-            "Small greenish-yellow fruits.",
-            "Feathery-looking branchlets.",
-            "Small leaves.",
-            "Deciduous tree."
-        ],
-        uses: "Amla fruits are used in foods, pickles and traditional preparations.",
-        origin: "Indian subcontinent and Southeast Asia.",
-        facts: [
-            "Amla is also called Indian gooseberry.",
-            "Its fruit has a sour taste.",
-            "It is widely grown in India.",
-            "It belongs to the Phyllanthaceae family.",
-            "Its fruits are used in traditional foods."
-        ]
-    },
+{
+name: "Brahmi",
+aliases: ["brahmi"],
+scientific: "Bacopa monnieri",
+emoji: "🌱",
+overview: "Brahmi is a small creeping herb found in wet environments.",
+characteristics: "It has small succulent leaves and tiny flowers.",
+origin: "Found in tropical and subtropical regions.",
+uses: [
+"Known in traditional Indian botanical practices.",
+"Studied for its plant compounds.",
+"Sometimes grown in aquatic and moist gardens."
+],
+facts: [
+"It can grow in wet soil.",
+"It is a creeping plant.",
+"It belongs to the Plantaginaceae family."
+]
+},
 
-    brahmi: {
-        name: "Brahmi",
-        scientific: "Bacopa monnieri",
-        overview: "Brahmi is a small creeping herb commonly found in wet and marshy environments.",
-        characteristics: [
-            "Small succulent leaves.",
-            "Creeping stems.",
-            "Small white or pale flowers.",
-            "Grows in moist environments."
-        ],
-        uses: "Brahmi has a history of use in traditional botanical preparations.",
-        origin: "Wetlands across tropical and subtropical regions.",
-        facts: [
-            "Brahmi is a creeping herb.",
-            "It grows well in moist soil.",
-            "Its leaves are small and fleshy.",
-            "It belongs to the plantain family.",
-            "It is commonly found near water."
-        ]
-    },
+{
+name: "Moringa",
+aliases: ["moringa", "drumstick"],
+scientific: "Moringa oleifera",
+emoji: "🌳",
+overview: "Moringa is a fast-growing tree valued as a food plant.",
+characteristics: "It has compound leaves and long seed pods.",
+origin: "Native to the Indian subcontinent.",
+uses: [
+"Leaves are used as food.",
+"Seed pods are used in cooking.",
+"It is cultivated in tropical regions."
+],
+facts: [
+"It is also called the drumstick tree.",
+"Its leaves contain various nutrients.",
+"It can grow in dry tropical climates."
+]
+},
 
-    moringa: {
-        name: "Moringa",
-        scientific: "Moringa oleifera",
-        overview: "Moringa is a fast-growing tree known for its compound leaves, pods and edible plant parts.",
-        characteristics: [
-            "Small rounded leaflets.",
-            "Long hanging seed pods.",
-            "White flowers.",
-            "Fast-growing tree."
-        ],
-        uses: "Moringa leaves and pods are used as food in many regions.",
-        origin: "Indian subcontinent.",
-        facts: [
-            "Moringa is also called the drumstick tree.",
-            "Its pods are used as vegetables.",
-            "It grows in tropical climates.",
-            "Its leaves are compound.",
-            "It is cultivated in many countries."
-        ]
-    },
+{
+name: "Lemongrass",
+aliases: ["lemongrass", "lemon grass"],
+scientific: "Cymbopogon citratus",
+emoji: "🌾",
+overview: "Lemongrass is a tropical grass with a lemon-like fragrance.",
+characteristics: "It grows in clumps with long, narrow leaves.",
+origin: "Native to tropical regions of Asia.",
+uses: [
+"Used in food and beverages.",
+"Used in fragrance products.",
+"Contains aromatic essential oils."
+],
+facts: [
+"It belongs to the grass family.",
+"It is widely grown in tropical climates.",
+"Its leaves have a citrus-like aroma."
+]
+},
 
-    lemongrass: {
-        name: "Lemongrass",
-        scientific: "Cymbopogon citratus",
-        overview: "Lemongrass is a tall aromatic grass known for its citrus-like fragrance.",
-        characteristics: [
-            "Long narrow leaves.",
-            "Grass-like growth.",
-            "Strong lemon-like fragrance.",
-            "Forms dense clumps."
-        ],
-        uses: "Lemongrass is used in cooking, beverages and aromatic preparations.",
-        origin: "South and Southeast Asia.",
-        facts: [
-            "Lemongrass is a grass.",
-            "It has a citrus-like aroma.",
-            "It grows in clumps.",
-            "It is popular in Asian cuisine.",
-            "Its leaves are long and narrow."
-        ]
-    },
+{
+name: "Eucalyptus",
+aliases: ["eucalyptus"],
+scientific: "Eucalyptus",
+emoji: "🌳",
+overview: "Eucalyptus is a large group of trees and shrubs.",
+characteristics: "Many species have aromatic leaves and peeling bark.",
+origin: "Most species are native to Australia.",
+uses: [
+"Some species are cultivated for timber.",
+"Leaves contain aromatic oils.",
+"Trees are used in landscaping and forestry."
+],
+facts: [
+"Many eucalyptus species grow rapidly.",
+"They are important in Australian ecosystems.",
+"Koalas feed on leaves of certain species."
+]
+},
 
-    eucalyptus: {
-        name: "Eucalyptus",
-        scientific: "Eucalyptus",
-        overview: "Eucalyptus is a large group of trees and shrubs, many of which are known for their aromatic leaves.",
-        characteristics: [
-            "Aromatic leaves.",
-            "Woody trunk.",
-            "Often tall-growing trees.",
-            "Distinctive bark in many species."
-        ],
-        uses: "Eucalyptus trees are used for timber, paper production and aromatic products.",
-        origin: "Australia and nearby regions.",
-        facts: [
-            "Many eucalyptus species are evergreen.",
-            "They are native mainly to Australia.",
-            "Some species grow very tall.",
-            "Their leaves contain aromatic oils.",
-            "They are planted in many countries."
-        ]
-    },
+{
+name: "Cinnamon",
+aliases: ["cinnamon", "dalchini"],
+scientific: "Cinnamomum verum",
+emoji: "🪵",
+overview: "Cinnamon is a spice obtained from the inner bark of certain trees.",
+characteristics: "Its dried bark forms fragrant brown sticks.",
+origin: "Ceylon cinnamon is native to Sri Lanka.",
+uses: [
+"Used as a spice in food.",
+"Used in baked products and beverages.",
+"It contains naturally occurring aromatic compounds."
+],
+facts: [
+"Cinnamon comes from tree bark.",
+"It is used in many cuisines.",
+"Different types of cinnamon exist."
+]
+},
 
-    cinnamon: {
-        name: "Cinnamon",
-        scientific: "Cinnamomum verum",
-        overview: "Cinnamon is an aromatic evergreen tree. Its inner bark is used as a popular spice.",
-        characteristics: [
-            "Evergreen tree.",
-            "Aromatic bark.",
-            "Simple leaves.",
-            "Small flowers."
-        ],
-        uses: "Cinnamon bark is used as a spice in food and beverages.",
-        origin: "Sri Lanka and southern India.",
-        facts: [
-            "Cinnamon comes from tree bark.",
-            "It is an important culinary spice.",
-            "It has a sweet, warm fragrance.",
-            "It belongs to the Lauraceae family.",
-            "Cinnamon is used in many cuisines."
-        ]
-    },
+{
+name: "Clove",
+aliases: ["clove", "cloves", "laung"],
+scientific: "Syzygium aromaticum",
+emoji: "🌺",
+overview: "Clove is an aromatic spice obtained from dried flower buds.",
+characteristics: "It has small reddish-brown nail-shaped dried buds.",
+origin: "Native to the Maluku Islands of Indonesia.",
+uses: [
+"Used as a culinary spice.",
+"Used in fragrance products.",
+"Contains the aromatic compound eugenol."
+],
+facts: [
+"Cloves are harvested before flowers open.",
+"They are dried before use.",
+"Clove trees are evergreen."
+]
+},
 
-    clove: {
-        name: "Clove",
-        scientific: "Syzygium aromaticum",
-        overview: "Clove is an evergreen tree whose dried flower buds are used as a spice.",
-        characteristics: [
-            "Evergreen tree.",
-            "Aromatic flower buds.",
-            "Dark green leaves.",
-            "Small clustered flowers."
-        ],
-        uses: "Cloves are widely used as a spice in food and traditional preparations.",
-        origin: "Maluku Islands of Indonesia.",
-        facts: [
-            "Cloves are dried flower buds.",
-            "They have a strong aroma.",
-            "They are used in spice mixtures.",
-            "The tree is evergreen.",
-            "Clove belongs to the Myrtaceae family."
-        ]
-    },
+{
+name: "Hibiscus",
+aliases: ["hibiscus", "gudhal"],
+scientific: "Hibiscus rosa-sinensis",
+emoji: "🌺",
+overview: "Hibiscus is a flowering shrub known for its colourful flowers.",
+characteristics: "It has large flowers and glossy green leaves.",
+origin: "Its exact native origin is uncertain; it is widely cultivated in tropical regions.",
+uses: [
+"Commonly grown as an ornamental plant.",
+"Some hibiscus species are used in beverages.",
+"Flowers are used in cultural decorations."
+],
+facts: [
+"It attracts pollinators.",
+"It belongs to the mallow family.",
+"Flowers can be red, yellow, pink or other colours."
+]
+},
 
-    hibiscus: {
-        name: "Hibiscus",
-        scientific: "Hibiscus rosa-sinensis",
-        overview: "Hibiscus is a flowering shrub famous for its large, colourful flowers.",
-        characteristics: [
-            "Large colourful flowers.",
-            "Green leaves with toothed edges.",
-            "Prominent central reproductive column.",
-            "Ornamental shrub."
-        ],
-        uses: "Hibiscus is widely grown as an ornamental plant. Its flowers are also used in some cultural preparations.",
-        origin: "Asia, with many cultivated varieties.",
-        facts: [
-            "Hibiscus belongs to the mallow family.",
-            "Its flowers can be red, pink or yellow.",
-            "It is a popular garden plant.",
-            "Its flowers attract pollinators.",
-            "There are many hibiscus species."
-        ]
-    },
+{
+name: "Gotu Kola",
+aliases: ["gotu kola", "centella"],
+scientific: "Centella asiatica",
+emoji: "🍀",
+overview: "Gotu Kola is a small creeping herb found in moist environments.",
+characteristics: "It has rounded leaves with scalloped edges.",
+origin: "Native to wetlands across parts of Asia.",
+uses: [
+"Known in traditional botanical practices.",
+"Studied for its plant compounds.",
+"Used in some cosmetic products."
+],
+facts: [
+"It grows in moist places.",
+"It is a creeping herb.",
+"It belongs to the Apiaceae family."
+]
+},
 
-    "gotu kola": {
-        name: "Gotu Kola",
-        scientific: "Centella asiatica",
-        overview: "Gotu Kola is a small creeping herb with rounded leaves, commonly found in moist environments.",
-        characteristics: [
-            "Rounded kidney-shaped leaves.",
-            "Creeping stems.",
-            "Small flowers.",
-            "Grows in moist places."
-        ],
-        uses: "Gotu Kola has a history of use in traditional botanical preparations.",
-        origin: "Asia and other tropical regions.",
-        facts: [
-            "It is a creeping herb.",
-            "Its leaves are rounded.",
-            "It often grows in moist places.",
-            "It belongs to the Apiaceae family.",
-            "It is also known as Indian pennywort."
-        ]
-    },
+{
+name: "Aloe Vera",
+aliases: ["aloe vera", "aloe"],
+scientific: "Aloe vera",
+emoji: "🌵",
+overview: "Aloe vera is a succulent plant with thick, fleshy leaves.",
+characteristics: "Its leaves contain a clear inner gel.",
+origin: "Its exact origin is uncertain, but it is associated with the Arabian Peninsula.",
+uses: [
+"Used in cosmetic and personal-care products.",
+"Gel is used as an ingredient in some products.",
+"It is grown as an ornamental succulent."
+],
+facts: [
+"It stores water in its leaves.",
+"It is adapted to dry conditions.",
+"It belongs to the Asphodelaceae family."
+]
+}
 
-    aloevera: {
-        name: "Aloe Vera",
-        scientific: "Aloe vera",
-        overview: "Aloe vera is a succulent plant known for its thick, fleshy leaves containing a clear inner gel.",
-        characteristics: [
-            "Thick fleshy leaves.",
-            "Serrated leaf margins.",
-            "Gel-filled leaf interior.",
-            "Succulent growth."
-        ],
-        uses: "Aloe vera is widely used in cosmetic products and traditional preparations.",
-        origin: "Arabian Peninsula.",
-        facts: [
-            "Aloe vera is a succulent.",
-            "It stores water in its leaves.",
-            "It is adapted to dry conditions.",
-            "Its leaves contain clear gel.",
-            "It is cultivated worldwide."
-        ]
-    },
+];
 
-    ginger: {
-        name: "Ginger",
-        scientific: "Zingiber officinale",
-        overview: "Ginger is a flowering plant whose underground rhizome is widely used as a spice.",
-        characteristics: [
-            "Underground aromatic rhizome.",
-            "Long narrow leaves.",
-            "Herbaceous growth.",
-            "Green leafy shoots."
-        ],
-        uses: "Ginger is commonly used in cooking, beverages and traditional food preparations.",
-        origin: "Southeast Asia.",
-        facts: [
-            "Ginger belongs to the Zingiberaceae family.",
-            "Its underground stem is a rhizome.",
-            "It is widely used in cooking.",
-            "It is related to turmeric.",
-            "It grows in tropical climates."
-        ]
-    },
+/* =========================================
+   LIGHT / DARK MODE
+========================================= */
 
-    ashwagandha: {
-        name: "Ashwagandha",
-        scientific: "Withania somnifera",
-        overview: "Ashwagandha is a small shrub belonging to the nightshade family and is known in traditional Indian botanical knowledge.",
-        characteristics: [
-            "Small greenish flowers.",
-            "Oval leaves.",
-            "Orange-red berries.",
-            "Small woody shrub."
-        ],
-        uses: "Ashwagandha has a long history of use in traditional Indian preparations. Traditional use does not establish medical effectiveness.",
-        origin: "Indian subcontinent and parts of Africa.",
-        facts: [
-            "It belongs to the nightshade family.",
-            "It is a small shrub.",
-            "Its fruits are orange-red.",
-            "It is known in Ayurveda.",
-            "Its botanical name is Withania somnifera."
-        ]
+const themeButton = document.getElementById("themeToggle");
+
+function setTheme(dark) {
+
+    document.body.classList.toggle("dark", dark);
+
+    if (themeButton) {
+        themeButton.textContent = dark
+            ? "☀️ Switch to Light Mode"
+            : "🌙 Switch to Dark Mode";
     }
 
-};
-
-
-/* NAME NORMALIZATION */
-
-function normalizeName(name) {
-
-    return name
-        .toLowerCase()
-        .replace(/[^a-z]/g, "");
+    localStorage.setItem(
+        "plantTheme",
+        dark ? "dark" : "light"
+    );
 }
 
+setTheme(localStorage.getItem("plantTheme") === "dark");
 
-function getPlant(name) {
+if (themeButton) {
 
-    const key = normalizeName(name);
+    themeButton.addEventListener("click", function () {
 
-    const aliases = {
-        curry: "curry",
-        curryleaf: "curry",
-        gotukola: "gotukola",
-        aloevera: "aloevera",
-        amla: "aamla",
-        indian gooseberry: "aamla"
-    };
+        const isDark =
+            document.body.classList.contains("dark");
 
-    const finalKey = aliases[key] || key;
-
-    return Object.values(plants).find(
-        plant => normalizeName(plant.name) === finalKey
-    ) || null;
+        setTheme(!isDark);
+    });
 }
 
+/* =========================================
+   PLANT OF THE DAY
+========================================= */
 
-/* MODEL LOADING */
+function showPlantOfTheDay() {
+
+    const element =
+        document.getElementById("plantOfTheDay");
+
+    if (!element) return;
+
+    const now = new Date();
+
+    const start = new Date(now.getFullYear(), 0, 0);
+
+    const day = Math.floor(
+        (now - start) / (1000 * 60 * 60 * 24)
+    );
+
+    const plant = PLANTS[day % PLANTS.length];
+
+    element.innerHTML = `
+        <div class="daily-icon">${plant.emoji}</div>
+
+        <h3>${plant.name}</h3>
+
+        <p>
+            <strong>Scientific Name:</strong>
+            ${plant.scientific}
+        </p>
+
+        <p>${plant.overview}</p>
+    `;
+}
+
+showPlantOfTheDay();
+
+/* =========================================
+   LOAD TEACHABLE MACHINE MODEL
+========================================= */
 
 async function loadModel() {
 
-    const status = document.getElementById("modelStatus");
+    if (model) return model;
+
+    const status =
+        document.getElementById("modelStatus");
 
     try {
 
-        status.textContent = "Loading AI model...";
+        if (status) {
+            status.textContent = "Loading AI model...";
+        }
 
         model = await tmImage.load(
             MODEL_URL + "model.json",
             MODEL_URL + "metadata.json"
         );
 
-        status.textContent = "AI model loaded successfully. Ready to identify plants.";
+        if (status) {
+            status.textContent =
+                "AI model loaded successfully!";
+        }
 
-        updateIdentifyButton();
+        return model;
 
     } catch (error) {
 
         console.error(error);
 
-        status.textContent =
-            "Unable to load AI model. Please refresh and try again.";
+        if (status) {
+            status.textContent =
+                "Unable to load AI model. Check your internet connection.";
+        }
 
+        throw error;
     }
-
 }
 
+/* =========================================
+   IMAGE UPLOAD
+========================================= */
 
-/* DOM ELEMENTS */
+const fileInput =
+    document.getElementById("file");
 
-const fileInput = document.getElementById("file");
-const preview = document.getElementById("preview");
-const previewBox = document.getElementById("previewBox");
-const fileStatus = document.getElementById("fileStatus");
+const preview =
+    document.getElementById("preview");
 
-const classifyButton = document.getElementById("classify");
+const previewBox =
+    document.getElementById("previewBox");
 
-const predictionsBox = document.getElementById("predictions");
+if (fileInput) {
 
-const informationSection =
-    document.getElementById("informationSection");
+    fileInput.addEventListener("change", function (event) {
 
-const informationBox =
-    document.getElementById("information");
+        const file = event.target.files[0];
 
+        if (!file) return;
 
-/* IMAGE UPLOAD */
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file.");
+            return;
+        }
 
-fileInput.addEventListener("change", function(event) {
+        const reader = new FileReader();
 
-    const file = event.target.files[0];
+        reader.onload = function (e) {
 
-    if (!file) return;
+            const image = new Image();
 
-    if (!file.type.startsWith("image/")) {
+            image.onload = function () {
 
-        fileStatus.textContent = "Please select an image file.";
+                selectedImage = image;
 
-        return;
+                if (preview) {
+                    preview.src = e.target.result;
+                }
 
-    }
+                if (previewBox) {
+                    previewBox.style.display = "block";
+                }
+            };
 
-    stopCamera();
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-
-        const image = new Image();
-
-        image.onload = function() {
-
-            selectedImage = image;
-
-            preview.src = e.target.result;
-
-            previewBox.hidden = false;
-
-            fileStatus.textContent = "Image selected successfully.";
-
-            clearPreviousResults();
-
-            updateIdentifyButton();
-
+            image.src = e.target.result;
         };
 
-        image.src = e.target.result;
+        reader.readAsDataURL(file);
 
-    };
+        stopCamera();
+    });
+}
 
-    reader.readAsDataURL(file);
+/* =========================================
+   REMOVE SELECTED IMAGE
+========================================= */
 
-});
+const removeButton =
+    document.getElementById("remove");
 
+if (removeButton) {
 
-/* WEBCAM */
+    removeButton.addEventListener("click", function () {
 
-document.getElementById("startCamera")
-    .addEventListener("click", async function() {
+        selectedImage = null;
 
-        try {
+        if (preview) {
+            preview.src = "";
+        }
 
+        if (previewBox) {
+            previewBox.style.display = "none";
+        }
+
+        if (fileInput) {
             fileInput.value = "";
+        }
 
-            selectedImage = null;
+        const predictions =
+            document.getElementById("predictions");
 
-            previewBox.hidden = true;
+        if (predictions) {
+            predictions.innerHTML = "";
+        }
 
-            stopCamera();
+        const informationSection =
+            document.getElementById("informationSection");
 
-            cameraStream = await navigator.mediaDevices.getUserMedia({
+        if (informationSection) {
+            informationSection.style.display = "none";
+        }
+
+        const categoryStatus =
+            document.getElementById("categoryStatus");
+
+        if (categoryStatus) {
+            categoryStatus.textContent = "";
+        }
+    });
+}
+
+/* =========================================
+   WEBCAM
+========================================= */
+
+const startCameraButton =
+    document.getElementById("startCamera");
+
+const cameraBox =
+    document.getElementById("cameraBox");
+
+const cameraVideo =
+    document.getElementById("cameraVideo");
+
+const cameraCanvas =
+    document.getElementById("cameraCanvas");
+
+const captureButton =
+    document.getElementById("capturePhoto");
+
+const stopCameraButton =
+    document.getElementById("stopCamera");
+
+async function startCamera() {
+
+    try {
+
+        if (!navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia) {
+
+            alert("Your browser does not support webcam access.");
+
+            return;
+        }
+
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: "environment"
                 },
                 audio: false
             });
 
-            const video = document.getElementById("cameraVideo");
+        cameraVideo.srcObject = cameraStream;
 
-            video.srcObject = cameraStream;
+        await cameraVideo.play();
 
-            document.getElementById("cameraBox").hidden = false;
-
-            fileStatus.textContent = "Webcam started.";
-
-            updateIdentifyButton();
-
-        } catch (error) {
-
-            console.error(error);
-
-            fileStatus.textContent =
-                "Unable to access webcam. Check browser permissions.";
-
-        }
-
-});
-
-
-/* CAPTURE PHOTO */
-
-document.getElementById("capturePhoto")
-    .addEventListener("click", function() {
-
-        const video = document.getElementById("cameraVideo");
-
-        const canvas = document.getElementById("cameraCanvas");
-
-        if (!video.videoWidth) {
-
-            fileStatus.textContent = "Camera is not ready yet.";
-
-            return;
-
-        }
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const context = canvas.getContext("2d");
-
-        context.drawImage(video, 0, 0);
-
-        const image = new Image();
-
-        image.onload = function() {
-
-            selectedImage = image;
-
-            preview.src = canvas.toDataURL("image/png");
-
-            previewBox.hidden = false;
-
-            fileStatus.textContent = "Photo captured successfully.";
-
-            clearPreviousResults();
-
-            stopCamera();
-
-            updateIdentifyButton();
-
-        };
-
-        image.src = canvas.toDataURL("image/png");
-
-});
-
-
-/* STOP CAMERA */
-
-document.getElementById("stopCamera")
-    .addEventListener("click", stopCamera);
-
-
-function stopCamera() {
-
-    if (cameraStream) {
-
-        cameraStream.getTracks().forEach(track => track.stop());
-
-        cameraStream = null;
-
-    }
-
-    document.getElementById("cameraBox").hidden = true;
-
-    document.getElementById("cameraVideo").srcObject = null;
-
-}
-
-
-/* REMOVE IMAGE */
-
-document.getElementById("remove")
-    .addEventListener("click", function() {
-
-        selectedImage = null;
-
-        fileInput.value = "";
-
-        preview.src = "";
-
-        previewBox.hidden = true;
-
-        fileStatus.textContent = "";
-
-        clearPreviousResults();
-
-        updateIdentifyButton();
-
-});
-
-
-/* BUTTON STATE */
-
-function updateIdentifyButton() {
-
-    classifyButton.disabled = !(model && selectedImage);
-
-}
-
-
-/* CLEAR OLD RESULTS */
-
-function clearPreviousResults() {
-
-    predictionsBox.innerHTML = "";
-
-    informationBox.innerHTML = "";
-
-    informationSection.hidden = true;
-
-    document.getElementById("categoryStatus").textContent = "";
-
-}
-
-
-/* IDENTIFY PLANT */
-
-classifyButton.addEventListener("click", identifyPlant);
-
-
-async function identifyPlant() {
-
-    if (!model || !selectedImage) return;
-
-    classifyButton.disabled = true;
-
-    classifyButton.textContent = "Identifying...";
-
-    predictionsBox.innerHTML = "";
-
-    informationSection.hidden = true;
-
-    document.getElementById("categoryStatus").textContent =
-        "Analysing your photograph...";
-
-    try {
-
-        const results = await model.predict(selectedImage);
-
-        results.sort((a, b) => b.probability - a.probability);
-
-        showPredictions(results);
-
-        const best = results[0];
-
-        const confidence = best.probability;
-
-        const plant = getPlant(best.className);
-
-        if (confidence < 0.65) {
-
-            document.getElementById("categoryStatus").textContent =
-                "The AI is not sufficiently confident. Try a clearer photograph.";
-
-        } else if (!plant) {
-
-            document.getElementById("categoryStatus").textContent =
-                "The model detected: " + best.className +
-                ". Botanical information is not available for this label.";
-
-        } else {
-
-            document.getElementById("categoryStatus").textContent =
-                "Plant identified: " + plant.name;
-
-            showInformation(plant);
-
-        }
+        cameraBox.style.display = "block";
 
     } catch (error) {
 
         console.error(error);
 
-        document.getElementById("categoryStatus").textContent =
-            "Identification failed. Please try again.";
+        alert(
+            "Camera could not be opened. Please allow camera permission."
+        );
+    }
+}
 
+function stopCamera() {
+
+    if (cameraStream) {
+
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
+
+        cameraStream = null;
     }
 
-    classifyButton.textContent = "Identify Plant with AI";
+    if (cameraVideo) {
+        cameraVideo.srcObject = null;
+    }
 
-    updateIdentifyButton();
-
+    if (cameraBox) {
+        cameraBox.style.display = "none";
+    }
 }
 
+if (startCameraButton) {
+    startCameraButton.addEventListener(
+        "click",
+        startCamera
+    );
+}
 
-/* SHOW PREDICTIONS */
+if (stopCameraButton) {
+    stopCameraButton.addEventListener(
+        "click",
+        stopCamera
+    );
+}
 
-function showPredictions(results) {
+if (captureButton) {
 
-    predictionsBox.innerHTML = "<h3>AI Prediction Results</h3>";
+    captureButton.addEventListener("click", function () {
 
-    results.forEach(result => {
+        if (!cameraVideo || !cameraCanvas) return;
 
-        const percentage =
-            (result.probability * 100).toFixed(1);
+        const width = cameraVideo.videoWidth;
+        const height = cameraVideo.videoHeight;
 
-        const row = document.createElement("div");
+        if (!width || !height) {
+            alert("Camera is not ready yet.");
+            return;
+        }
 
-        row.className = "prediction-row";
+        cameraCanvas.width = width;
+        cameraCanvas.height = height;
 
-        row.innerHTML = `
-            <div class="prediction-label">
-                <span>${escapeHTML(result.className)}</span>
-                <strong>${percentage}%</strong>
-            </div>
+        const context =
+            cameraCanvas.getContext("2d");
 
-            <div class="prediction-track">
-                <div class="prediction-fill"
-                     style="width:${percentage}%">
-                </div>
-            </div>
+        context.drawImage(
+            cameraVideo,
+            0,
+            0,
+            width,
+            height
+        );
+
+        const imageData =
+            cameraCanvas.toDataURL("image/png");
+
+        const image = new Image();
+
+        image.onload = function () {
+
+            selectedImage = image;
+
+            if (preview) {
+                preview.src = imageData;
+            }
+
+            if (previewBox) {
+                previewBox.style.display = "block";
+            }
+        };
+
+        image.src = imageData;
+
+        stopCamera();
+    });
+}
+
+/* =========================================
+   MATCH AI CLASS WITH PLANT
+========================================= */
+
+function normalize(text) {
+
+    return String(text)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+}
+
+function findPlant(className) {
+
+    const target = normalize(className);
+
+    return PLANTS.find(plant => {
+
+        const names = [
+            plant.name,
+            plant.scientific,
+            ...plant.aliases
+        ];
+
+        return names.some(name => {
+
+            const normalizedName = normalize(name);
+
+            return target === normalizedName ||
+                target.includes(normalizedName) ||
+                normalizedName.includes(target);
+        });
+    });
+}
+
+/* =========================================
+   DISPLAY PLANT INFORMATION
+========================================= */
+
+function displayPlant(plant) {
+
+    const section =
+        document.getElementById("informationSection");
+
+    const information =
+        document.getElementById("information");
+
+    if (!section || !information) return;
+
+    if (!plant) {
+
+        section.style.display = "block";
+
+        information.innerHTML = `
+            <h2>Plant Information</h2>
+
+            <p>
+                No matching plant information was found.
+                Please check the Teachable Machine class labels.
+            </p>
         `;
 
-        predictionsBox.appendChild(row);
+        return;
+    }
 
-    });
+    information.innerHTML = `
 
-}
+        <h2>${plant.emoji} ${plant.name}</h2>
 
+        <h3>Scientific Name</h3>
 
-/* SAFE HTML */
+        <p><em>${plant.scientific}</em></p>
 
-function escapeHTML(text) {
+        <h3>Overview</h3>
 
-    return String(text).replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
+        <p>${plant.overview}</p>
 
-}
+        <h3>Characteristics</h3>
 
+        <p>${plant.characteristics}</p>
 
-/* SHOW PLANT INFORMATION */
+        <h3>Origin</h3>
 
-function showInformation(plant) {
+        <p>${plant.origin}</p>
 
-    informationSection.hidden = false;
+        <h3>Traditional and Common Uses</h3>
 
-    const characteristics = plant.characteristics
-        .map(item => `<li>${escapeHTML(item)}</li>`)
-        .join("");
+        <ul>
+            ${plant.uses.map(use => `<li>${use}</li>`).join("")}
+        </ul>
 
-    const facts = plant.facts
-        .map(item => `<li>${escapeHTML(item)}</li>`)
-        .join("");
+        <h3>Interesting Facts</h3>
 
-    informationBox.innerHTML = `
+        <ul>
+            ${plant.facts.map(fact => `<li>${fact}</li>`).join("")}
+        </ul>
 
-        <h2 class="plant-title">
-            ${escapeHTML(plant.name)}
-        </h2>
+        <div class="info-note">
 
-        <p class="scientific-name">
-            ${escapeHTML(plant.scientific)}
-        </p>
+            <strong>Educational Note:</strong>
 
-        <div class="info-block">
-
-            <h3>🌿 Overview</h3>
-
-            <p>${escapeHTML(plant.overview)}</p>
+            This information is provided for botanical
+            learning. It is not medical advice or a
+            recommendation to use plants for treating
+            health conditions.
 
         </div>
-
-
-        <div class="info-block">
-
-            <h3>🍃 Characteristics</h3>
-
-            <ul>${characteristics}</ul>
-
-        </div>
-
-
-        <div class="info-block">
-
-            <h3>📚 Traditional and General Uses</h3>
-
-            <p>${escapeHTML(plant.uses)}</p>
-
-        </div>
-
-
-        <div class="info-block">
-
-            <h3>🌍 Origin</h3>
-
-            <p>${escapeHTML(plant.origin)}</p>
-
-        </div>
-
-
-        <div class="info-block">
-
-            <h3>⭐ Interesting Facts</h3>
-
-            <ul>${facts}</ul>
-
-        </div>
-
     `;
 
-    informationSection.scrollIntoView({
+    section.style.display = "block";
+
+    section.scrollIntoView({
         behavior: "smooth",
         block: "start"
     });
-
 }
 
+/* =========================================
+   AI CLASSIFICATION
+========================================= */
 
-/* COPY INFORMATION */
+const classifyButton =
+    document.getElementById("classify");
 
-document.getElementById("copy")
-    .addEventListener("click", async function() {
+if (classifyButton) {
 
-        if (!informationBox.innerText.trim()) return;
+    classifyButton.addEventListener("click", async function () {
+
+        const status =
+            document.getElementById("categoryStatus");
+
+        const predictionArea =
+            document.getElementById("predictions");
+
+        if (!selectedImage) {
+
+            alert(
+                "Please upload an image or capture a photo first."
+            );
+
+            return;
+        }
+
+        try {
+
+            classifyButton.disabled = true;
+
+            if (status) {
+                status.textContent =
+                    "Analysing your plant image...";
+            }
+
+            if (predictionArea) {
+                predictionArea.innerHTML = "";
+            }
+
+            const ai = await loadModel();
+
+            const results =
+                await ai.predict(selectedImage);
+
+            results.sort(
+                (a, b) => b.probability - a.probability
+            );
+
+            if (!results.length) {
+                throw new Error("No predictions returned.");
+            }
+
+            const best = results[0];
+
+            const confidence =
+                best.probability * 100;
+
+            if (predictionArea) {
+
+                predictionArea.innerHTML = `
+                    <h3>AI Predictions</h3>
+
+                    ${results.map(result => {
+
+                        const percent =
+                            (result.probability * 100).toFixed(1);
+
+                        return `
+
+                            <div class="prediction-item">
+
+                                <strong>
+                                    ${result.className}
+                                </strong>
+
+                                <span style="float:right">
+                                    ${percent}%
+                                </span>
+
+                                <div class="prediction-bar">
+
+                                    <div
+                                        class="prediction-fill"
+                                        style="width:${percent}%">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }).join("")}
+                `;
+            }
+
+            if (confidence < 50) {
+
+                if (status) {
+                    status.textContent =
+                        "The AI is uncertain. Please try a clearer plant image.";
+                }
+
+                displayPlant(null);
+
+                return;
+            }
+
+            if (status) {
+                status.textContent =
+                    "Identification result: " + best.className;
+            }
+
+            const plant =
+                findPlant(best.className);
+
+            displayPlant(plant);
+
+        } catch (error) {
+
+            console.error(error);
+
+            if (status) {
+                status.textContent =
+                    "Identification failed. Please try again.";
+            }
+
+        } finally {
+
+            classifyButton.disabled = false;
+        }
+    });
+}
+
+/* =========================================
+   COPY PLANT INFORMATION
+========================================= */
+
+const copyButton =
+    document.getElementById("copy");
+
+if (copyButton) {
+
+    copyButton.addEventListener("click", async function () {
+
+        const information =
+            document.getElementById("information");
+
+        const copyStatus =
+            document.getElementById("copyStatus");
+
+        if (!information ||
+            !information.innerText.trim()) {
+            return;
+        }
 
         try {
 
             await navigator.clipboard.writeText(
-                informationBox.innerText
+                information.innerText
             );
 
-            document.getElementById("copyStatus").textContent =
-                "Information copied successfully!";
+            if (copyStatus) {
+                copyStatus.textContent =
+                    "Plant information copied successfully!";
+            }
 
         } catch (error) {
 
-            document.getElementById("copyStatus").textContent =
-                "Copy unavailable in this browser.";
-
+            if (copyStatus) {
+                copyStatus.textContent =
+                    "Copy is not available in this browser.";
+            }
         }
-
-});
-
-
-/* PLANT OF THE DAY */
-
-function showPlantOfTheDay() {
-
-    const allPlants = Object.values(plants);
-
-    const today = new Date();
-
-    const dayNumber = Math.floor(
-        Date.UTC(
-            today.getFullYear(),
-            today.getMonth(),
-            today.getDate()
-        ) / 86400000
-    );
-
-    const index = ((dayNumber % allPlants.length) + allPlants.length)
-        % allPlants.length;
-
-    const plant = allPlants[index];
-
-    const dailyBox = document.getElementById("plantOfTheDay");
-
-    dailyBox.innerHTML = `
-
-        <div class="daily-emoji">🌿</div>
-
-        <h3>${escapeHTML(plant.name)}</h3>
-
-        <p class="scientific-name">
-            ${escapeHTML(plant.scientific)}
-        </p>
-
-        <p>${escapeHTML(plant.overview)}</p>
-
-        <p style="margin-top:12px">
-            <strong>Did you know?</strong>
-            ${escapeHTML(plant.facts[0])}
-        </p>
-
-    `;
-
+    });
 }
 
-
-/* INITIALIZE */
-
-async function initialize() {
-
-    showPlantOfTheDay();
-
-    await loadModel();
-
-}
-
-initialize();
+/* =========================================
+   END OF APP.JS
+========================================= */
