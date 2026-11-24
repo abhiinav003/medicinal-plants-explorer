@@ -1,530 +1,463 @@
-/* =====================================
-   MEDICINAL PLANTS EXPLORER
-   BOTANICAL LIGHT THEME
-===================================== */
+/* =========================================
+MEDICINAL PLANTS EXPLORER
+BOTANICAL DESIGN
+========================================= */
 
 :root {
-    --background: #f1f7f0;
-    --white: #ffffff;
-    --green: #24543e;
-    --green2: #39765a;
-    --text: #294437;
-    --muted: #75867b;
-    --soft: #e5f0e5;
-    --border: #dce9dc;
-    --shadow: 0 8px 25px rgba(35,75,52,0.08);
+--bg: #f1f7f0;
+--card: #ffffff;
+--text: #294437;
+--muted: #75867b;
+--green: #24543e;
+--green2: #39765a;
+--soft: #e5f0e5;
+--border: #dce9dc;
+--shadow: 0 8px 25px rgba(35, 75, 53, 0.09);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+body.dark {
+--bg: #14251d;
+--card: #20372b;
+--text: #e3f1e6;
+--muted: #b0c4b5;
+--green: #a4d5ae;
+--green2: #80bd91;
+--soft: #294635;
+--border: #3b5947;
+--shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+{
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+
+html {
+scroll-behavior: smooth;
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--background);
-    color: var(--text);
-    line-height: 1.6;
+background: var(--bg);
+color: var(--text);
+font-family: Arial, sans-serif;
+line-height: 1.7;
+transition: background 0.3s, color 0.3s;
+overflow-x: hidden;
 }
 
-/* HEADER */
+/* =========================================
+FLOATING LEAVES
+========================================= */
 
-.header {
-    text-align: center;
-    background: var(--white);
-    padding: 30px 15px;
-    border-bottom: 1px solid var(--border);
+.leaves-background {
+position: fixed;
+inset: 0;
+overflow: hidden;
+pointer-events: none;
+z-index: -1;
 }
 
-.brand-icon {
-    font-size: 42px;
+.leaf {
+position: absolute;
+color: #6caa7b;
+opacity: 0.16;
+font-size: 28px;
+animation: floatLeaf 12s linear infinite;
 }
 
-.header h1 {
-    color: var(--green);
-    font-size: clamp(25px, 5vw, 36px);
+.leaf:nth-child(1) {
+left: 8%;
+animation-delay: 0s;
 }
 
-.header p {
-    color: var(--muted);
-    font-size: 14px;
+.leaf:nth-child(2) {
+left: 28%;
+animation-delay: 3s;
 }
 
-/* LIGHT MODE */
-
-.mode-container {
-    display: flex;
-    justify-content: center;
-    padding: 17px;
+.leaf:nth-child(3) {
+left: 55%;
+animation-delay: 6s;
 }
 
-.mode-indicator {
-    background: #fff4d9;
-    color: #85621c;
-    border: 1px solid #f0dfb6;
-    border-radius: 30px;
-    padding: 8px 20px;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 1px;
+.leaf:nth-child(4) {
+left: 78%;
+animation-delay: 2s;
 }
 
-/* MAIN */
+.leaf:nth-child(5) {
+left: 92%;
+animation-delay: 8s;
+}
+
+@keyframes floatLeaf {
+0% {
+transform: translateY(105vh) rotate(0deg);
+}
+
+100% {  
+    transform: translateY(-15vh) rotate(360deg);  
+}
+
+}
+
+/* =========================================
+GENERAL LAYOUT
+========================================= */
 
 .container {
-    width: 92%;
-    max-width: 1050px;
-    margin: auto;
+width: 92%;
+max-width: 1100px;
+margin: auto;
 }
 
-/* INTRODUCTION */
-
-.intro-section {
-    text-align: center;
-    padding: 35px 20px 45px;
+section {
+padding: 35px 0;
 }
 
-.intro-tag {
-    display: inline-block;
-    background: var(--soft);
-    color: var(--green);
-    padding: 7px 15px;
-    border-radius: 30px;
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
+h1, h2, h3 {
+color: var(--green);
+line-height: 1.3;
 }
 
-.intro-section h2 {
-    color: var(--green);
-    font-size: clamp(28px, 5vw, 42px);
-    margin-bottom: 15px;
-}
-
-.intro-section p {
-    max-width: 750px;
-    margin: auto;
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.9;
-}
-
-/* SECTION CARDS */
-
-.section-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px;
-    margin-bottom: 25px;
-    box-shadow: var(--shadow);
+p {
+color: var(--muted);
 }
 
 .section-title {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    margin-bottom: 25px;
+text-align: center;
+margin-bottom: 22px;
+font-size: 27px;
 }
 
-.section-icon {
-    width: 48px;
-    height: 48px;
-    display: grid;
-    place-items: center;
-    background: var(--soft);
-    border-radius: 14px;
-    font-size: 25px;
-    flex-shrink: 0;
+.card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 18px;
+padding: 25px;
+box-shadow: var(--shadow);
+transition: background 0.3s;
 }
 
-.section-title h2 {
-    color: var(--green);
-    font-size: 21px;
+/* =========================================
+HEADER
+========================================= */
+
+header {
+text-align: center;
+padding: 35px 15px 20px;
 }
 
-.section-title p {
-    color: var(--muted);
-    font-size: 13px;
+header h1 {
+font-size: clamp(28px, 5vw, 43px);
+letter-spacing: 1px;
 }
 
-/* BUTTONS */
-
-.primary-button,
-.secondary-button {
-    display: inline-block;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-    transition: 0.2s;
+header p {
+margin-top: 8px;
 }
 
-.primary-button {
-    background: var(--green);
-    color: white;
+/* =========================================
+THEME TOGGLE
+========================================= */
+
+.theme-area {
+display: flex;
+justify-content: center;
+align-items: center;
+margin: 18px auto 25px;
 }
 
-.primary-button:hover {
-    background: var(--green2);
+#themeToggle {
+background: var(--green);
+color: white;
+border: none;
+padding: 11px 25px;
+border-radius: 30px;
+font-size: 15px;
+font-weight: bold;
+cursor: pointer;
+transition: 0.25s;
 }
 
-.secondary-button {
-    background: var(--soft);
-    color: var(--green);
+#themeToggle:hover {
+transform: translateY(-2px);
+opacity: 0.9;
 }
 
-.secondary-button:hover {
-    background: #d5e8d6;
+/* =========================================
+INTRODUCTION
+========================================= */
+
+.intro-card {
+text-align: center;
+padding: 30px;
 }
 
-/* DAILY PLANT */
+.intro-card h2 {
+margin-bottom: 12px;
+}
+
+/* =========================================
+PLANT OF THE DAY
+========================================= */
 
 .daily-card {
-    background: linear-gradient(135deg, #e6f2e4, #f6faf0);
-    border-radius: 17px;
-    padding: 28px;
-    text-align: center;
+text-align: center;
+border-left: 5px solid var(--green2);
 }
 
-.daily-emoji {
-    font-size: 58px;
-    margin-bottom: 10px;
+.daily-card h2 {
+margin-bottom: 12px;
 }
 
 .daily-card h3 {
-    color: var(--green);
-    font-size: 25px;
+font-size: 25px;
+margin: 10px 0;
 }
 
-.daily-card .scientific-name {
-    color: var(--muted);
-    font-style: italic;
-    margin: 5px 0 12px;
+.daily-icon {
+font-size: 45px;
+margin-bottom: 8px;
 }
 
-.daily-card p {
-    color: #52675a;
-    font-size: 14px;
+/* =========================================
+AI IDENTIFICATION
+========================================= */
+
+.ai-card {
+text-align: center;
 }
 
-/* UPLOAD */
+.ai-card h2 {
+margin-bottom: 12px;
+}
+
+.ai-description {
+margin-bottom: 22px;
+}
 
 .upload-area {
-    background: #f7faf6;
-    border: 2px dashed #bdd4bf;
-    border-radius: 17px;
-    text-align: center;
-    padding: 35px 15px;
+border: 2px dashed var(--green2);
+background: var(--soft);
+border-radius: 16px;
+padding: 25px 15px;
+margin: 20px 0;
 }
 
-.upload-icon {
-    font-size: 45px;
-    margin-bottom: 10px;
+.upload-area input {
+max-width: 100%;
+margin-top: 12px;
 }
 
-.upload-area h3,
-.camera-area h3 {
-    color: var(--green);
-    margin-bottom: 8px;
+button,
+.action-button {
+border: none;
+background: var(--green);
+color: white;
+padding: 11px 20px;
+border-radius: 9px;
+font-size: 14px;
+font-weight: bold;
+cursor: pointer;
+margin: 5px;
+transition: 0.2s;
 }
 
-.upload-area p {
-    color: var(--muted);
-    font-size: 13px;
-    margin-bottom: 15px;
+button:hover,
+.action-button:hover {
+opacity: 0.85;
+transform: translateY(-1px);
 }
 
-/* IMAGE PREVIEW */
-
-.preview-box {
-    text-align: center;
-    padding: 20px;
+button:disabled {
+opacity: 0.5;
+cursor: not-allowed;
 }
 
-.preview-box img {
-    display: block;
-    max-width: 100%;
-    width: 350px;
-    max-height: 350px;
-    object-fit: contain;
-    border-radius: 15px;
-    margin: auto auto 15px;
+#previewBox {
+display: none;
+margin: 20px auto;
 }
 
-/* CAMERA */
-
-.camera-area {
-    text-align: center;
-    padding: 25px 10px;
+#preview {
+max-width: 100%;
+width: 300px;
+max-height: 300px;
+object-fit: contain;
+border-radius: 14px;
+border: 3px solid var(--border);
 }
 
-.camera-area h3 {
-    margin-bottom: 15px;
+/* =========================================
+WEBCAM
+========================================= */
+
+.camera-section {
+margin-top: 22px;
 }
 
 #cameraBox {
-    margin-top: 20px;
+display: none;
+margin: 18px auto;
 }
 
 #cameraVideo {
-    width: 100%;
-    max-width: 480px;
-    display: block;
-    margin: auto;
-    background: #17251b;
-    border-radius: 15px;
+width: 100%;
+max-width: 420px;
+border-radius: 15px;
+background: #111;
 }
 
-.camera-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 15px;
+#cameraCanvas {
+display: none;
 }
 
-/* IDENTIFY BUTTON */
+/* =========================================
+STATUS AND PREDICTIONS
+========================================= */
 
-.identify-button {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 12px;
-    background: var(--green);
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
+#modelStatus,
+#categoryStatus,
+#copyStatus {
+margin: 12px 0;
+font-size: 14px;
 }
 
-.identify-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+#predictions {
+margin-top: 18px;
+text-align: left;
 }
 
-/* STATUS */
-
-.status {
-    text-align: center;
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 10px;
+.prediction-item {
+background: var(--soft);
+padding: 12px;
+border-radius: 10px;
+margin: 8px 0;
 }
 
-/* PREDICTIONS */
-
-.predictions {
-    margin-top: 20px;
-}
-
-.prediction-row {
-    margin: 13px 0;
-}
-
-.prediction-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    margin-bottom: 6px;
-}
-
-.prediction-track {
-    height: 9px;
-    background: #e8eee8;
-    border-radius: 20px;
-    overflow: hidden;
+.prediction-bar {
+height: 8px;
+background: var(--border);
+border-radius: 10px;
+overflow: hidden;
+margin-top: 7px;
 }
 
 .prediction-fill {
-    height: 100%;
-    background: var(--green2);
-    border-radius: 20px;
+height: 100%;
+background: var(--green2);
+border-radius: 10px;
 }
 
-/* INFORMATION */
+/* =========================================
+PLANT INFORMATION
+========================================= */
 
-.information-section {
-    border-top: 5px solid var(--green);
+#informationSection {
+display: none;
 }
 
-.plant-title {
-    color: var(--green);
-    font-size: 28px;
-    margin-bottom: 5px;
+#information {
+line-height: 1.8;
 }
 
-.scientific-name {
-    color: var(--muted);
-    font-style: italic;
-    margin-bottom: 20px;
+#information h2 {
+margin-bottom: 15px;
 }
 
-.info-block {
-    background: #f7faf6;
-    border-radius: 12px;
-    padding: 17px;
-    margin: 15px 0;
+#information h3 {
+margin-top: 18px;
+margin-bottom: 5px;
 }
 
-.info-block h3 {
-    color: var(--green);
-    font-size: 16px;
-    margin-bottom: 8px;
+#information p {
+margin-bottom: 8px;
 }
 
-.info-block p,
-.info-block li {
-    color: #52675a;
-    font-size: 14px;
+#information ul {
+padding-left: 22px;
+color: var(--muted);
 }
 
-.info-block ul {
-    padding-left: 20px;
+.info-note {
+background: var(--soft);
+border-left: 4px solid var(--green2);
+padding: 13px;
+border-radius: 8px;
+margin-top: 18px;
 }
 
-.info-block li {
-    margin: 6px 0;
-}
-
-.info-actions {
-    margin-top: 20px;
-}
-
-.educational-note {
-    background: #fff8e9;
-    border: 1px solid #f0dfb6;
-    border-radius: 12px;
-    padding: 17px;
-    margin-top: 22px;
-}
-
-.educational-note h3 {
-    color: #705d35;
-    margin-bottom: 7px;
-}
-
-.educational-note p {
-    color: #705d35;
-    font-size: 13px;
-}
-
-/* GAMES */
-
-.games-section {
-    margin: 35px 0;
-}
+/* =========================================
+GAMES
+========================================= */
 
 .games-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 20px;
 }
 
 .game-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-}
-
-.game-icon {
-    font-size: 45px;
-    margin-bottom: 12px;
+text-align: center;
+padding: 25px;
 }
 
 .game-card h3 {
-    color: var(--green);
-    font-size: 19px;
-    margin-bottom: 10px;
+margin-bottom: 10px;
 }
 
-.game-card p {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 20px;
+.game-icon {
+font-size: 42px;
+margin-bottom: 10px;
 }
 
-/* FOOTER */
+.game-card a {
+display: inline-block;
+margin-top: 15px;
+padding: 10px 20px;
+background: var(--green);
+color: white;
+text-decoration: none;
+border-radius: 9px;
+font-weight: bold;
+}
+
+/* =========================================
+FOOTER
+========================================= */
 
 footer {
-    text-align: center;
-    background: white;
-    border-top: 1px solid var(--border);
-    padding: 30px 15px;
-    margin-top: 45px;
+text-align: center;
+padding: 25px 15px;
+margin-top: 30px;
+border-top: 1px solid var(--border);
+color: var(--muted);
+font-size: 13px;
 }
 
-.footer-icon {
-    font-size: 32px;
+/* =========================================
+RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 650px) {
+
+.games-grid {  
+    grid-template-columns: 1fr;  
+}  
+
+.card {  
+    padding: 20px;  
+}  
+
+.section-title {  
+    font-size: 23px;  
+}  
+
+header {  
+    padding-top: 25px;  
 }
 
-footer h3 {
-    color: var(--green);
-    margin: 5px 0;
-}
-
-footer p {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.copyright {
-    margin-top: 12px;
-    font-size: 11px;
-}
-
-/* HIDDEN */
-
-[hidden] {
-    display: none !important;
-}
-
-/* MOBILE */
-
-@media(max-width: 650px) {
-
-    .header {
-        padding: 25px 12px;
-    }
-
-    .header h1 {
-        font-size: 25px;
-    }
-
-    .container {
-        width: 94%;
-    }
-
-    .section-card {
-        padding: 19px;
-    }
-
-    .section-title h2 {
-        font-size: 18px;
-    }
-
-    .games-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .camera-buttons {
-        flex-direction: column;
-    }
-
-    .camera-buttons button {
-        width: 100%;
-    }
-
-    .intro-section {
-        padding: 25px 8px 35px;
-    }
 }
