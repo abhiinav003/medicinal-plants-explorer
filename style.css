@@ -12,10 +12,11 @@
     --green2: #39765a;
     --soft: #e5f0e5;
     --border: #dce8dc;
-    --shadow: 0 12px 35px rgba(38, 75, 53, 0.09);
+    --shadow: 0 12px 35px rgba(38,75,53,.09);
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+body.dark-mode {
     --bg: #14251d;
     --card: #20372b;
     --text: #edf5ed;
@@ -24,7 +25,7 @@
     --green2: #6da783;
     --soft: #2c4938;
     --border: #3b5746;
-    --shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    --shadow: 0 12px 35px rgba(0,0,0,.2);
 }
 
 * {
@@ -40,18 +41,16 @@ body {
     position: relative;
     isolation: isolate;
     background:
-        radial-gradient(ellipse at 10% 20%, rgba(179, 216, 176, 0.2), transparent 35%),
-        radial-gradient(ellipse at 90% 75%, rgba(179, 216, 176, 0.2), transparent 35%),
+        radial-gradient(ellipse at 10% 20%,rgba(179,216,176,.2),transparent 35%),
+        radial-gradient(ellipse at 90% 75%,rgba(179,216,176,.2),transparent 35%),
         var(--bg);
     color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial,Helvetica,sans-serif;
     font-size: 17px;
     line-height: 1.7;
     overflow-x: hidden;
-    transition: background 0.3s, color 0.3s;
+    transition: background .3s,color .3s;
 }
-
-/* Floating botanical decorations */
 
 body::before,
 body::after {
@@ -59,12 +58,11 @@ body::after {
     position: fixed;
     z-index: 0;
     font-size: 125px;
-    opacity: 0.09;
+    opacity: .09;
     pointer-events: none;
     animation: floatingLeaf 8s ease-in-out infinite;
 }
 
-/* Keep website content above the floating leaves */
 body > * {
     position: relative;
     z-index: 1;
@@ -73,45 +71,27 @@ body > * {
 body::before {
     top: 25%;
     left: -35px;
-    transform: rotate(-30deg);
 }
 
 body::after {
     bottom: 12%;
     right: -30px;
-    transform: rotate(35deg);
     animation-delay: 2s;
 }
 
-/* Make floating leaves visible in dark mode too */
-:root[data-theme="dark"] body::before,
-:root[data-theme="dark"] body::after,
-body.dark-mode::before,
-body.dark-mode::after {
-    opacity: 0.17;
-    filter: brightness(1.35) saturate(1.15);
-}
-
 @keyframes floatingLeaf {
-    0%, 100% {
-        translate: 0 0;
-    }
-
-    50% {
-        translate: 0 -15px;
-    }
+    0%,100% { translate: 0 0; }
+    50% { translate: 0 -15px; }
 }
 
-/* =========================================
-   HEADER
-========================================= */
+/* HEADER */
 
 .site-header {
-    background: linear-gradient(120deg, #20543c, #4c8965);
+    background: linear-gradient(120deg,#20543c,#4c8965);
     color: white;
     padding: 24px 18px;
     text-align: center;
-    box-shadow: 0 5px 22px rgba(30, 70, 45, 0.15);
+    box-shadow: 0 5px 22px rgba(30,70,45,.15);
 }
 
 .header-content {
@@ -146,24 +126,10 @@ body.dark-mode::after {
     color: #e2f0e5;
 }
 
-#themeToggle {
-    display: block;
-    margin: 17px auto 0;
-    padding: 11px 22px;
-    background: rgba(255, 255, 255, 0.18);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: bold;
-}
-
-/* =========================================
-   MAIN LAYOUT
-========================================= */
+/* MAIN LAYOUT */
 
 .container {
-    width: min(92%, 850px);
+    width: min(92%,850px);
     margin: 35px auto;
 }
 
@@ -184,9 +150,7 @@ body.dark-mode::after {
     font-size: 18px;
 }
 
-/* =========================================
-   CARDS
-========================================= */
+/* CARDS */
 
 .card {
     background: var(--card);
@@ -195,11 +159,7 @@ body.dark-mode::after {
     padding: 28px;
     margin: 28px 0;
     box-shadow: var(--shadow);
-    transition: background 0.3s, transform 0.25s;
-}
-
-.card:active {
-    transform: scale(0.995);
+    transition: background .3s,transform .25s;
 }
 
 .section-heading {
@@ -232,9 +192,7 @@ body.dark-mode::after {
     color: var(--muted);
 }
 
-/* =========================================
-   UPLOAD AREA
-========================================= */
+/* UPLOAD */
 
 .upload-label {
     display: flex;
@@ -248,7 +206,7 @@ body.dark-mode::after {
     background: var(--soft);
     text-align: center;
     cursor: pointer;
-    transition: 0.25s;
+    transition: .25s;
 }
 
 .upload-label:hover {
@@ -256,27 +214,19 @@ body.dark-mode::after {
     transform: translateY(-2px);
 }
 
-.upload-label::before {
-    content: "☁️";
+.upload-icon {
     font-size: 45px;
-    margin-bottom: 12px;
 }
 
-.upload-label strong {
+.upload-title {
     font-size: 22px;
+    font-weight: bold;
     color: var(--green);
 }
 
-.upload-label span {
+.upload-subtitle {
     color: var(--muted);
     margin-top: 8px;
-}
-
-#file {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
 }
 
 #previewBox {
@@ -294,20 +244,18 @@ body.dark-mode::after {
     object-fit: contain;
 }
 
-/* =========================================
-   BUTTONS
-========================================= */
+/* BUTTONS */
 
 button {
     cursor: pointer;
     border: none;
-    background: linear-gradient(120deg, #39765a, #204d39);
+    background: linear-gradient(120deg,#39765a,#204d39);
     color: white;
     padding: 14px 22px;
     border-radius: 15px;
     font-size: 16px;
     font-weight: 700;
-    transition: transform 0.2s, opacity 0.2s;
+    transition: transform .2s,opacity .2s;
 }
 
 button:hover {
@@ -315,9 +263,8 @@ button:hover {
 }
 
 button:disabled {
-    opacity: 0.5;
+    opacity: .5;
     cursor: not-allowed;
-    transform: none;
 }
 
 #classify {
@@ -331,9 +278,7 @@ button:disabled {
     text-align: center;
 }
 
-/* =========================================
-   CONFIDENCE GRAPH
-========================================= */
+/* CONFIDENCE GRAPH */
 
 .confidence-item {
     background: var(--soft);
@@ -345,7 +290,6 @@ button:disabled {
 .confidence-heading {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
     font-weight: 700;
     margin-bottom: 12px;
@@ -361,28 +305,26 @@ button:disabled {
 
 .confidence-fill {
     height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, #8caf91, #347253);
+    background: linear-gradient(90deg,#8caf91,#347253);
     border-radius: 30px;
-    transition: width 1.1s ease;
 }
 
-/* =========================================
-   INFORMATION
-========================================= */
+/* INFORMATION */
 
 #information {
     overflow-wrap: anywhere;
 }
 
-#information h2 {
+#information h2,
+#information h3 {
     color: var(--green);
+}
+
+#information h2 {
     font-size: 29px;
-    margin-top: 10px;
 }
 
 #information h3 {
-    color: var(--green);
     font-size: 22px;
     margin-top: 24px;
 }
@@ -396,52 +338,11 @@ button:disabled {
     padding-left: 25px;
 }
 
-/* =========================================
-   DARK MODE INFORMATION READABILITY
-========================================= */
-
-/* Support both theme methods used by the website */
-:root[data-theme="dark"] #information h2,
-:root[data-theme="dark"] #information h3,
-:root[data-theme="dark"] #information h4,
-body.dark-mode #information h2,
-body.dark-mode #information h3,
-body.dark-mode #information h4 {
-    color: #a9dfb5 !important;
-}
-
-:root[data-theme="dark"] #information p,
-:root[data-theme="dark"] #information li,
-:root[data-theme="dark"] #information span,
-:root[data-theme="dark"] #information strong,
-:root[data-theme="dark"] #information em,
-body.dark-mode #information p,
-body.dark-mode #information li,
-body.dark-mode #information span,
-body.dark-mode #information strong,
-body.dark-mode #information em {
-    color: #e5eee7 !important;
-}
-
-:root[data-theme="dark"] #information ul,
-body.dark-mode #information ul {
-    color: #e5eee7 !important;
-}
-
-:root[data-theme="dark"] #information hr,
-body.dark-mode #information hr {
-    border-color: #60796a !important;
-}
-
-/* =========================================
-   HORIZONTAL ACTION BUTTONS
-========================================= */
+/* ACTION BUTTONS */
 
 .action-buttons {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    align-items: stretch;
     flex-wrap: nowrap;
     gap: 10px;
     width: 100%;
@@ -451,17 +352,12 @@ body.dark-mode #information hr {
 .action-buttons button {
     flex: 1 1 0;
     min-width: 0;
-    width: auto;
-    margin: 0;
     padding: 13px 7px;
     font-size: 13px;
     line-height: 1.35;
-    border-radius: 13px;
 }
 
-/* =========================================
-   PLANT OF THE DAY
-========================================= */
+/* PLANT OF THE DAY */
 
 .plant-day-card {
     display: flex;
@@ -474,47 +370,266 @@ body.dark-mode #information hr {
     font-size: 40px;
 }
 
-.plant-day-content h2 {
-    margin: 5px 0;
-    color: var(--green);
-}
-
-.plant-day-label {
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.plant-scientific {
-    font-style: italic;
-    color: var(--muted);
-}
-
-/* =========================================
-   VOICE CONTROLS
-========================================= */
+/* VOICE */
 
 .speech-controls {
     margin: 18px 0;
     display: flex;
     flex-wrap: wrap;
     gap: 9px;
-    align-items: center;
 }
 
 .speech-controls button {
     flex: 1 1 90px;
 }
 
-.speech-controls p {
-    flex-basis: 100%;
-    color: var(--muted);
+/* =========================================
+   NEW DISCOVERY CARDS
+========================================= */
+
+.discovery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 30px 0;
+}
+
+.discovery-card {
+    padding: 23px;
+    border-radius: 25px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.disappearance-card {
+    background: linear-gradient(145deg,#eaf5e9,#ffffff);
+    border-color: #d7e8d5;
+}
+
+.xray-card {
+    background: linear-gradient(145deg,#e9f1ed,#ffffff);
+    border-color: #d8e5df;
+}
+
+.discovery-icon {
+    font-size: 37px;
+    margin-bottom: 8px;
+}
+
+.discovery-label {
+    color: #62836b;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.discovery-card h2 {
+    font-size: 21px;
+    line-height: 1.3;
+    color: #294b37;
+    margin: 5px 0 12px;
+}
+
+.discovery-card h3 {
+    font-size: 17px;
+    color: #39765a;
+    margin: 8px 0;
+}
+
+.discovery-card p {
+    color: #586c5e;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.discovery-card button {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 12px;
 }
 
 /* =========================================
-   LEARNING NOTE AND FOOTER
+   DISCOVERY MODAL
 ========================================= */
+
+.discovery-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(7,22,13,.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: var(--card);
+    color: var(--text);
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 25px;
+    padding: 27px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+
+.modal-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    z-index: 3;
+    font-size: 19px;
+}
+
+.modal-content h2 {
+    color: var(--green);
+    font-size: 25px;
+    line-height: 1.3;
+}
+
+.modal-content h3 {
+    color: var(--green);
+    margin-top: 23px;
+}
+
+.modal-content p,
+.modal-content li {
+    line-height: 1.75;
+}
+
+.modal-note {
+    background: var(--soft);
+    padding: 13px;
+    border-radius: 13px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 20px;
+}
+
+/* X-RAY DIAGRAM */
+
+.xray-diagram {
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.xray-plant-symbol {
+    font-size: 75px;
+    margin: 5px;
+}
+
+.xray-caption {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.anatomy-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 18px 0;
+}
+
+.anatomy-part {
+    background: var(--soft);
+    color: var(--green);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+}
+
+.anatomy-part.active {
+    background: var(--green);
+    color: white;
+}
+
+.anatomy-explanation {
+    background: var(--soft);
+    padding: 18px;
+    border-radius: 17px;
+    min-height: 110px;
+}
+
+.anatomy-explanation h3 {
+    margin-top: 0;
+}
+
+/* GAMES */
+
+.games-section {
+    margin: 34px 0;
+    padding: 26px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: var(--card);
+}
+
+.games-intro {
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 8px 0 20px;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+    gap: 18px;
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    padding: 21px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--soft);
+}
+
+.game-card-icon {
+    font-size: 2.2rem;
+}
+
+.game-card h3 {
+    color: var(--green);
+}
+
+.game-card p {
+    color: var(--muted);
+    flex: 1;
+}
+
+.game-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: #376b45;
+    color: white !important;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* NOTE AND FOOTER */
 
 .note-section {
     background: var(--soft);
@@ -535,11 +650,54 @@ body.dark-mode #information hr {
     margin: 5px 0;
 }
 
-/* =========================================
-   RESPONSIVE DESIGN
-========================================= */
+/* DARK MODE */
 
-@media (max-width: 480px) {
+body.dark-mode .discovery-card,
+body.dark-mode .disappearance-card,
+body.dark-mode .xray-card {
+    background: #26382e;
+    border-color: #405748;
+}
+
+body.dark-mode .discovery-card h2,
+body.dark-mode .discovery-card h3,
+body.dark-mode .discovery-card p,
+body.dark-mode .discovery-label {
+    color: #e5eee7;
+}
+
+body.dark-mode .games-section,
+body.dark-mode .game-card {
+    background: #26382e;
+    border-color: #405748;
+}
+
+body.dark-mode .game-card h3,
+body.dark-mode .game-card p,
+body.dark-mode .games-intro {
+    color: #e5eee7;
+}
+
+body.dark-mode .modal-content {
+    background: #20372b;
+    color: #edf5ed;
+}
+
+body.dark-mode .modal-content h2,
+body.dark-mode .modal-content h3 {
+    color: #a9dfb5;
+}
+
+body.dark-mode .modal-note,
+body.dark-mode .anatomy-explanation,
+body.dark-mode .xray-diagram {
+    background: #2c4938;
+    color: #e5eee7;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px) {
 
     .container {
         width: 92%;
@@ -585,12 +743,20 @@ body.dark-mode #information hr {
     }
 
     .action-buttons button {
-        font-size: 12px;
-        padding: 12px 5px;
+        font-size: 11px;
+        padding: 12px 4px;
     }
 
-    .plant-day-card {
-        gap: 12px;
+    .discovery-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .discovery-card {
+        padding: 22px;
+    }
+
+    .modal-content {
+        padding: 20px;
     }
 }
 
@@ -598,7 +764,7 @@ body.dark-mode #information hr {
     display: none !important;
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media(prefers-reduced-motion:reduce) {
     *,
     *::before,
     *::after {
