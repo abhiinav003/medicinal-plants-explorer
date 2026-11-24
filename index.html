@@ -9,12 +9,12 @@
     <meta name="theme-color" content="#f1f7f0">
     <meta name="description" content="Explore medicinal plants through AI identification, botanical information and interactive educational stories.">
 
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
-    <script src="app.js?v=13" defer></script>
+    <script src="app.js?v=14" defer></script>
 </head>
 
 <body>
@@ -29,8 +29,6 @@
 </header>
 
 <main class="container">
-
-    <!-- WELCOME -->
 
     <section class="welcome-section">
         <div class="welcome-content">
@@ -52,14 +50,12 @@
         </div>
     </section>
 
-    <!-- PLANT OF THE DAY -->
-
     <section class="card plant-day-card" id="plantOfTheDay">
         <p>🌿 TODAY'S FEATURED PLANT</p>
         <h2>Discover a Plant Every Day</h2>
     </section>
 
-    <!-- IMAGE IDENTIFICATION -->
+    <!-- IDENTIFICATION -->
 
     <section class="card">
 
@@ -77,12 +73,7 @@
                 📁 Upload from Files
             </label>
 
-            <input
-                type="file"
-                id="file"
-                accept="image/*"
-                hidden
-            >
+            <input type="file" id="file" accept="image/*" hidden>
 
             <button id="startCamera" type="button">
                 📷 Open Webcam
@@ -92,16 +83,9 @@
 
         <p id="fileStatus" class="status-text"></p>
 
-        <!-- WEBCAM -->
-
         <div id="cameraBox" class="camera-box" hidden>
 
-            <video
-                id="cameraVideo"
-                autoplay
-                playsinline
-                muted>
-            </video>
+            <video id="cameraVideo" autoplay playsinline muted></video>
 
             <div class="camera-controls">
 
@@ -118,8 +102,6 @@
             <canvas id="cameraCanvas" hidden></canvas>
 
         </div>
-
-        <!-- IMAGE PREVIEW -->
 
         <div id="previewBox" class="preview-box" hidden>
 
@@ -184,7 +166,7 @@
 
     </section>
 
-    <!-- DISCOVERY FEATURES -->
+    <!-- DISCOVERY -->
 
     <section id="discoverySection" hidden>
 
@@ -276,9 +258,7 @@
                     an interactive activity.
                 </p>
 
-                <a href="plant_creation_lab.html">
-                    Open Game →
-                </a>
+                <a href="plant_creation_lab.html">Open Game →</a>
             </article>
 
             <article class="game-card">
@@ -291,9 +271,7 @@
                     protection through a game.
                 </p>
 
-                <a href="plant_rescue_mission.html">
-                    Open Game →
-                </a>
+                <a href="plant_rescue_mission.html">Open Game →</a>
             </article>
 
         </div>
@@ -330,7 +308,7 @@
     <small>Educational AI Project</small>
 </footer>
 
-<!-- DISCOVERY MODAL -->
+<!-- MODAL -->
 
 <div id="discoveryModal" class="modal" hidden>
 
