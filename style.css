@@ -1,6 +1,6 @@
 /* =========================================
    MEDICINAL PLANTS EXPLORER
-   PREMIUM BOTANICAL DESIGN
+   ORIGINAL PREMIUM BOTANICAL DESIGN
 ========================================= */
 
 :root {
@@ -32,8 +32,7 @@ body {
     transition: background .3s,color .3s;
 }
 
-button,
-input {
+button,input {
     font: inherit;
 }
 
@@ -204,8 +203,7 @@ button:disabled {
 
 /* BUTTONS */
 
-button,
-.upload-button {
+button,.upload-button {
     border: none;
     border-radius: 12px;
     padding: 12px 17px;
@@ -215,8 +213,7 @@ button,
     transition: transform .2s,background .2s;
 }
 
-button:hover,
-.upload-button:hover {
+button:hover,.upload-button:hover {
     transform: translateY(-2px);
 }
 
@@ -558,7 +555,7 @@ button:hover,
     position: relative;
     background: var(--card);
     color: var(--text);
-    width: min(800px,100%);
+    width: min(900px,100%);
     max-height: 92vh;
     overflow-y: auto;
     padding: 30px;
@@ -655,7 +652,7 @@ button:hover,
 }
 
 /* =========================================
-   THREE-SCENE ANIMATED STORY
+   NEW ANIMATED PLANT STORY
 ========================================= */
 
 .story-intro {
@@ -670,102 +667,6 @@ button:hover,
     color: var(--muted);
 }
 
-.story-progress {
-    display: flex;
-    gap: 7px;
-    margin: 20px 0;
-}
-
-.story-progress span {
-    flex: 1;
-    height: 8px;
-    border-radius: 20px;
-    background: #dce5dc;
-    transition: background .4s;
-}
-
-.story-progress span.active {
-    background: #39765a;
-}
-
-.story-triptych {
-    display: grid;
-    grid-template-columns: repeat(3,minmax(0,1fr));
-    gap: 12px;
-    margin: 20px 0;
-}
-
-.story-panel {
-    border: 2px solid var(--border);
-    border-radius: 18px;
-    background: var(--card);
-    padding: 14px 10px;
-    text-align: center;
-    min-width: 0;
-    opacity: .7;
-    transform: scale(.97);
-    transition: .4s ease;
-    overflow: hidden;
-}
-
-.story-panel.active {
-    opacity: 1;
-    border-color: var(--green2);
-    background: var(--soft);
-    transform: scale(1.025);
-    box-shadow: 0 8px 22px rgba(44,105,65,.13);
-}
-
-.story-panel-label {
-    display: inline-block;
-    background: var(--green);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 30px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: .7px;
-}
-
-.story-art {
-    min-height: 145px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin: 10px 0;
-}
-
-.story-character {
-    font-size: 65px;
-    line-height: 1.2;
-    animation: storyCharacter 2.2s ease-in-out infinite;
-}
-
-.story-plant-art {
-    font-size: 65px;
-    line-height: 1.2;
-    animation: storyPlant 2.6s ease-in-out infinite;
-}
-
-.story-after-art {
-    font-size: 55px;
-    animation: storyCharacter 2.5s ease-in-out infinite;
-}
-
-.story-panel h3 {
-    font-size: 16px;
-    margin: 8px 0;
-    color: var(--green);
-}
-
-.story-panel p {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.5;
-}
-
 .story-topic {
     background: var(--soft);
     padding: 14px;
@@ -776,6 +677,300 @@ button:hover,
 
 .story-topic strong {
     color: var(--green2);
+}
+
+/* TIMELINE */
+
+.story-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 22px 0;
+}
+
+.story-progress span {
+    flex: 1;
+    height: 7px;
+    border-radius: 20px;
+    background: #dce5dc;
+    transition: background .5s;
+}
+
+.story-progress span.active {
+    background: #39765a;
+}
+
+/* MAIN STAGE */
+
+.story-stage {
+    position: relative;
+    min-height: 410px;
+    border-radius: 24px;
+    overflow: hidden;
+    margin: 20px 0;
+    background: linear-gradient(140deg,#d8efdf,#eff8e8,#d7e9d8);
+    border: 1px solid #c9dfce;
+    isolation: isolate;
+}
+
+.story-stage::before,
+.story-stage::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.story-stage::before {
+    width: 240px;
+    height: 240px;
+    background: rgba(255,255,255,.35);
+    top: -100px;
+    right: -40px;
+}
+
+.story-stage::after {
+    width: 300px;
+    height: 300px;
+    background: rgba(83,151,100,.09);
+    bottom: -190px;
+    left: -60px;
+}
+
+.story-scene {
+    position: absolute;
+    inset: 0;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(35px) scale(.97);
+    transition:
+        opacity .8s ease,
+        transform .8s ease,
+        visibility .8s;
+    z-index: 2;
+}
+
+.story-scene.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+}
+
+.story-scene-label {
+    display: inline-block;
+    padding: 7px 18px;
+    border-radius: 30px;
+    background: #24543e;
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,.1);
+}
+
+.story-scene h3 {
+    font-size: 23px;
+    margin: 8px 0;
+    color: #24543e;
+}
+
+.story-scene p {
+    max-width: 600px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #425f4a;
+}
+
+/* SCENE ONE: PERSON */
+
+.story-person-stage {
+    position: relative;
+    width: 220px;
+    height: 155px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.story-person {
+    font-size: 95px;
+    line-height: 1;
+    animation: personConcern 2.3s ease-in-out infinite;
+    filter: drop-shadow(0 9px 8px rgba(30,60,40,.15));
+}
+
+.story-thought {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 30px;
+    animation: thoughtFloat 2s ease-in-out infinite;
+}
+
+.story-scene.active .story-person {
+    animation: personConcern 2.3s ease-in-out infinite;
+}
+
+.story-problem-chip {
+    background: rgba(255,255,255,.85);
+    border: 1px solid #d5e5d7;
+    color: #395d43;
+    padding: 8px 17px;
+    border-radius: 30px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+/* SCENE TWO: PLANT */
+
+.story-plant-stage {
+    position: relative;
+    height: 190px;
+    width: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.story-main-plant {
+    font-size: 115px;
+    position: relative;
+    z-index: 2;
+    transform-origin: bottom center;
+    animation: plantGrow 3s ease-in-out infinite;
+    filter: drop-shadow(0 12px 8px rgba(32,75,42,.2));
+}
+
+.story-glow {
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: radial-gradient(circle,rgba(255,255,255,.85),rgba(112,190,117,.08),transparent 70%);
+    animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+.story-particle {
+    position: absolute;
+    font-size: 22px;
+    animation: particleRise 3s ease-in-out infinite;
+}
+
+.story-particle.one {
+    left: 15px;
+    top: 60px;
+}
+
+.story-particle.two {
+    right: 15px;
+    top: 30px;
+    animation-delay: .8s;
+}
+
+.story-particle.three {
+    left: 45px;
+    bottom: 5px;
+    animation-delay: 1.3s;
+}
+
+/* SCENE THREE: LEARNING */
+
+.story-after-stage {
+    width: 250px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.story-after-person {
+    font-size: 90px;
+    animation: personCelebrate 2.5s ease-in-out infinite;
+}
+
+.story-after-symbol {
+    font-size: 42px;
+    animation: symbolFloat 2s ease-in-out infinite;
+}
+
+/* ANIMATION KEYFRAMES */
+
+@keyframes personConcern {
+    0%,100% {
+        transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+}
+
+@keyframes thoughtFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+}
+
+@keyframes plantGrow {
+    0%,100% {
+        transform: scale(.92) rotate(-3deg);
+    }
+    50% {
+        transform: scale(1.12) rotate(3deg);
+    }
+}
+
+@keyframes glowPulse {
+    0%,100% {
+        transform: scale(.8);
+        opacity: .5;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+@keyframes particleRise {
+    0% {
+        transform: translateY(15px) rotate(0);
+        opacity: 0;
+    }
+    30% { opacity: 1; }
+    100% {
+        transform: translateY(-35px) rotate(35deg);
+        opacity: 0;
+    }
+}
+
+@keyframes personCelebrate {
+    0%,100% {
+        transform: translateY(0) rotate(-3deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(3deg);
+    }
+}
+
+@keyframes symbolFloat {
+    0%,100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.12); }
+}
+
+/* STORY CONTROLS */
+
+.story-status {
+    text-align: center;
+    color: var(--green2);
+    font-weight: bold;
+    font-size: 14px;
+    margin: 12px 0;
 }
 
 .story-controls {
@@ -795,11 +990,16 @@ button:hover,
     color: white;
 }
 
-.story-status {
-    text-align: center;
+.story-explanation {
+    background: var(--soft);
+    border-radius: 15px;
+    padding: 18px;
+    margin-top: 20px;
+}
+
+.story-explanation h3 {
+    margin-top: 0;
     color: var(--green2);
-    font-weight: bold;
-    font-size: 13px;
 }
 
 .story-medical-note {
@@ -810,28 +1010,6 @@ button:hover,
     padding: 15px;
     margin-top: 18px;
     font-size: 13px;
-}
-
-@keyframes storyCharacter {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-
-@keyframes storyPlant {
-    0%,100% { transform: scale(.93) rotate(-3deg); }
-    50% { transform: scale(1.08) rotate(3deg); }
-}
-
-/* STORY REDUCED MOTION */
-
-@media(prefers-reduced-motion:reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
-        scroll-behavior: auto !important;
-    }
 }
 
 /* DARK MODE */
@@ -869,12 +1047,23 @@ body.dark-mode .confidence-track {
     background: #3c5141;
 }
 
-body.dark-mode .story-panel.active {
-    background: #304a37;
+body.dark-mode .story-stage {
+    background: linear-gradient(140deg,#294735,#344b37,#243b2c);
+    border-color: #506b53;
 }
 
-body.dark-mode .story-panel h3 {
-    color: #a5d8b1;
+body.dark-mode .story-scene h3 {
+    color: #d3f0d6;
+}
+
+body.dark-mode .story-scene p {
+    color: #d0e3d2;
+}
+
+body.dark-mode .story-problem-chip {
+    background: #314a38;
+    color: #e5f2e5;
+    border-color: #58735b;
 }
 
 body.dark-mode .story-medical-note {
@@ -904,36 +1093,10 @@ body.dark-mode .secondary-button {
         padding: 20px;
     }
 
-    .story-triptych {
-        grid-template-columns: 1fr;
+    .story-stage {
+        min-height: 440px;
     }
 
-    .story-panel {
-        display: grid;
-        grid-template-columns: 90px 1fr;
-        gap: 8px;
-        text-align: left;
-        align-items: center;
-    }
-
-    .story-panel-label {
-        grid-column: 1/-1;
-        justify-self: start;
-    }
-
-    .story-art {
-        grid-row: span 2;
-        min-height: 100px;
-    }
-
-    .story-character,
-    .story-plant-art {
-        font-size: 52px;
-    }
-
-    .story-panel p {
-        margin-top: 0;
-    }
 }
 
 @media(max-width:550px) {
@@ -994,7 +1157,42 @@ body.dark-mode .secondary-button {
         max-height: 96vh;
     }
 
+    .story-stage {
+        min-height: 450px;
+    }
+
+    .story-scene {
+        padding: 16px;
+    }
+
+    .story-scene h3 {
+        font-size: 20px;
+    }
+
     .story-controls button {
         flex: 1 1 40%;
     }
+
+    .story-person {
+        font-size: 80px;
+    }
+
+    .story-main-plant {
+        font-size: 95px;
+    }
+
+}
+
+/* REDUCED MOTION */
+
+@media(prefers-reduced-motion:reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+
 }
