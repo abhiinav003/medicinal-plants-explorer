@@ -1,6 +1,6 @@
 /* =========================================
-MEDICINAL PLANTS EXPLORER
-AI + WEBCAM + THREE DISCOVERY FEATURES
+   MEDICINAL PLANTS EXPLORER
+   COMPLETE APPLICATION
 ========================================= */
 
 const MODEL_URL =
@@ -9,12 +9,12 @@ const MODEL_URL =
 let model = null;
 let selectedImage = null;
 let currentPlant = null;
-let speechUtterance = null;
 let cameraStream = null;
+let speechUtterance = null;
 let storyTimer = null;
 
 /* =========================================
-PLANT INFORMATION
+   PLANT INFORMATION
 ========================================= */
 
 const plantInformation = {
@@ -211,10 +211,11 @@ facts:["It is also called Indian winter cherry.","Its scientific name is Withani
 };
 
 /* =========================================
-PLANT ALIASES
+   PLANT ALIASES
 ========================================= */
 
 function normalizePlantName(label) {
+
     const name = String(label || "").trim().toLowerCase();
 
     const aliases = {
@@ -254,474 +255,409 @@ function normalizePlantName(label) {
 }
 
 /* =========================================
-ENVIRONMENTAL SCENARIOS
-========================================= */
-
-const disappearanceData = {
-
-"Mint":{
-preview:"Pollinators and gardens could lose one of their familiar flowering herbs.",
-details:"Mint flowers can provide nectar and pollen for visiting insects. If mint became uncommon in an area, insects that visit its flowers would have one fewer available food source. Gardens would also lose a familiar aromatic herb."
-},
-
-"Turmeric":{
-preview:"Farmers and food traditions would lose an important cultivated spice crop.",
-details:"Turmeric is important in agricultural communities, spice markets and traditional cuisines. Its disappearance would affect farmers, food processing and the diversity of cultivated crops."
-},
-
-"Tulsi":{
-preview:"Home gardens and cultural plant traditions would lose a familiar aromatic herb.",
-details:"Tulsi is commonly grown in household gardens. Its disappearance could affect garden diversity, cultural traditions and insects that visit its flowers."
-},
-
-"Neem":{
-preview:"Many places could lose a familiar shade tree and local greenery.",
-details:"Neem trees provide shade and form part of urban and rural landscapes. Their disappearance could reduce tree cover in places where they are common. Birds and insects associated with tree habitats could also experience changes."
-},
-
-"Garlic":{
-preview:"Food systems would lose a widely cultivated bulb crop.",
-details:"Garlic is grown by farmers and used in kitchens around the world. Its disappearance would affect crop diversity, agricultural livelihoods, food processing and traditional recipes."
-},
-
-"Curry":{
-preview:"A familiar food plant and aromatic garden tree would become less common.",
-details:"Curry leaf plants are important in home gardens and regional cooking. Their disappearance would affect food traditions and reduce the availability of this plant in local gardens."
-},
-
-"Rosemary":{
-preview:"Flower-visiting insects would lose one of their familiar garden plants.",
-details:"Rosemary flowers are visited by bees and other insects. If rosemary disappeared from an area, pollinators would lose one possible source of nectar and pollen."
-},
-
-"Lavender":{
-preview:"Gardens would lose a fragrant flowering plant visited by pollinating insects.",
-details:"Lavender flowers attract bees and other pollinators. Its disappearance could reduce one source of nectar in gardens and affect the fragrance and ornamental plant industry."
-},
-
-"Chamomile":{
-preview:"A familiar flowering herb and cultivated crop would be lost.",
-details:"Chamomile is grown for its flowers and is visited by insects. Its disappearance could affect growers, herbal tea production and the variety of flowering plants in cultivated areas."
-},
-
-"Aamla":{
-preview:"Communities would lose an important fruit tree.",
-details:"Amla trees provide fruit and contribute to local greenery. Their disappearance could affect fruit growers, food traditions and organisms that use the tree as part of their habitat."
-},
-
-"Brahmi":{
-preview:"Wetland plant diversity could lose one of its small creeping herbs.",
-details:"Brahmi commonly grows in moist habitats. Its disappearance could reduce plant diversity in some wet areas and affect organisms that use these habitats."
-},
-
-"Moringa":{
-preview:"Farmers and communities would lose a useful tree crop.",
-details:"Moringa is grown for its leaves and pods. Its disappearance could affect home gardens, small farms, local food systems and the diversity of useful trees."
-},
-
-"Lemongrass":{
-preview:"Aromatic grass cultivation and food traditions would be affected.",
-details:"Lemongrass is cultivated for its fragrant leaves and oils. Its disappearance could affect farmers, food producers and fragrance industries."
-},
-
-"Eucalyptus":{
-preview:"Areas that depend on eucalyptus plantations could experience changes.",
-details:"Eucalyptus species are used in forestry and paper production. Their disappearance could affect industries and landscapes where they are widely planted. Ecological effects would depend on the location and species."
-},
-
-"Cinnamon":{
-preview:"A valuable spice crop and part of food traditions would be lost.",
-details:"Cinnamon trees are cultivated for their inner bark. Their disappearance would affect growers, spice markets, food businesses and traditional recipes."
-},
-
-"Clove":{
-preview:"Spice-growing communities would lose an important tropical tree crop.",
-details:"Clove trees are cultivated for their unopened flower buds. Their disappearance could affect growers, spice markets, food industries and the availability of this spice."
-},
-
-"Hibiscus":{
-preview:"Gardens would lose a colourful flowering shrub visited by insects.",
-details:"Hibiscus flowers provide resources for some flower-visiting insects. Its disappearance could reduce ornamental plant diversity and affect gardeners and horticultural businesses."
-},
-
-"Gotu Kola":{
-preview:"Moist habitats would lose one of their familiar creeping plants.",
-details:"Gotu Kola grows in moist environments. Its disappearance could change the variety of small plants in these habitats and affect organisms that interact with its leaves and stems."
-},
-
-"Aloevera":{
-preview:"Dry-climate gardens would lose a familiar water-storing succulent.",
-details:"Aloe vera is cultivated in gardens and warm landscapes. Its disappearance would affect ornamental plant collections and products that use its gel as an ingredient."
-},
-
-"Ginger":{
-preview:"Agriculture and food traditions would lose an important tropical spice crop.",
-details:"Ginger is an important crop used in many cuisines. Its disappearance would affect farmers, food producers, spice markets and traditional recipes."
-},
-
-"Ashwagandha":{
-preview:"A traditional cultivated shrub and part of regional plant diversity would be lost.",
-details:"Ashwagandha is cultivated and studied as a botanical species. Its disappearance could affect plant diversity, growers and the study of plants used in traditional systems."
-}
-
-};
-
-/* =========================================
-BOTANICAL ANATOMY
-========================================= */
-
-const anatomyData = {
-
-"Mint":{
-parts:[
-["Leaves","🌿","The opposite green leaves contain aromatic glands."],
-["Stem","🌱","The soft stem supports the leaves and may spread along the ground."],
-["Roots","🌱","Roots absorb water and minerals and anchor the plant."],
-["Flowers","🌸","Small flowers grow in clusters and attract visiting insects."]
-]},
-
-"Turmeric":{
-parts:[
-["Leaves","🍃","Broad leaves grow above the ground and capture sunlight."],
-["Rhizome","🟠","The thick underground stem stores food and produces new shoots."],
-["Roots","🌱","Roots grow from the underground rhizome and absorb water."],
-["Flowers","🌼","Flower structures grow on a separate flowering shoot."]
-]},
-
-"Tulsi":{
-parts:[
-["Leaves","🌿","Aromatic leaves grow in opposite pairs."],
-["Stem","🌱","The branching stem supports leaves and flowers."],
-["Roots","🌱","Roots anchor the plant and absorb water."],
-["Flower spike","🌸","Small flowers are arranged along upright spikes."]
-]},
-
-"Neem":{
-parts:[
-["Leaflets","🍃","Many narrow leaflets form a compound leaf."],
-["Branch","🌳","Branches support the crown and spread outward."],
-["Trunk","🪵","The woody trunk supports the tree."],
-["Fruit","🫒","The tree produces oval fruits containing seeds."]
-]},
-
-"Garlic":{
-parts:[
-["Leaves","🌿","Long narrow leaves grow above the ground."],
-["Bulb","🧄","The underground bulb contains several cloves."],
-["Cloves","🧄","Individual sections of the bulb can develop into new plants."],
-["Roots","🌱","Fibrous roots grow from the base of the bulb."]
-]},
-
-"Curry":{
-parts:[
-["Leaflets","🍃","Several small leaflets form one compound leaf."],
-["Stem","🌱","The woody stem supports the leaves."],
-["Roots","🌱","Roots absorb water and minerals."],
-["Flowers","🌼","Small white flowers grow in clusters."]
-]},
-
-"Rosemary":{
-parts:[
-["Needle-like leaves","🌿","Narrow leaves contain aromatic glands."],
-["Stem","🌱","Woody stems support the evergreen shrub."],
-["Roots","🌱","Roots anchor the shrub in the soil."],
-["Flowers","🌸","Small flowers may be blue, pink, purple or white."]
-]},
-
-"Lavender":{
-parts:[
-["Leaves","🌿","Narrow grey-green leaves grow along the stems."],
-["Stem","🌱","Upright stems support the flower spikes."],
-["Roots","🌱","Roots anchor the plant and absorb water."],
-["Flower spike","💜","Clusters of small flowers form an upright spike."]
-]},
-
-"Chamomile":{
-parts:[
-["Leaves","🌿","Finely divided leaves grow along branching stems."],
-["Stem","🌱","The branching stem supports the flowers."],
-["Roots","🌱","Roots absorb water and minerals."],
-["Flower head","🌼","White ray florets surround a yellow central disc."]
-]},
-
-"Aamla":{
-parts:[
-["Leaves","🍃","Small leaves grow closely along branchlets."],
-["Branches","🌳","Branches support the tree crown."],
-["Trunk","🪵","The woody trunk provides structural support."],
-["Fruit","🟢","Round fruits contain seeds."]
-]},
-
-"Brahmi":{
-parts:[
-["Leaves","🌿","Small fleshy leaves grow in opposite pairs."],
-["Creeping stem","🌱","The stem spreads across the ground."],
-["Roots","🌱","Roots may develop at stem nodes."],
-["Flowers","🌸","Small pale flowers grow near the leaves."]
-]},
-
-"Moringa":{
-parts:[
-["Leaflets","🍃","Many small leaflets form compound leaves."],
-["Trunk","🌳","The trunk supports the tree."],
-["Roots","🌱","Roots anchor the tree and absorb water."],
-["Seed pod","🥒","Long pods develop from flowers and contain seeds."]
-]},
-
-"Lemongrass":{
-parts:[
-["Leaf blades","🌿","Long narrow leaves capture sunlight."],
-["Leaf base","🌱","Overlapping leaf bases form a dense clump."],
-["Roots","🌱","Fibrous roots anchor the grass."],
-["Stem base","🌾","The short basal stem produces new leaves."]
-]},
-
-"Eucalyptus":{
-parts:[
-["Leaves","🍃","Leathery leaves contain aromatic oils."],
-["Bark","🪵","The outer bark protects the woody trunk."],
-["Trunk","🌳","The trunk supports the tree crown."],
-["Seed capsules","🟤","Woody capsules contain seeds."]
-]},
-
-"Cinnamon":{
-parts:[
-["Leaves","🍃","The tree has simple green leaves."],
-["Outer bark","🪵","The outer bark protects the trunk."],
-["Inner bark","🟤","The inner bark is the part harvested to produce cinnamon."],
-["Trunk","🌳","The woody trunk supports the tree."]
-]},
-
-"Clove":{
-parts:[
-["Leaves","🍃","Aromatic leaves grow on the evergreen tree."],
-["Branch","🌳","Branches support leaves and flower clusters."],
-["Flower buds","🌺","The unopened flower buds are harvested and dried as cloves."],
-["Roots","🌱","Roots anchor the tree and absorb water."]
-]},
-
-"Hibiscus":{
-parts:[
-["Leaves","🍃","Broad leaves capture sunlight."],
-["Stem","🌱","The stem supports leaves and flowers."],
-["Flower","🌺","Large flowers contain petals and reproductive structures."],
-["Roots","🌱","Roots anchor the shrub and absorb water."]
-]},
-
-"Gotu Kola":{
-parts:[
-["Leaves","🍃","Rounded or fan-shaped leaves grow on long stalks."],
-["Stolon","🌱","Creeping stems spread across the ground."],
-["Roots","🌱","Roots may form at nodes along the creeping stems."],
-["Flowers","🌸","Small flowers grow close to the leaves."]
-]},
-
-"Aloevera":{
-parts:[
-["Leaf","🌵","Thick fleshy leaves store water."],
-["Leaf gel","💧","The clear inner leaf tissue is commonly called aloe gel."],
-["Leaf skin","🌵","The outer green layer protects the leaf."],
-["Roots","🌱","Roots anchor the succulent in the soil."]
-]},
-
-"Ginger":{
-parts:[
-["Leaves","🌿","Long narrow leaves grow from upright shoots."],
-["Rhizome","🫚","The branching underground stem stores food."],
-["Roots","🌱","Roots grow from the rhizome and absorb water."],
-["Shoot","🌱","New above-ground stems develop from the rhizome."]
-]},
-
-"Ashwagandha":{
-parts:[
-["Leaves","🍃","Oval leaves grow along branching stems."],
-["Stem","🌱","The branching stem supports the shrub."],
-["Roots","🌱","The plant has a main root system."],
-["Fruit","🟠","Small berries develop inside papery coverings."]
-]}
-
-};
-
-/* =========================================
-PLANT STORY DATA
-Traditional knowledge only.
-No treatment or cure claims.
+   STORY DATA
+   UNIQUE HEALTH EDUCATION TOPICS
 ========================================= */
 
 const storyData = {
 
 "Mint":{
-topic:"Mint in traditional household food and refreshment practices",
-before:"A family is preparing a meal but has not yet added its familiar fresh herb.",
-traditional:"Mint has a long history in food traditions. Its fragrant leaves are commonly used in chutneys, drinks and meals.",
-after:"The family enjoys a freshly prepared meal featuring mint as a flavourful ingredient.",
-note:"This is a food and cultural story, not a demonstration of a medical effect."
+topic:"Mint and digestive-health education",
+condition:"Digestive discomfort",
+problem:"A student is learning about digestive discomfort and why it can happen.",
+traditional:"Mint has a history of use in traditional food and herbal practices. Its fragrant leaves are commonly used in meals and refreshing drinks.",
+after:"The student learns about balanced food habits and why persistent digestive symptoms should be discussed with a healthcare professional.",
+note:"Traditional use does not prove that mint treats digestive disorders."
 },
 
 "Turmeric":{
-topic:"Turmeric in Indian food and cultural traditions",
-before:"A kitchen is preparing a traditional meal with several ingredients.",
-traditional:"Turmeric is a familiar spice in Indian cooking and is also associated with cultural traditions.",
-after:"The meal is prepared with turmeric adding its characteristic golden colour.",
-note:"This story illustrates culinary and cultural use, not disease prevention or treatment."
+topic:"Turmeric and skin-health education",
+condition:"Skin irritation",
+problem:"A person notices a skin concern and wants to understand traditional plant knowledge.",
+traditional:"Turmeric has a long history in Indian food and cultural practices, including some traditional skin-care practices.",
+after:"The person learns that skin concerns can have different causes and that reliable medical advice is important.",
+note:"Turmeric is not established as a treatment for skin diseases."
 },
 
 "Tulsi":{
-topic:"Tulsi in household gardens and traditional practices",
-before:"A household garden has several plants but no Tulsi plant.",
-traditional:"Tulsi has an important place in many Indian households and traditional practices.",
-after:"A Tulsi plant becomes part of the household garden and its cultural traditions.",
-note:"Traditional importance does not establish that Tulsi treats or prevents illness."
+topic:"Tulsi and respiratory-health education",
+condition:"Cough and cold",
+problem:"A student learns about common respiratory illnesses and why people sometimes develop a cough or cold.",
+traditional:"Tulsi is mentioned in several traditional Indian practices and is commonly used in household herbal preparations.",
+after:"The student learns about respiratory health and the importance of appropriate medical care when symptoms are serious or persistent.",
+note:"Traditional use does not establish that Tulsi cures respiratory infections."
 },
 
 "Neem":{
-topic:"Neem in traditional skin-care practices and Ayurvedic history",
-before:"A student is learning about traditional plant knowledge and notices that different cultures have different skin-care traditions.",
-traditional:"Neem has a long history in South Asian traditional practices, including some skin-care traditions.",
-after:"The student learns to distinguish historical plant practices from proven medical care and consult reliable health professionals for skin conditions.",
-note:"Neem is not proven to prevent chickenpox from spreading or worsening, and it should not be used as a substitute for appropriate healthcare."
+topic:"Neem and traditional skin-care knowledge",
+condition:"Chickenpox",
+problem:"A person has chickenpox and their family is learning about the illness and how it spreads.",
+traditional:"Neem has a history of use in South Asian traditional practices, including some skin-care traditions.",
+after:"The family learns that chickenpox requires appropriate healthcare guidance and that preventing its spread involves established public-health measures.",
+note:"Neem is not proven to cure chickenpox, prevent its spread or stop it from worsening. It should not replace medical care."
 },
 
 "Garlic":{
-topic:"Garlic in traditional kitchens",
-before:"A cook is preparing a meal and wants to understand the ingredients used in traditional recipes.",
-traditional:"Garlic is a widely used ingredient in many food traditions and is valued for its strong aroma.",
-after:"The cook learns how garlic contributes flavour to different dishes.",
-note:"This is a culinary story, not a health treatment demonstration."
+topic:"Garlic and heart-health education",
+condition:"Heart-health awareness",
+problem:"A student is learning why maintaining heart health is important.",
+traditional:"Garlic has a long history in food traditions and has also been investigated in scientific research.",
+after:"The student learns about balanced nutrition, physical activity and regular medical check-ups.",
+note:"Garlic is food, not a replacement for prescribed heart medication or medical treatment."
 },
 
 "Curry":{
-topic:"Curry leaves in regional food traditions",
-before:"A family is preparing a regional dish and learning about its ingredients.",
-traditional:"Curry leaves are used in many Indian cooking traditions, especially in seasoning.",
-after:"The family learns how this aromatic plant contributes to familiar recipes.",
-note:"The story describes food traditions, not medical effects."
+topic:"Curry leaves and digestive-health awareness",
+condition:"Digestive discomfort",
+problem:"A student is learning about digestion and the importance of a balanced diet.",
+traditional:"Curry leaves are widely used in Indian food traditions and appear in some traditional preparations.",
+after:"The student learns about healthy eating habits and when digestive symptoms should be discussed with a healthcare professional.",
+note:"Traditional use does not establish that curry leaves treat digestive disorders."
 },
 
 "Rosemary":{
-topic:"Rosemary in Mediterranean cooking",
-before:"A learner explores herbs used in different regional cuisines.",
-traditional:"Rosemary is a familiar aromatic herb in Mediterranean cooking.",
-after:"The learner discovers how rosemary is used to flavour selected dishes.",
-note:"This story is about culinary history, not medical treatment."
+topic:"Rosemary and memory research",
+condition:"Memory and concentration",
+problem:"A student is finding it difficult to concentrate while studying.",
+traditional:"Rosemary has a history of culinary and fragrance use. Researchers have also investigated its aromatic compounds.",
+after:"The student learns about sleep, study habits and the many factors that influence concentration.",
+note:"Rosemary is not a proven treatment for memory problems."
 },
 
 "Lavender":{
-topic:"Lavender in fragrance and garden traditions",
-before:"A garden designer is looking for flowering plants with distinctive fragrances.",
-traditional:"Lavender has a long history in gardens, fragrances and scented products.",
-after:"The designer learns about lavender's role in horticulture and fragrance-making.",
-note:"A pleasant fragrance is not evidence of a medical effect."
+topic:"Lavender and relaxation traditions",
+condition:"Stress",
+problem:"A student feels stressed because of school responsibilities.",
+traditional:"Lavender has a long history in fragrance traditions and is used in some relaxation-related products.",
+after:"The student learns about healthy ways of managing stress, including rest, supportive conversations and appropriate help.",
+note:"Lavender fragrance is not a substitute for mental-health care."
 },
 
 "Chamomile":{
-topic:"Chamomile in traditional tea culture",
-before:"A learner explores plants that have been used in different tea traditions.",
-traditional:"Chamomile flowers have a long history of use in herbal tea traditions.",
-after:"The learner discovers how dried chamomile flowers are prepared as a beverage ingredient.",
-note:"Traditional tea use does not establish that chamomile treats a medical condition."
+topic:"Chamomile and traditional tea culture",
+condition:"Sleep difficulties",
+problem:"A student is learning about the importance of healthy sleep.",
+traditional:"Chamomile flowers have a history of use in herbal tea traditions.",
+after:"The student learns about regular sleep routines and the importance of seeking help for persistent sleep difficulties.",
+note:"Traditional tea use does not establish that chamomile treats sleep disorders."
 },
 
 "Aamla":{
-topic:"Amla in Indian food traditions",
-before:"A family is learning about traditional fruit preservation and regional foods.",
-traditional:"Amla is used in pickles, preserves, candies and other food preparations.",
-after:"The family discovers the many ways this sour fruit appears in food traditions.",
-note:"This is a food-culture story, not a treatment recommendation."
+topic:"Amla and nutritional health",
+condition:"Vitamin C awareness",
+problem:"A student is learning why vitamin C is an important nutrient.",
+traditional:"Amla is a fruit containing vitamin C and is used in many Indian food traditions.",
+after:"The student learns about varied diets and different food sources of essential nutrients.",
+note:"Amla is a food, not a substitute for professional diagnosis or treatment of a deficiency."
 },
 
 "Brahmi":{
-topic:"Brahmi in the history of traditional botanical knowledge",
-before:"A student is researching plants mentioned in traditional Indian texts.",
-traditional:"Brahmi is associated with traditional preparations and botanical research. The common name can refer to different plants.",
-after:"The student learns why correct scientific identification matters when studying traditional plant knowledge.",
-note:"Historical use does not establish effectiveness or safety for a medical purpose."
+topic:"Brahmi and memory-related research",
+condition:"Memory concerns",
+problem:"A student is researching why memory and learning are important.",
+traditional:"Brahmi has a history in traditional Indian botanical knowledge and has also been studied by researchers.",
+after:"The student learns about memory, sleep, learning habits and the importance of checking scientific evidence.",
+note:"Traditional use does not establish that Brahmi treats memory disorders."
 },
 
 "Moringa":{
-topic:"Moringa in local food systems",
-before:"A student is learning about plants that contribute to everyday meals.",
-traditional:"Moringa leaves and immature pods are used as vegetables in different food traditions.",
-after:"The student learns how this tree can contribute to food diversity.",
-note:"This is a food and agriculture story, not a treatment demonstration."
+topic:"Moringa and nutritional awareness",
+condition:"Nutritional health",
+problem:"A student is learning how a balanced diet supports normal growth and health.",
+traditional:"Moringa leaves and pods are used as vegetables and contribute nutrients to meals.",
+after:"The student learns why a varied diet is important and why nutritional concerns should be assessed properly.",
+note:"Moringa is a food plant, not a replacement for treatment of nutritional deficiencies."
 },
 
 "Lemongrass":{
-topic:"Lemongrass in food and fragrance traditions",
-before:"A cook is exploring ingredients used in Southeast Asian dishes.",
-traditional:"Lemongrass is known for its lemon-like aroma and is used in cooking and fragrance products.",
-after:"The cook discovers how this aromatic grass contributes to different recipes.",
-note:"This story does not claim a medical benefit."
+topic:"Lemongrass and digestive-health traditions",
+condition:"Digestive discomfort",
+problem:"A person is learning about digestion and different food traditions.",
+traditional:"Lemongrass is used in several regional food traditions and is known for its lemon-like aroma.",
+after:"The person learns about balanced eating and when persistent digestive symptoms need medical attention.",
+note:"Traditional use does not prove that lemongrass treats digestive disorders."
 },
 
 "Eucalyptus":{
-topic:"Eucalyptus in forestry and fragrance history",
-before:"A student is learning about trees used in forestry and everyday products.",
-traditional:"Eucalyptus leaves are known for their aromatic compounds, and the trees are used in forestry and some fragrance products.",
-after:"The student learns about the plant's uses and its native Australian diversity.",
-note:"Eucalyptus oils can be hazardous if misused. This website does not recommend consuming or applying them."
+topic:"Eucalyptus and respiratory-health education",
+condition:"Breathing difficulties",
+problem:"A student learns why breathing problems should be taken seriously.",
+traditional:"Eucalyptus leaves are known for aromatic compounds and have a history of use in some traditional practices.",
+after:"The student learns that breathing difficulties require appropriate healthcare rather than relying on plant products.",
+note:"Eucalyptus oil can be hazardous if misused. This story does not recommend consuming or applying it."
 },
 
 "Cinnamon":{
-topic:"Cinnamon in historical spice trade",
-before:"A learner explores how spices travelled between different regions.",
-traditional:"Cinnamon has been traded for centuries and is used in many food traditions.",
-after:"The learner discovers how the inner bark became a valued culinary spice.",
-note:"This is a history and food story, not a medical claim."
+topic:"Cinnamon and blood-sugar awareness",
+condition:"Diabetes awareness",
+problem:"A student is learning about blood sugar and why the body needs to regulate it.",
+traditional:"Cinnamon is a widely used spice and has also been investigated in scientific research related to blood sugar.",
+after:"The student learns about diabetes awareness and the importance of professional medical care.",
+note:"Cinnamon is not a replacement for prescribed diabetes medication or treatment."
 },
 
 "Clove":{
-topic:"Clove in traditional spice culture",
-before:"A cook is exploring the history of spices used in traditional recipes.",
-traditional:"Cloves are dried unopened flower buds and have been important in historical spice trade.",
-after:"The cook learns how cloves contribute a distinctive aroma to food traditions.",
-note:"Clove oil should not be treated as a self-care remedy."
+topic:"Clove and dental-health awareness",
+condition:"Toothache",
+problem:"A person experiences tooth discomfort and learns why dental problems should not be ignored.",
+traditional:"Clove has a history in food and traditional practices. Its aromatic compound eugenol has been studied in dentistry.",
+after:"The person learns why a dentist should assess persistent tooth pain and identify its cause.",
+note:"Clove oil can irritate tissues and should not be used as a substitute for dental care."
 },
 
 "Hibiscus":{
-topic:"Hibiscus in gardens and cultural traditions",
-before:"A gardener is planning a colourful tropical garden.",
-traditional:"Hibiscus is widely grown for its striking flowers and is used in some cultural and food traditions.",
-after:"The garden includes a colourful hibiscus shrub that attracts attention.",
-note:"The story focuses on gardening and culture, not medical effects."
+topic:"Hibiscus and skin-health education",
+condition:"Skin irritation",
+problem:"A student is learning that skin irritation can have many different causes.",
+traditional:"Hibiscus is used in some traditional personal-care practices and is widely grown for its flowers.",
+after:"The student learns about skin care and why persistent or severe irritation needs professional advice.",
+note:"Traditional use does not establish that hibiscus treats skin diseases."
 },
 
 "Gotu Kola":{
-topic:"Gotu Kola in regional food and botanical traditions",
-before:"A learner is exploring small plants found in moist environments.",
+topic:"Gotu Kola and traditional botanical knowledge",
+condition:"Skin-health awareness",
+problem:"A student is exploring plants mentioned in traditional skin-care practices.",
 traditional:"Gotu Kola appears in some regional food traditions and traditional botanical preparations.",
-after:"The learner discovers its creeping growth habit and rounded leaves.",
-note:"Traditional use is not proof of a medical effect."
+after:"The student learns to distinguish traditional plant knowledge from proven medical treatments.",
+note:"Traditional use is not proof that Gotu Kola treats skin conditions."
 },
 
 "Aloevera":{
-topic:"Aloe vera in personal-care product history",
-before:"A student is learning how plants are used as ingredients in everyday products.",
+topic:"Aloe vera and personal-care products",
+condition:"Skin-care awareness",
+problem:"A student is learning about ingredients used in personal-care products.",
 traditional:"Aloe vera gel is used as an ingredient in some moisturizers and personal-care products.",
-after:"The student learns about the plant's thick water-storing leaves and its place in product history.",
-note:"This is not advice to apply aloe to injuries or skin conditions."
+after:"The student learns that skin irritation can have different causes and that appropriate care matters.",
+note:"This story does not recommend applying aloe to injuries or skin conditions."
 },
 
 "Ginger":{
-topic:"Ginger in food traditions",
-before:"A family is preparing a meal and learning about aromatic ingredients.",
-traditional:"Ginger is used in many cuisines in fresh and dried forms.",
-after:"The family discovers how ginger contributes its distinctive flavour to food.",
-note:"This is a culinary story, not a medical treatment demonstration."
+topic:"Ginger and nausea research",
+condition:"Nausea",
+problem:"A student is learning about nausea and the different reasons people can experience it.",
+traditional:"Ginger is widely used in food traditions and has also been studied in relation to nausea.",
+after:"The student learns that persistent nausea can have different causes and may require professional assessment.",
+note:"Ginger is not a replacement for medical evaluation or treatment."
 },
 
 "Ashwagandha":{
-topic:"Ashwagandha in the history of Ayurveda",
-before:"A student is researching plants mentioned in traditional Indian systems.",
-traditional:"Ashwagandha has a long history in Ayurvedic traditions and is also studied by modern researchers.",
-after:"The student learns that traditional history and scientific evidence are different kinds of information.",
-note:"Ashwagandha is not a recommendation for self-medication. Plant products can have risks and interactions."
+topic:"Ashwagandha and stress research",
+condition:"Stress and sleep difficulties",
+problem:"A student is learning about stress and the importance of healthy sleep.",
+traditional:"Ashwagandha has a long history in Ayurveda and is also being studied by modern researchers.",
+after:"The student learns about healthy sleep habits, stress management and the importance of discussing health concerns with a professional.",
+note:"Ashwagandha products can have risks and interactions. This story does not recommend taking them."
 }
 
 };
 
 /* =========================================
-ELEMENTS
+   ENVIRONMENTAL DATA
+========================================= */
+
+const disappearanceData = {};
+
+Object.keys(plantInformation).forEach(plant => {
+
+    disappearanceData[plant] = {
+        preview:"Explore how the disappearance of this plant could affect nature and people.",
+
+        details:
+        plant + " is part of plant diversity and has ecological, cultural or agricultural importance. " +
+        "Its disappearance could affect the people, organisms and industries that depend on it. " +
+        "The actual effects would depend on the location and the surrounding ecosystem."
+    };
+
+});
+
+/* =========================================
+   BOTANICAL ANATOMY DATA
+========================================= */
+
+const anatomyData = {
+
+"Mint":[
+["Leaves","🌿","The opposite green leaves contain aromatic glands."],
+["Stem","🌱","The soft stem supports the leaves and may spread along the ground."],
+["Roots","🌱","Roots absorb water and minerals and anchor the plant."],
+["Flowers","🌸","Small flowers grow in clusters and attract visiting insects."]
+],
+
+"Turmeric":[
+["Leaves","🍃","Broad leaves grow above the ground and capture sunlight."],
+["Rhizome","🟠","The thick underground stem stores food and produces new shoots."],
+["Roots","🌱","Roots grow from the underground rhizome and absorb water."],
+["Flowers","🌼","Flower structures grow on a separate flowering shoot."]
+],
+
+"Tulsi":[
+["Leaves","🌿","Aromatic leaves grow in opposite pairs."],
+["Stem","🌱","The branching stem supports leaves and flowers."],
+["Roots","🌱","Roots anchor the plant and absorb water."],
+["Flower spike","🌸","Small flowers are arranged along upright spikes."]
+],
+
+"Neem":[
+["Leaflets","🍃","Many narrow leaflets form a compound leaf."],
+["Branch","🌳","Branches support the crown and spread outward."],
+["Trunk","🪵","The woody trunk supports the tree."],
+["Fruit","🫒","The tree produces oval fruits containing seeds."]
+],
+
+"Garlic":[
+["Leaves","🌿","Long narrow leaves grow above the ground."],
+["Bulb","🧄","The underground bulb contains several cloves."],
+["Cloves","🧄","Individual sections of the bulb can develop into new plants."],
+["Roots","🌱","Fibrous roots grow from the base of the bulb."]
+],
+
+"Curry":[
+["Leaflets","🍃","Several small leaflets form one compound leaf."],
+["Stem","🌱","The woody stem supports the leaves."],
+["Roots","🌱","Roots absorb water and minerals."],
+["Flowers","🌼","Small white flowers grow in clusters."]
+],
+
+"Rosemary":[
+["Leaves","🌿","Narrow leaves contain aromatic glands."],
+["Stem","🌱","Woody stems support the evergreen shrub."],
+["Roots","🌱","Roots anchor the shrub in the soil."],
+["Flowers","🌸","Small flowers may be blue, pink, purple or white."]
+],
+
+"Lavender":[
+["Leaves","🌿","Narrow grey-green leaves grow along the stems."],
+["Stem","🌱","Upright stems support the flower spikes."],
+["Roots","🌱","Roots anchor the plant and absorb water."],
+["Flower spike","💜","Clusters of small flowers form an upright spike."]
+],
+
+"Chamomile":[
+["Leaves","🌿","Finely divided leaves grow along branching stems."],
+["Stem","🌱","The branching stem supports the flowers."],
+["Roots","🌱","Roots absorb water and minerals."],
+["Flower head","🌼","White ray florets surround a yellow central disc."]
+],
+
+"Aamla":[
+["Leaves","🍃","Small leaves grow closely along branchlets."],
+["Branches","🌳","Branches support the tree crown."],
+["Trunk","🪵","The woody trunk provides structural support."],
+["Fruit","🟢","Round fruits contain seeds."]
+],
+
+"Brahmi":[
+["Leaves","🌿","Small fleshy leaves grow in opposite pairs."],
+["Creeping stem","🌱","The stem spreads across the ground."],
+["Roots","🌱","Roots may develop at stem nodes."],
+["Flowers","🌸","Small pale flowers grow near the leaves."]
+],
+
+"Moringa":[
+["Leaflets","🍃","Many small leaflets form compound leaves."],
+["Trunk","🌳","The trunk supports the tree."],
+["Roots","🌱","Roots anchor the tree and absorb water."],
+["Seed pod","🥒","Long pods develop from flowers and contain seeds."]
+],
+
+"Lemongrass":[
+["Leaf blades","🌿","Long narrow leaves capture sunlight."],
+["Leaf base","🌱","Overlapping leaf bases form a dense clump."],
+["Roots","🌱","Fibrous roots anchor the grass."],
+["Stem base","🌾","The short basal stem produces new leaves."]
+],
+
+"Eucalyptus":[
+["Leaves","🍃","Leathery leaves contain aromatic oils."],
+["Bark","🪵","The outer bark protects the woody trunk."],
+["Trunk","🌳","The trunk supports the tree crown."],
+["Seed capsules","🟤","Woody capsules contain seeds."]
+],
+
+"Cinnamon":[
+["Leaves","🍃","The tree has simple green leaves."],
+["Outer bark","🪵","The outer bark protects the trunk."],
+["Inner bark","🟤","The inner bark is harvested to produce cinnamon."],
+["Trunk","🌳","The woody trunk supports the tree."]
+],
+
+"Clove":[
+["Leaves","🍃","Aromatic leaves grow on the evergreen tree."],
+["Branch","🌳","Branches support leaves and flower clusters."],
+["Flower buds","🌺","The unopened flower buds are harvested and dried as cloves."],
+["Roots","🌱","Roots anchor the tree and absorb water."]
+],
+
+"Hibiscus":[
+["Leaves","🍃","Broad leaves capture sunlight."],
+["Stem","🌱","The stem supports leaves and flowers."],
+["Flower","🌺","Large flowers contain petals and reproductive structures."],
+["Roots","🌱","Roots anchor the shrub and absorb water."]
+],
+
+"Gotu Kola":[
+["Leaves","🍃","Rounded or fan-shaped leaves grow on long stalks."],
+["Stolon","🌱","Creeping stems spread across the ground."],
+["Roots","🌱","Roots may form at nodes along the creeping stems."],
+["Flowers","🌸","Small flowers grow close to the leaves."]
+],
+
+"Aloevera":[
+["Leaf","🌵","Thick fleshy leaves store water."],
+["Leaf gel","💧","The clear inner leaf tissue is commonly called aloe gel."],
+["Leaf skin","🌵","The outer green layer protects the leaf."],
+["Roots","🌱","Roots anchor the succulent in the soil."]
+],
+
+"Ginger":[
+["Leaves","🌿","Long narrow leaves grow from upright shoots."],
+["Rhizome","🫚","The branching underground stem stores food."],
+["Roots","🌱","Roots grow from the rhizome and absorb water."],
+["Shoot","🌱","New above-ground stems develop from the rhizome."]
+],
+
+"Ashwagandha":[
+["Leaves","🍃","Oval leaves grow along branching stems."],
+["Stem","🌱","The branching stem supports the shrub."],
+["Roots","🌱","The plant has a main root system."],
+["Fruit","🟠","Small berries develop inside papery coverings."]
+]
+
+};
+
+/* =========================================
+   PLANT EMOJIS
+========================================= */
+
+const plantEmojis = {
+
+"Mint":"🌿",
+"Turmeric":"🟠",
+"Tulsi":"🌱",
+"Neem":"🌳",
+"Garlic":"🧄",
+"Curry":"🍃",
+"Rosemary":"🌿",
+"Lavender":"💜",
+"Chamomile":"🌼",
+"Aamla":"🟢",
+"Brahmi":"🌱",
+"Moringa":"🌳",
+"Lemongrass":"🌾",
+"Eucalyptus":"🌳",
+"Cinnamon":"🪵",
+"Clove":"🌺",
+"Hibiscus":"🌺",
+"Gotu Kola":"🍃",
+"Aloevera":"🌵",
+"Ginger":"🫚",
+"Ashwagandha":"🌿"
+
+};
+
+/* =========================================
+   DOM ELEMENTS
 ========================================= */
 
 const fileInput = document.getElementById("file");
@@ -744,10 +680,13 @@ const removeButton = document.getElementById("remove");
 const chatGPTButton = document.getElementById("openChatGPT");
 
 const discoverySection = document.getElementById("discoverySection");
+
 const disappearancePlant = document.getElementById("disappearancePlant");
 const disappearancePreview = document.getElementById("disappearancePreview");
+
 const xrayPlant = document.getElementById("xrayPlant");
 const xrayPreview = document.getElementById("xrayPreview");
+
 const storyPlant = document.getElementById("storyPlant");
 const storyPreview = document.getElementById("storyPreview");
 
@@ -759,57 +698,86 @@ const cameraBox = document.getElementById("cameraBox");
 const cameraCanvas = document.getElementById("cameraCanvas");
 
 /* =========================================
-STOP CAMERA
+   SAFE SPEECH CONTROL
+========================================= */
+
+function stopSpeech() {
+
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+
+}
+
+/* =========================================
+   STOP CAMERA
 ========================================= */
 
 function stopCamera() {
+
     if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
+
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
+
         cameraStream = null;
     }
 
     cameraVideo.srcObject = null;
     cameraBox.hidden = true;
+
 }
 
 /* =========================================
-START WEBCAM
+   START WEBCAM
 ========================================= */
 
 document.getElementById("startCamera").addEventListener("click",async function() {
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
         fileStatus.textContent =
             "Webcam is not supported by this browser or connection.";
+
         return;
     }
 
     try {
+
         stopCamera();
 
         cameraStream = await navigator.mediaDevices.getUserMedia({
+
             video:{
                 facingMode:{ideal:"environment"}
             },
+
             audio:false
+
         });
 
         cameraVideo.srcObject = cameraStream;
+
         cameraBox.hidden = false;
 
         fileStatus.textContent =
             "Camera is ready. Capture a plant image.";
 
     } catch(error) {
+
         console.error(error);
 
         fileStatus.textContent =
             "Unable to access camera. Please allow camera permission and try again.";
+
     }
+
 });
 
 /* =========================================
-CAPTURE WEBCAM PHOTO
+   CAPTURE WEBCAM PHOTO
 ========================================= */
 
 document.getElementById("capturePhoto").addEventListener("click",function() {
@@ -820,7 +788,10 @@ document.getElementById("capturePhoto").addEventListener("click",function() {
     const height = cameraVideo.videoHeight;
 
     if (!width || !height) {
-        fileStatus.textContent = "Camera is still starting. Please try again.";
+
+        fileStatus.textContent =
+            "Camera is still starting. Please try again.";
+
         return;
     }
 
@@ -828,7 +799,14 @@ document.getElementById("capturePhoto").addEventListener("click",function() {
     cameraCanvas.height = height;
 
     const context = cameraCanvas.getContext("2d");
-    context.drawImage(cameraVideo,0,0,width,height);
+
+    context.drawImage(
+        cameraVideo,
+        0,
+        0,
+        width,
+        height
+    );
 
     preview.src = cameraCanvas.toDataURL("image/jpeg",0.92);
 
@@ -843,6 +821,7 @@ document.getElementById("capturePhoto").addEventListener("click",function() {
         "<p>Tap Identify Image to classify your captured photo.</p>";
 
     categoryStatus.textContent = "";
+
     askButton.hidden = true;
     promptBox.hidden = true;
 
@@ -851,108 +830,161 @@ document.getElementById("capturePhoto").addEventListener("click",function() {
     fileStatus.textContent = "Photo captured successfully.";
 
     stopCamera();
-    speechSynthesis.cancel();
+    stopSpeech();
+
 });
 
 /* =========================================
-STOP CAMERA BUTTON
+   STOP CAMERA BUTTON
 ========================================= */
 
 document.getElementById("stopCamera").addEventListener("click",function() {
+
     stopCamera();
+
     fileStatus.textContent = "Camera stopped.";
+
 });
 
 /* =========================================
-PLANT OF THE DAY
+   PLANT OF THE DAY
 ========================================= */
 
 function setupPlantOfTheDay() {
 
     const plants = Object.keys(plantInformation);
+
     const today = new Date();
 
     const todayNumber = Math.floor(
-        Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()) / 86400000
+        Date.UTC(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate()
+        ) / 86400000
     );
 
-    const startNumber = Math.floor(Date.UTC(2026,0,1) / 86400000);
+    const startNumber = Math.floor(
+        Date.UTC(2026,0,1) / 86400000
+    );
+
     const daysPassed = todayNumber - startNumber;
-    const index = ((daysPassed % plants.length) + plants.length) % plants.length;
+
+    const index =
+        ((daysPassed % plants.length) + plants.length) %
+        plants.length;
 
     const plantName = plants[index];
+
     const plant = plantInformation[plantName];
 
-    const welcome = document.querySelector(".welcome-section");
+    const card = document.getElementById("plantOfTheDay");
 
-    if (!welcome || !plant) return;
-
-    let card = document.getElementById("plantOfTheDay");
-
-    if (!card) {
-        card = document.createElement("section");
-        card.id = "plantOfTheDay";
-        card.className = "card plant-day-card";
-        welcome.insertAdjacentElement("afterend",card);
-    }
+    if (!card || !plant) return;
 
     card.innerHTML = `
         <div class="plant-day-icon">🌿</div>
+
         <div>
             <p class="plant-day-label">TODAY'S FEATURED PLANT</p>
+
             <h2>${plantName}</h2>
+
             <p><em>${plant.scientific}</em></p>
+
             <p>${plant.overview}</p>
         </div>
     `;
+
 }
 
 /* =========================================
-DARK MODE
+   DARK MODE
 ========================================= */
 
 function setupTheme() {
 
     const header = document.querySelector(".site-header");
+
     if (!header) return;
 
     let button = document.getElementById("themeToggle");
 
     if (!button) {
+
         button = document.createElement("button");
+
         button.id = "themeToggle";
         button.type = "button";
+
         header.appendChild(button);
+
+    }
+
+    let savedTheme = false;
+
+    try {
+
+        savedTheme =
+            localStorage.getItem("plantExplorerDarkMode") === "true";
+
+    } catch(error) {
+
+        savedTheme = false;
+
     }
 
     function applyTheme(dark) {
 
-        document.documentElement.classList.toggle("dark-mode",dark);
-        document.documentElement.dataset.theme = dark ? "dark" : "light";
-        document.body.classList.toggle("dark-mode",dark);
-
-        button.textContent = dark ? "☀️ Light Mode" : "🌙 Dark Mode";
-
-        localStorage.setItem(
-            "plantExplorerDarkMode",
-            dark ? "true" : "false"
+        document.documentElement.classList.toggle(
+            "dark-mode",
+            dark
         );
+
+        document.body.classList.toggle(
+            "dark-mode",
+            dark
+        );
+
+        button.textContent =
+            dark ? "☀️ Light Mode" : "🌙 Dark Mode";
+
+        try {
+
+            localStorage.setItem(
+                "plantExplorerDarkMode",
+                dark ? "true" : "false"
+            );
+
+        } catch(error) {
+
+            console.log("Theme preference could not be saved.");
+
+        }
+
     }
 
-    applyTheme(localStorage.getItem("plantExplorerDarkMode") === "true");
+    applyTheme(savedTheme);
 
     button.addEventListener("click",function() {
-        applyTheme(!document.body.classList.contains("dark-mode"));
+
+        const dark =
+            !document.body.classList.contains("dark-mode");
+
+        applyTheme(dark);
+
     });
+
 }
 
 /* =========================================
-LOAD AI MODEL
+   LOAD AI MODEL
 ========================================= */
 
 async function loadModel() {
 
     try {
+
         modelStatus.textContent = "Loading AI model...";
 
         model = await tmImage.load(
@@ -966,33 +998,42 @@ async function loadModel() {
         classifyButton.disabled = !selectedImage;
 
     } catch(error) {
+
         console.error(error);
 
         modelStatus.textContent =
             "Unable to load the AI model. Please refresh and try again.";
+
     }
+
 }
 
 /* =========================================
-HIDE DISCOVERY FEATURES
+   HIDE DISCOVERY FEATURES
 ========================================= */
 
 function hideDiscoveryFeatures() {
 
     discoverySection.hidden = true;
+
     discoveryModal.hidden = true;
+
     modalContent.innerHTML = "";
 
     if (storyTimer) {
+
         clearInterval(storyTimer);
+
         storyTimer = null;
+
     }
 
     document.body.style.overflow = "";
+
 }
 
 /* =========================================
-UPDATE DISCOVERY FEATURES
+   UPDATE DISCOVERY FEATURES
 ========================================= */
 
 function updateDiscoveryFeatures(plantName) {
@@ -1005,48 +1046,71 @@ function updateDiscoveryFeatures(plantName) {
         !storyData[plant]) {
 
         hideDiscoveryFeatures();
+
         return;
     }
 
     disappearancePlant.textContent = plant;
+
     disappearancePreview.textContent =
         disappearanceData[plant].preview;
 
     xrayPlant.textContent = plant;
+
     xrayPreview.textContent =
-        "Explore the important structures of " + plant +
+        "Explore the important structures of " +
+        plant +
         " through an interactive botanical guide.";
 
     storyPlant.textContent = plant;
+
     storyPreview.textContent =
         storyData[plant].topic;
 
     discoverySection.hidden = false;
+
 }
 
 /* =========================================
-OPEN AND CLOSE MODAL
+   OPEN AND CLOSE MODAL
 ========================================= */
 
 function openDiscoveryModal(content) {
 
+    if (storyTimer) {
+
+        clearInterval(storyTimer);
+
+        storyTimer = null;
+
+    }
+
     modalContent.innerHTML = content;
+
     discoveryModal.hidden = false;
 
     document.body.style.overflow = "hidden";
+
     discoveryModal.scrollTop = 0;
+
     modalContent.scrollTop = 0;
+
 }
 
 function closeDiscoveryModal() {
 
     discoveryModal.hidden = true;
+
     document.body.style.overflow = "";
 
     if (storyTimer) {
+
         clearInterval(storyTimer);
+
         storyTimer = null;
+
     }
+
 }
 
 document.getElementById("closeModal").addEventListener(
@@ -1055,32 +1119,45 @@ document.getElementById("closeModal").addEventListener(
 );
 
 discoveryModal.addEventListener("click",function(event) {
+
     if (event.target === discoveryModal) {
+
         closeDiscoveryModal();
+
     }
+
 });
 
 document.addEventListener("keydown",function(event) {
+
     if (event.key === "Escape") {
+
         closeDiscoveryModal();
+
     }
+
 });
 
 /* =========================================
-FEATURE 1:
-WHAT IF THIS PLANT DISAPPEARED?
+   FEATURE 1:
+   ENVIRONMENTAL EXPLORER
 ========================================= */
 
 document.getElementById("exploreDisappearance").addEventListener("click",function() {
 
     const plant = normalizePlantName(currentPlant);
+
     if (!plant) return;
 
     const data = disappearanceData[plant];
 
     openDiscoveryModal(`
+
         <div class="discovery-icon">🌳</div>
-        <div class="discovery-label">ENVIRONMENTAL EXPLORER</div>
+
+        <div class="discovery-label">
+            ENVIRONMENTAL EXPLORER
+        </div>
 
         <h2>What If ${plant} Disappeared?</h2>
 
@@ -1098,41 +1175,52 @@ document.getElementById("exploreDisappearance").addEventListener("click",functio
 
         <p>
             How could communities protect plant diversity?
-            Growing a variety of native plants and protecting natural habitats
-            are important ways to support biodiversity.
+            Growing a variety of native plants and protecting natural
+            habitats are important ways to support biodiversity.
         </p>
 
         <div class="modal-note">
             This is an illustrative educational scenario, not a scientific
             prediction that these changes would definitely occur.
         </div>
+
     `);
+
 });
 
 /* =========================================
-FEATURE 2:
-PLANT X-RAY EXPLORER
+   FEATURE 2:
+   PLANT X-RAY EXPLORER
 ========================================= */
 
 document.getElementById("exploreAnatomy").addEventListener("click",function() {
 
     const plant = normalizePlantName(currentPlant);
+
     if (!plant) return;
 
     const data = anatomyData[plant];
 
-    const buttons = data.parts.map((part,index) => `
+    const buttons = data.map((part,index) => `
+
         <button
             type="button"
             class="anatomy-part ${index === 0 ? "active" : ""}"
             data-part="${index}">
+
             ${part[0]}
+
         </button>
+
     `).join("");
 
     openDiscoveryModal(`
+
         <div class="discovery-icon">🔬</div>
-        <div class="discovery-label">BOTANICAL DISCOVERY</div>
+
+        <div class="discovery-label">
+            BOTANICAL DISCOVERY
+        </div>
 
         <h2>${plant} — Plant X-Ray Explorer</h2>
 
@@ -1141,8 +1229,9 @@ document.getElementById("exploreAnatomy").addEventListener("click",function() {
         </p>
 
         <div class="xray-diagram">
+
             <div class="xray-visual" id="xrayVisual">
-                ${data.parts[0][1]}
+                ${data[0][1]}
             </div>
 
             <strong>${plant}</strong>
@@ -1150,6 +1239,7 @@ document.getElementById("exploreAnatomy").addEventListener("click",function() {
             <p class="xray-caption">
                 Simplified botanical illustration — not a medical X-ray.
             </p>
+
         </div>
 
         <h3>Explore the Plant Parts</h3>
@@ -1159,211 +1249,451 @@ document.getElementById("exploreAnatomy").addEventListener("click",function() {
         </div>
 
         <div class="anatomy-explanation" id="anatomyExplanation">
-            <h3>${data.parts[0][0]}</h3>
-            <p>${data.parts[0][2]}</p>
+
+            <h3>${data[0][0]}</h3>
+
+            <p>${data[0][2]}</p>
+
         </div>
 
         <div class="modal-note">
             This is a simplified educational guide. Plant structures can
             vary between species and varieties.
         </div>
+
     `);
 
-    const partButtons = modalContent.querySelectorAll(".anatomy-part");
-    const explanation = modalContent.querySelector("#anatomyExplanation");
-    const visual = modalContent.querySelector("#xrayVisual");
+    const partButtons =
+        modalContent.querySelectorAll(".anatomy-part");
+
+    const explanation =
+        modalContent.querySelector("#anatomyExplanation");
+
+    const visual =
+        modalContent.querySelector("#xrayVisual");
 
     partButtons.forEach(button => {
 
         button.addEventListener("click",function() {
 
             const index = Number(this.dataset.part);
-            const selected = data.parts[index];
 
-            partButtons.forEach(item => item.classList.remove("active"));
+            const selected = data[index];
+
+            partButtons.forEach(item => {
+                item.classList.remove("active");
+            });
+
             this.classList.add("active");
 
             visual.style.animation = "none";
+
             void visual.offsetWidth;
+
             visual.style.animation = "";
 
             visual.textContent = selected[1];
 
             explanation.innerHTML = `
+
                 <h3>${selected[0]}</h3>
+
                 <p>${selected[2]}</p>
+
             `;
+
         });
+
     });
+
 });
 
 /* =========================================
-FEATURE 3:
-PLANT STORY ANIMATION
+   FEATURE 3:
+   THREE-SCENE ANIMATED PLANT STORY
 ========================================= */
 
 document.getElementById("exploreStory").addEventListener("click",function() {
 
     const plant = normalizePlantName(currentPlant);
+
     if (!plant) return;
 
     const data = storyData[plant];
 
+    const emoji = plantEmojis[plant] || "🌿";
+
     openDiscoveryModal(`
-        <div class="discovery-icon">🎬</div>
-        <div class="discovery-label">ANIMATED PLANT STORY</div>
 
-        <h2>${plant} — Plant Story</h2>
+        <div class="story-intro">
 
-        <p><strong>${data.topic}</strong></p>
+            <div class="discovery-icon">🎬</div>
 
-        <div class="story-stage">
-
-            <div class="story-scene" id="storyScene">
-                <div class="story-person">🧑‍🎓</div>
-                <div class="story-plant">🌱</div>
+            <div class="discovery-label">
+                THREE-SCENE ANIMATED STORY
             </div>
 
-            <h3 id="storySceneTitle">Scene 1: Discover</h3>
+            <h2>${plant} — Animated Story</h2>
 
-            <p id="storySceneText">
-                ${data.before}
-            </p>
+            <p>${data.topic}</p>
 
+        </div>
+
+        <div class="story-topic">
+
+            <strong>Health education topic:</strong>
+
+            <p>${data.condition}</p>
+
+        </div>
+
+        <div class="story-progress" id="storyProgress">
+
+            <span class="active"></span>
+
+            <span></span>
+
+            <span></span>
+
+        </div>
+
+        <div class="story-triptych">
+
+            <!-- BEFORE -->
+
+            <article class="story-panel active" data-scene="0">
+
+                <span class="story-panel-label">
+                    BEFORE
+                </span>
+
+                <div class="story-art">
+
+                    <div class="story-character">
+                        🧑
+                    </div>
+
+                    <div>💭</div>
+
+                </div>
+
+                <h3>The Situation</h3>
+
+                <p>${data.problem}</p>
+
+            </article>
+
+            <!-- PLANT -->
+
+            <article class="story-panel" data-scene="1">
+
+                <span class="story-panel-label">
+                    MEDICINAL PLANT
+                </span>
+
+                <div class="story-art">
+
+                    <div class="story-plant-art">
+                        ${emoji}
+                    </div>
+
+                    <div>🌱</div>
+
+                </div>
+
+                <h3>${plant}</h3>
+
+                <p>${data.traditional}</p>
+
+            </article>
+
+            <!-- AFTER -->
+
+            <article class="story-panel" data-scene="2">
+
+                <span class="story-panel-label">
+                    AFTER
+                </span>
+
+                <div class="story-art">
+
+                    <div class="story-after-art">
+                        👩‍🎓
+                    </div>
+
+                    <div>📚 🩺</div>
+
+                </div>
+
+                <h3>What We Learn</h3>
+
+                <p>${data.after}</p>
+
+            </article>
+
+        </div>
+
+        <div class="story-status" id="storyStatus" aria-live="polite">
+            Scene 1 of 3 — BEFORE
         </div>
 
         <div class="story-controls">
-            <button id="storyPlay" type="button">▶ Play Story</button>
-            <button id="storyRestart" type="button">↻ Restart</button>
+
+            <button
+                id="storyPlay"
+                class="story-play"
+                type="button">
+
+                ▶ Play Animation
+
+            </button>
+
+            <button
+                id="storyPrevious"
+                type="button">
+
+                ← Previous
+
+            </button>
+
+            <button
+                id="storyNext"
+                type="button">
+
+                Next →
+
+            </button>
+
+            <button
+                id="storyRestart"
+                type="button">
+
+                ↻ Restart
+
+            </button>
+
         </div>
 
         <div class="story-step">
-            <h3>🌿 Traditional Knowledge</h3>
+
+            <h3>🌿 Traditional Plant Knowledge</h3>
+
             <p>${data.traditional}</p>
+
         </div>
 
         <div class="story-step">
+
             <h3>✨ What We Learn</h3>
+
             <p>${data.after}</p>
+
         </div>
 
-        <div class="modal-note">
+        <div class="story-medical-note">
+
+            <strong>Important educational note:</strong>
+
+            <br><br>
+
             ${data.note}
-            Traditional practices are not proof of medical effectiveness.
-            This animation is for education and does not recommend
-            self-medication.
+
+            <br><br>
+
+            Traditional practices are not automatically proven medical
+            treatments. This animation does not recommend self-medication.
+
         </div>
+
     `);
 
-    const sceneTitle = modalContent.querySelector("#storySceneTitle");
-    const sceneText = modalContent.querySelector("#storySceneText");
-    const scene = modalContent.querySelector("#storyScene");
+    const panels =
+        modalContent.querySelectorAll(".story-panel");
 
-    const playButton = modalContent.querySelector("#storyPlay");
-    const restartButton = modalContent.querySelector("#storyRestart");
+    const progress =
+        modalContent.querySelectorAll("#storyProgress span");
+
+    const status =
+        modalContent.querySelector("#storyStatus");
+
+    const playButton =
+        modalContent.querySelector("#storyPlay");
+
+    const previousButton =
+        modalContent.querySelector("#storyPrevious");
+
+    const nextButton =
+        modalContent.querySelector("#storyNext");
+
+    const restartButton =
+        modalContent.querySelector("#storyRestart");
+
+    const sceneNames = [
+        "BEFORE",
+        "MEDICINAL PLANT",
+        "AFTER"
+    ];
 
     let step = 0;
 
-    const scenes = [
-        {
-            title:"Scene 1: Discover",
-            text:data.before,
-            person:"🧑‍🎓",
-            plant:"🌱"
-        },
-        {
-            title:"Scene 2: The Plant",
-            text:data.traditional,
-            person:"🧑‍🎓",
-            plant:"🌿"
-        },
-        {
-            title:"Scene 3: What We Learn",
-            text:data.after,
-            person:"👩‍🎓",
-            plant:"🌳"
-        }
-    ];
+    function showScene(index) {
 
-    function showStep() {
+        step = Math.max(0,Math.min(index,2));
 
-        const current = scenes[step];
+        panels.forEach((panel,i) => {
 
-        sceneTitle.textContent = current.title;
-        sceneText.textContent = current.text;
+            panel.classList.toggle(
+                "active",
+                i === step
+            );
 
-        scene.innerHTML = `
-            <div class="story-person">${current.person}</div>
-            <div class="story-plant">${current.plant}</div>
-        `;
+        });
 
-        if (step === scenes.length - 1) {
-            playButton.textContent = "▶ Play Again";
-        } else {
-            playButton.textContent = "▶ Play Story";
-        }
+        progress.forEach((bar,i) => {
+
+            bar.classList.toggle(
+                "active",
+                i <= step
+            );
+
+        });
+
+        status.textContent =
+            "Scene " + (step + 1) +
+            " of 3 — " + sceneNames[step];
+
+        previousButton.disabled = step === 0;
+
+        nextButton.disabled = step === 2;
+
+        playButton.textContent =
+            step === 2
+                ? "▶ Play Again"
+                : "▶ Play Animation";
+
     }
 
-    function nextStep() {
+    function stopAnimation() {
 
-        step++;
+        if (storyTimer) {
 
-        if (step >= scenes.length) {
             clearInterval(storyTimer);
+
             storyTimer = null;
-            step = scenes.length - 1;
+
         }
 
-        showStep();
+        playButton.textContent = "▶ Play Animation";
+
+    }
+
+    function nextScene() {
+
+        if (step < 2) {
+
+            showScene(step + 1);
+
+        } else {
+
+            stopAnimation();
+
+        }
+
+    }
+
+    function startAnimation() {
+
+        stopAnimation();
+
+        if (step === 2) {
+
+            showScene(0);
+
+        }
+
+        playButton.textContent = "⏸ Pause Animation";
+
+        storyTimer = setInterval(function() {
+
+            if (step < 2) {
+
+                nextScene();
+
+            } else {
+
+                stopAnimation();
+
+            }
+
+        },4000);
+
     }
 
     playButton.addEventListener("click",function() {
 
         if (storyTimer) {
-            clearInterval(storyTimer);
-            storyTimer = null;
+
+            stopAnimation();
+
+        } else {
+
+            startAnimation();
+
         }
 
-        if (step === scenes.length - 1) {
-            step = 0;
-        }
+    });
 
-        showStep();
+    previousButton.addEventListener("click",function() {
 
-        storyTimer = setInterval(nextStep,4000);
+        stopAnimation();
+
+        showScene(step - 1);
+
+    });
+
+    nextButton.addEventListener("click",function() {
+
+        stopAnimation();
+
+        showScene(step + 1);
+
     });
 
     restartButton.addEventListener("click",function() {
 
-        if (storyTimer) {
-            clearInterval(storyTimer);
-            storyTimer = null;
-        }
+        stopAnimation();
 
-        step = 0;
-        showStep();
+        showScene(0);
+
     });
 
-    showStep();
+    showScene(0);
+
 });
 
 /* =========================================
-IMAGE UPLOAD FROM FILES
+   IMAGE UPLOAD FROM FILES
 ========================================= */
 
 fileInput.addEventListener("change",function(event) {
 
     const file = event.target.files[0];
+
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-        fileStatus.textContent = "Please select a valid image.";
+
+        fileStatus.textContent =
+            "Please select a valid image.";
+
         return;
+
     }
 
     stopCamera();
 
     selectedImage = file;
+
     currentPlant = null;
 
     hideDiscoveryFeatures();
@@ -1373,9 +1703,11 @@ fileInput.addEventListener("change",function(event) {
     reader.onload = function(e) {
 
         preview.src = e.target.result;
+
         previewBox.hidden = false;
 
-        fileStatus.textContent = "Image selected successfully.";
+        fileStatus.textContent =
+            "Image selected successfully.";
 
         classifyButton.disabled = !model;
 
@@ -1385,16 +1717,19 @@ fileInput.addEventListener("change",function(event) {
         categoryStatus.textContent = "";
 
         askButton.hidden = true;
+
         promptBox.hidden = true;
 
-        speechSynthesis.cancel();
+        stopSpeech();
+
     };
 
     reader.readAsDataURL(file);
+
 });
 
 /* =========================================
-CLASSIFY IMAGE
+   CLASSIFY IMAGE
 ========================================= */
 
 classifyButton.addEventListener("click",async function() {
@@ -1402,13 +1737,17 @@ classifyButton.addEventListener("click",async function() {
     if (!model || !selectedImage) return;
 
     classifyButton.disabled = true;
+
     classifyButton.textContent = "Identifying...";
 
     predictionsBox.innerHTML =
         "<p>🔍 Analyzing your image...</p>";
 
     hideDiscoveryFeatures();
+
     currentPlant = null;
+
+    askButton.hidden = true;
 
     try {
 
@@ -1417,13 +1756,18 @@ classifyButton.addEventListener("click",async function() {
         image.src = preview.src;
 
         await new Promise((resolve,reject) => {
+
             image.onload = resolve;
+
             image.onerror = reject;
+
         });
 
         const predictions = await model.predict(image);
 
-        predictions.sort((a,b) => b.probability - a.probability);
+        predictions.sort((a,b) => {
+            return b.probability - a.probability;
+        });
 
         predictionsBox.innerHTML = "";
 
@@ -1433,43 +1777,57 @@ classifyButton.addEventListener("click",async function() {
                 (prediction.probability * 100).toFixed(1);
 
             const row = document.createElement("div");
+
             row.className = "confidence-item";
 
             const heading = document.createElement("div");
+
             heading.className = "confidence-heading";
 
             const label = document.createElement("span");
+
             label.textContent = prediction.className;
 
             const value = document.createElement("span");
+
             value.textContent = percentage + "%";
 
             heading.append(label,value);
 
             const track = document.createElement("div");
+
             track.className = "confidence-track";
 
             const fill = document.createElement("div");
+
             fill.className = "confidence-fill";
+
             fill.style.width = percentage + "%";
 
             track.appendChild(fill);
+
             row.append(heading,track);
 
             predictionsBox.appendChild(row);
+
         });
 
         const bestPrediction = predictions[0];
 
-        currentPlant = normalizePlantName(bestPrediction.className);
+        currentPlant =
+            normalizePlantName(bestPrediction.className);
 
         if (!currentPlant) {
 
             categoryStatus.textContent =
                 "The top prediction is not a supported plant category.";
 
+            hideDiscoveryFeatures();
+
             askButton.hidden = true;
+
             return;
+
         }
 
         categoryStatus.textContent =
@@ -1489,106 +1847,166 @@ classifyButton.addEventListener("click",async function() {
     } finally {
 
         classifyButton.disabled = false;
-        classifyButton.textContent = "Identify Image";
+
+        classifyButton.textContent = "🔍 Identify Image";
+
     }
+
 });
 
 /* =========================================
-VOICE NARRATION
+   VOICE NARRATION
 ========================================= */
 
 function setupSpeechControls() {
 
-    speechSynthesis.cancel();
+    if (!("speechSynthesis" in window)) {
+
+        return;
+
+    }
+
+    stopSpeech();
 
     const textToRead = informationBox.innerText;
 
     const controls = document.createElement("div");
+
     controls.className = "speech-controls";
 
     controls.innerHTML = `
-        <button id="pauseButton" type="button">⏸ Pause</button>
-        <button id="resumeButton" type="button">▶ Resume</button>
-        <button id="stopButton" type="button">⏹ Stop</button>
+
+        <button id="pauseButton" type="button">
+            ⏸ Pause
+        </button>
+
+        <button id="resumeButton" type="button">
+            ▶ Resume
+        </button>
+
+        <button id="stopButton" type="button">
+            ⏹ Stop
+        </button>
+
     `;
 
     informationBox.appendChild(controls);
 
-    document.getElementById("pauseButton").addEventListener("click",function() {
-        if (speechSynthesis.speaking) speechSynthesis.pause();
-    });
+    controls.querySelector("#pauseButton").addEventListener(
+        "click",
+        function() {
 
-    document.getElementById("resumeButton").addEventListener("click",function() {
-        if (speechSynthesis.paused) speechSynthesis.resume();
-    });
+            if (speechSynthesis.speaking) {
+                speechSynthesis.pause();
+            }
 
-    document.getElementById("stopButton").addEventListener("click",function() {
-        speechSynthesis.cancel();
-    });
+        }
+    );
 
-    speechUtterance = new SpeechSynthesisUtterance(textToRead);
+    controls.querySelector("#resumeButton").addEventListener(
+        "click",
+        function() {
+
+            if (speechSynthesis.paused) {
+                speechSynthesis.resume();
+            }
+
+        }
+    );
+
+    controls.querySelector("#stopButton").addEventListener(
+        "click",
+        stopSpeech
+    );
+
+    speechUtterance =
+        new SpeechSynthesisUtterance(textToRead);
 
     speechUtterance.lang = "en-IN";
+
     speechUtterance.rate = 0.9;
 
     speechSynthesis.speak(speechUtterance);
+
 }
 
 /* =========================================
-DISPLAY PLANT INFORMATION
+   DISPLAY PLANT INFORMATION
 ========================================= */
 
 function displayPlantInformation(plantName) {
 
-    const normalizedName = normalizePlantName(plantName);
-    const plant = plantInformation[normalizedName];
+    const normalizedName =
+        normalizePlantName(plantName);
 
-    speechSynthesis.cancel();
+    const plant =
+        plantInformation[normalizedName];
+
+    stopSpeech();
 
     promptBox.hidden = false;
 
     if (!plant) {
 
         informationBox.innerHTML = `
+
             <h2>${plantName}</h2>
-            <p>Detailed information for this category is not available yet.</p>
-            <p>Please verify the AI prediction using a reliable source.</p>
+
+            <p>
+                Detailed information for this category is not available yet.
+            </p>
+
+            <p>
+                Please verify the AI prediction using a reliable source.
+            </p>
+
         `;
 
-        setupSpeechControls();
         return;
+
     }
 
     informationBox.innerHTML = `
+
         <h2>🌿 ${normalizedName}</h2>
 
         <h3>🔬 Scientific Name</h3>
+
         <p><em>${plant.scientific}</em></p>
 
         <h3>📖 Overview</h3>
+
         <p>${plant.overview}</p>
 
         <h3>🍃 Key Characteristics</h3>
+
         <p>${plant.characteristics}</p>
 
         <h3>🌱 Uses</h3>
+
         <p>${plant.uses}</p>
 
         <h3>🌍 Origin and History</h3>
+
         <p>${plant.origin}</p>
 
         <h3>✨ Interesting Facts</h3>
 
         <ul>
+
             ${plant.facts.map(fact => `<li>${fact}</li>`).join("")}
+
         </ul>
 
         <hr>
 
         <p class="modal-note">
+
             Educational information only. This website does not provide
             medical advice or recommend consuming plants for treatment.
+
         </p>
+
     `;
 
     setupSpeechControls();
@@ -1597,10 +2015,11 @@ function displayPlantInformation(plantName) {
         behavior:"smooth",
         block:"start"
     });
+
 }
 
 /* =========================================
-GET INFORMATION
+   GET INFORMATION
 ========================================= */
 
 askButton.addEventListener("click",function() {
@@ -1608,10 +2027,11 @@ askButton.addEventListener("click",function() {
     if (!currentPlant) return;
 
     displayPlantInformation(currentPlant);
+
 });
 
 /* =========================================
-COPY INFORMATION
+   COPY INFORMATION
 ========================================= */
 
 copyButton.addEventListener("click",async function() {
@@ -1629,11 +2049,13 @@ copyButton.addEventListener("click",async function() {
 
         copyStatus.textContent =
             "Copy is unavailable. Please select and copy the text manually.";
+
     }
+
 });
 
 /* =========================================
-OPEN CHATGPT
+   OPEN CHATGPT
 ========================================= */
 
 chatGPTButton.addEventListener("click",function() {
@@ -1646,29 +2068,37 @@ chatGPTButton.addEventListener("click",function() {
         text;
 
     const url =
-        "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+        "https://chatgpt.com/?q=" +
+        encodeURIComponent(prompt);
 
     window.open(url,"_blank");
+
 });
 
 /* =========================================
-REMOVE IMAGE AND RESET
+   REMOVE IMAGE AND RESET
 ========================================= */
 
 removeButton.addEventListener("click",function() {
 
-    speechSynthesis.cancel();
+    stopSpeech();
+
     stopCamera();
 
     fileInput.value = "";
+
     selectedImage = null;
+
     currentPlant = null;
 
     preview.src = "";
+
     previewBox.hidden = true;
 
     fileStatus.textContent = "";
+
     categoryStatus.textContent = "";
+
     copyStatus.textContent = "";
 
     classifyButton.disabled = !model;
@@ -1678,7 +2108,10 @@ removeButton.addEventListener("click",function() {
     `;
 
     askButton.hidden = true;
+
     promptBox.hidden = true;
+
+    informationBox.innerHTML = "";
 
     hideDiscoveryFeatures();
 
@@ -1686,17 +2119,21 @@ removeButton.addEventListener("click",function() {
         top:0,
         behavior:"smooth"
     });
+
 });
 
 /* =========================================
-INITIALIZE WEBSITE
+   INITIALIZE WEBSITE
 ========================================= */
 
 function initializeWebsite() {
 
     setupTheme();
+
     setupPlantOfTheDay();
+
     loadModel();
+
 }
 
 initializeWebsite();
