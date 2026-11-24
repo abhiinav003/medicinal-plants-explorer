@@ -1,463 +1,591 @@
 /* =========================================
-MEDICINAL PLANTS EXPLORER
-BOTANICAL DESIGN
+   MEDICINAL PLANTS EXPLORER
+   BOTANICAL DESIGN
 ========================================= */
 
 :root {
---bg: #f1f7f0;
---card: #ffffff;
---text: #294437;
---muted: #75867b;
---green: #24543e;
---green2: #39765a;
---soft: #e5f0e5;
---border: #dce9dc;
---shadow: 0 8px 25px rgba(35, 75, 53, 0.09);
+    --bg: #f1f7f0;
+    --card: #ffffff;
+    --text: #294437;
+    --muted: #75867b;
+    --green: #24543e;
+    --green2: #39765a;
+    --soft: #e5f0e5;
+    --border: #dce9dc;
+    --shadow: 0 8px 25px rgba(35, 75, 53, 0.09);
 }
 
 body.dark {
---bg: #14251d;
---card: #20372b;
---text: #e3f1e6;
---muted: #b0c4b5;
---green: #a4d5ae;
---green2: #80bd91;
---soft: #294635;
---border: #3b5947;
---shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    --bg: #14251d;
+    --card: #20372b;
+    --text: #e3f1e6;
+    --muted: #b0c4b5;
+    --green: #a4d5ae;
+    --green2: #80bd91;
+    --soft: #294635;
+    --border: #3b5947;
+    --shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-{
-margin: 0;
-padding: 0;
-box-sizing: border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-
 
 html {
-scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 body {
-background: var(--bg);
-color: var(--text);
-font-family: Arial, sans-serif;
-line-height: 1.7;
-transition: background 0.3s, color 0.3s;
-overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    line-height: 1.7;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
 }
 
+
 /* =========================================
-FLOATING LEAVES
+   FLOATING LEAVES
 ========================================= */
 
 .leaves-background {
-position: fixed;
-inset: 0;
-overflow: hidden;
-pointer-events: none;
-z-index: -1;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .leaf {
-position: absolute;
-color: #6caa7b;
-opacity: 0.16;
-font-size: 28px;
-animation: floatLeaf 12s linear infinite;
+    position: absolute;
+    color: #6caa7b;
+    opacity: 0.16;
+    font-size: 28px;
+    animation: floatLeaf 12s linear infinite;
 }
 
 .leaf:nth-child(1) {
-left: 8%;
-animation-delay: 0s;
+    left: 8%;
+    animation-delay: 0s;
 }
 
 .leaf:nth-child(2) {
-left: 28%;
-animation-delay: 3s;
+    left: 28%;
+    animation-delay: 3s;
 }
 
 .leaf:nth-child(3) {
-left: 55%;
-animation-delay: 6s;
+    left: 55%;
+    animation-delay: 6s;
 }
 
 .leaf:nth-child(4) {
-left: 78%;
-animation-delay: 2s;
+    left: 78%;
+    animation-delay: 2s;
 }
 
 .leaf:nth-child(5) {
-left: 92%;
-animation-delay: 8s;
+    left: 92%;
+    animation-delay: 8s;
 }
 
 @keyframes floatLeaf {
-0% {
-transform: translateY(105vh) rotate(0deg);
+
+    0% {
+        transform: translateY(105vh) rotate(0deg);
+    }
+
+    100% {
+        transform: translateY(-15vh) rotate(360deg);
+    }
+
 }
 
-100% {  
-    transform: translateY(-15vh) rotate(360deg);  
-}
-
-}
 
 /* =========================================
-GENERAL LAYOUT
+   GENERAL LAYOUT
 ========================================= */
 
 .container {
-width: 92%;
-max-width: 1100px;
-margin: auto;
+    width: 92%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+header,
+main,
+footer {
+    position: relative;
+    z-index: 1;
 }
 
 section {
-padding: 35px 0;
+    padding: 35px 0;
 }
 
 h1, h2, h3 {
-color: var(--green);
-line-height: 1.3;
+    color: var(--green);
+    line-height: 1.3;
 }
 
 p {
-color: var(--muted);
+    color: var(--muted);
 }
 
 .section-title {
-text-align: center;
-margin-bottom: 22px;
-font-size: 27px;
+    text-align: center;
+    margin-bottom: 22px;
+    font-size: 27px;
 }
 
 .card {
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 18px;
-padding: 25px;
-box-shadow: var(--shadow);
-transition: background 0.3s;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    transition: background 0.3s;
 }
 
+
 /* =========================================
-HEADER
+   HEADER
 ========================================= */
 
 header {
-text-align: center;
-padding: 35px 15px 20px;
+    text-align: center;
+    padding: 35px 15px 20px;
 }
 
 header h1 {
-font-size: clamp(28px, 5vw, 43px);
-letter-spacing: 1px;
+    font-size: clamp(28px, 5vw, 43px);
+    letter-spacing: 1px;
 }
 
 header p {
-margin-top: 8px;
+    margin-top: 8px;
 }
 
+
 /* =========================================
-THEME TOGGLE
+   THEME TOGGLE
 ========================================= */
 
 .theme-area {
-display: flex;
-justify-content: center;
-align-items: center;
-margin: 18px auto 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 18px auto 25px;
 }
 
 #themeToggle {
-background: var(--green);
-color: white;
-border: none;
-padding: 11px 25px;
-border-radius: 30px;
-font-size: 15px;
-font-weight: bold;
-cursor: pointer;
-transition: 0.25s;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 11px 25px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
 #themeToggle:hover {
-transform: translateY(-2px);
-opacity: 0.9;
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
+
 /* =========================================
-INTRODUCTION
+   INTRODUCTION
 ========================================= */
 
 .intro-card {
-text-align: center;
-padding: 30px;
+    text-align: center;
+    padding: 30px;
 }
 
 .intro-card h2 {
-margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
+
 /* =========================================
-PLANT OF THE DAY
+   PLANT OF THE DAY
 ========================================= */
 
 .daily-card {
-text-align: center;
-border-left: 5px solid var(--green2);
+    text-align: center;
+    border-left: 5px solid var(--green2);
 }
 
 .daily-card h2 {
-margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 .daily-card h3 {
-font-size: 25px;
-margin: 10px 0;
+    font-size: 25px;
+    margin: 10px 0;
 }
 
 .daily-icon {
-font-size: 45px;
-margin-bottom: 8px;
+    font-size: 45px;
+    margin-bottom: 8px;
 }
 
+
 /* =========================================
-AI IDENTIFICATION
+   AI IDENTIFICATION
 ========================================= */
 
 .ai-card {
-text-align: center;
+    text-align: center;
 }
 
 .ai-card h2 {
-margin-bottom: 12px;
+    margin-bottom: 12px;
 }
 
 .ai-description {
-margin-bottom: 22px;
+    margin-bottom: 22px;
 }
+
+
+/* =========================================
+   MODERN IMAGE UPLOAD
+========================================= */
 
 .upload-area {
-border: 2px dashed var(--green2);
-background: var(--soft);
-border-radius: 16px;
-padding: 25px 15px;
-margin: 20px 0;
+    border: 2px dashed var(--green2);
+    background: var(--soft);
+    border-radius: 22px;
+    padding: 35px 20px;
+    margin: 22px 0;
+    text-align: center;
+    transition: 0.3s ease;
 }
 
-.upload-area input {
-max-width: 100%;
-margin-top: 12px;
+.upload-area:hover {
+    border-style: solid;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
 }
+
+.upload-icon {
+    font-size: 58px;
+    margin-bottom: 12px;
+}
+
+.upload-area h3 {
+    margin-bottom: 8px;
+    font-size: 21px;
+}
+
+.upload-area p {
+    font-size: 14px;
+}
+
+.upload-button {
+    display: inline-block;
+    background: var(--green);
+    color: white;
+    padding: 13px 26px;
+    margin-top: 18px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.upload-button:hover {
+    opacity: 0.85;
+    transform: scale(1.04);
+}
+
+#file {
+    display: none;
+}
+
+.upload-hint {
+    font-size: 12px !important;
+    margin-top: 15px;
+}
+
+
+/* =========================================
+   BUTTONS
+========================================= */
 
 button,
 .action-button {
-border: none;
-background: var(--green);
-color: white;
-padding: 11px 20px;
-border-radius: 9px;
-font-size: 14px;
-font-weight: bold;
-cursor: pointer;
-margin: 5px;
-transition: 0.2s;
+    border: none;
+    background: var(--green);
+    color: white;
+    padding: 11px 20px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 5px;
+    transition: 0.2s;
 }
 
 button:hover,
 .action-button:hover {
-opacity: 0.85;
-transform: translateY(-1px);
+    opacity: 0.85;
+    transform: translateY(-1px);
 }
 
 button:disabled {
-opacity: 0.5;
-cursor: not-allowed;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
+
+/* =========================================
+   IMAGE PREVIEW
+========================================= */
+
 #previewBox {
-display: none;
-margin: 20px auto;
+    display: none;
+    margin: 20px auto;
 }
 
 #preview {
-max-width: 100%;
-width: 300px;
-max-height: 300px;
-object-fit: contain;
-border-radius: 14px;
-border: 3px solid var(--border);
+    max-width: 100%;
+    width: 300px;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 14px;
+    border: 3px solid var(--border);
 }
 
+
 /* =========================================
-WEBCAM
+   WEBCAM
 ========================================= */
 
 .camera-section {
-margin-top: 22px;
+    margin-top: 22px;
 }
 
 #cameraBox {
-display: none;
-margin: 18px auto;
+    display: none;
+    margin: 18px auto;
 }
 
 #cameraVideo {
-width: 100%;
-max-width: 420px;
-border-radius: 15px;
-background: #111;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 15px;
+    background: #111;
 }
 
 #cameraCanvas {
-display: none;
+    display: none;
 }
 
+
 /* =========================================
-STATUS AND PREDICTIONS
+   STATUS AND PREDICTIONS
 ========================================= */
 
 #modelStatus,
 #categoryStatus,
-#copyStatus {
-margin: 12px 0;
-font-size: 14px;
+#copyStatus,
+#voiceStatus {
+    margin: 12px 0;
+    font-size: 14px;
 }
 
 #predictions {
-margin-top: 18px;
-text-align: left;
+    margin-top: 18px;
+    text-align: left;
 }
 
 .prediction-item {
-background: var(--soft);
-padding: 12px;
-border-radius: 10px;
-margin: 8px 0;
+    background: var(--soft);
+    padding: 12px;
+    border-radius: 10px;
+    margin: 8px 0;
 }
 
 .prediction-bar {
-height: 8px;
-background: var(--border);
-border-radius: 10px;
-overflow: hidden;
-margin-top: 7px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 7px;
 }
 
 .prediction-fill {
-height: 100%;
-background: var(--green2);
-border-radius: 10px;
+    height: 100%;
+    background: var(--green2);
+    border-radius: 10px;
 }
 
+
 /* =========================================
-PLANT INFORMATION
+   PLANT INFORMATION
 ========================================= */
 
 #informationSection {
-display: none;
+    display: none;
 }
 
 #information {
-line-height: 1.8;
+    line-height: 1.8;
 }
 
 #information h2 {
-margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 #information h3 {
-margin-top: 18px;
-margin-bottom: 5px;
+    margin-top: 18px;
+    margin-bottom: 5px;
 }
 
 #information p {
-margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 #information ul {
-padding-left: 22px;
-color: var(--muted);
+    padding-left: 22px;
+    color: var(--muted);
 }
 
 .info-note {
-background: var(--soft);
-border-left: 4px solid var(--green2);
-padding: 13px;
-border-radius: 8px;
-margin-top: 18px;
+    background: var(--soft);
+    border-left: 4px solid var(--green2);
+    padding: 13px;
+    border-radius: 8px;
+    margin-top: 18px;
 }
 
+
 /* =========================================
-GAMES
+   VOICE SECTION
+========================================= */
+
+.voice-section {
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 25px;
+    text-align: center;
+}
+
+.voice-section h3 {
+    margin-bottom: 8px;
+}
+
+.voice-section p {
+    font-size: 14px;
+}
+
+.voice-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.voice-controls button {
+    border-radius: 25px;
+    padding: 11px 18px;
+    margin: 3px;
+}
+
+#voiceStatus {
+    min-height: 20px;
+    font-weight: bold;
+}
+
+
+/* =========================================
+   GAMES
 ========================================= */
 
 .games-grid {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
 .game-card {
-text-align: center;
-padding: 25px;
+    text-align: center;
+    padding: 25px;
 }
 
 .game-card h3 {
-margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .game-icon {
-font-size: 42px;
-margin-bottom: 10px;
+    font-size: 42px;
+    margin-bottom: 10px;
 }
 
 .game-card a {
-display: inline-block;
-margin-top: 15px;
-padding: 10px 20px;
-background: var(--green);
-color: white;
-text-decoration: none;
-border-radius: 9px;
-font-weight: bold;
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: var(--green);
+    color: white;
+    text-decoration: none;
+    border-radius: 9px;
+    font-weight: bold;
 }
 
+
 /* =========================================
-FOOTER
+   FOOTER
 ========================================= */
 
 footer {
-text-align: center;
-padding: 25px 15px;
-margin-top: 30px;
-border-top: 1px solid var(--border);
-color: var(--muted);
-font-size: 13px;
+    text-align: center;
+    padding: 25px 15px;
+    margin-top: 30px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
 }
 
+
 /* =========================================
-RESPONSIVE DESIGN
+   RESPONSIVE DESIGN
 ========================================= */
 
 @media (max-width: 650px) {
 
-.games-grid {  
-    grid-template-columns: 1fr;  
-}  
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
 
-.card {  
-    padding: 20px;  
-}  
+    .card {
+        padding: 20px;
+    }
 
-.section-title {  
-    font-size: 23px;  
-}  
+    .section-title {
+        font-size: 23px;
+    }
 
-header {  
-    padding-top: 25px;  
-}
+    header {
+        padding-top: 25px;
+    }
+
+    .voice-controls button {
+        flex: 1 1 40%;
+    }
+
+    .upload-area {
+        padding: 28px 14px;
+    }
 
 }
