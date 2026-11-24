@@ -1,127 +1,392 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Medicinal Plants Explorer</title>
-<meta name="theme-color" content="#f1f7f0">
-<link rel="stylesheet" href="style.css?v=21">
+<!DOCTYPE html>  <html lang="en">  <head>  <meta charset="UTF-8">  
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
 
-<body>
+<title>Medicinal Plants Explorer</title>  
 
-<div class="floating-leaves" aria-hidden="true">
-    <span>🍃</span><span>🌿</span><span>🍃</span>
-    <span>🌱</span><span>🍃</span><span>🌿</span>
-</div>
+<meta name="theme-color" content="#f1f7f0">  
 
-<header class="main-header">
-    <div class="header-icon">🌿</div>
-    <h1>Medicinal Plants Explorer</h1>
-    <p>Discover the fascinating world of medicinal plants</p>
-</header>
+<meta name="description"  
+content="Explore medicinal plants through an AI-powered plant identification model and botanical learning activities.">  
 
-<div class="theme-area">
-    <button id="themeToggle" class="theme-button">🌙 Switch to Dark Mode</button>
-</div>
+<!-- CSS -->  
+<link rel="stylesheet" href="style.css?v=22">
 
-<main class="container">
+</head>  <body>  <!-- =================================  
+     FLOATING LEAVES BACKGROUND  
+================================== -->  
 
-<section class="intro card">
-    <span class="section-label">WELCOME TO THE BOTANICAL WORLD</span>
-    <h2>Explore Nature's Green Treasures</h2>
-    <p>
-        Welcome to Medicinal Plants Explorer! Discover different plants
-        through an AI-powered image classifier and learn about their
-        scientific names, characteristics, traditional uses and interesting facts.
-    </p>
-</section>
+<div class="leaves-background">  
 
-<section class="card daily-card">
-    <span class="section-label">🌟 DAILY DISCOVERY</span>
-    <h2>Plant of the Day</h2>
-    <div id="plantOfTheDay" class="daily-content">
-        <div class="daily-emoji">🌿</div>
-        <h3>Discovering today's plant...</h3>
-    </div>
-</section>
+    <span class="leaf">🍃</span>  
+    <span class="leaf">🌿</span>  
+    <span class="leaf">🍃</span>  
+    <span class="leaf">🌱</span>  
+    <span class="leaf">🍃</span>  
 
-<section class="card ai-card">
-    <span class="section-label">🤖 AI-POWERED IDENTIFICATION</span>
-    <h2>Identify a Medicinal Plant</h2>
-    <p>Upload a plant photograph or use your webcam to identify it.</p>
+</div>  
 
-    <div class="upload-area">
-        <label for="file" class="upload-button">📁 Upload Image</label>
-        <input type="file" id="file" accept="image/*">
-        <button id="startCamera" class="secondary-button">📷 Open Webcam</button>
-    </div>
 
-    <p id="fileStatus" class="status"></p>
+<!-- =================================  
+     WEBSITE TITLE  
+================================== -->  
 
-    <div id="previewBox" class="preview-box hidden">
-        <img id="preview" alt="Selected plant">
-        <button id="remove" class="secondary-button">Remove Image</button>
-    </div>
+<header>  
 
-    <div id="cameraBox" class="camera-box hidden">
-        <video id="cameraVideo" autoplay playsinline></video>
-        <div class="camera-actions">
-            <button id="capturePhoto" class="primary-button">Capture Photo</button>
-            <button id="stopCamera" class="secondary-button">Close Camera</button>
-        </div>
-    </div>
+    <div class="container">  
 
-    <canvas id="cameraCanvas" class="hidden"></canvas>
+        <h1>🌿 Medicinal Plants Explorer</h1>  
 
-    <button id="classify" class="primary-button classify-button">
-        Identify Plant
-    </button>
+        <p>  
+            Discover the fascinating world of medicinal plants  
+            through Artificial Intelligence.  
+        </p>  
 
-    <p id="modelStatus" class="status">AI model is ready to load when needed.</p>
-    <div id="predictions"></div>
-    <p id="categoryStatus" class="status"></p>
-</section>
+    </div>  
 
-<section id="information" class="card information hidden">
-    <span class="section-label">🌱 PLANT INFORMATION</span>
-    <div id="plantInfo"></div>
-</section>
+</header>  
 
-<section class="games-section">
-    <div class="games-heading">
-        <span class="section-label">🎮 LEARN THROUGH PLAY</span>
-        <h2>Explore Our Plant Games</h2>
-        <p>Test your knowledge with these interactive activities.</p>
-    </div>
 
-    <div class="game-grid">
-        <a href="plant_creation_lab.html" class="game-card">
-            <div class="game-icon">🧪</div>
-            <h3>Plant Creation Lab</h3>
-            <p>Explore plant science through an interactive challenge.</p>
-            <span>Play Game →</span>
-        </a>
+<main class="container">  
 
-        <a href="plant_rescue_mission.html" class="game-card">
-            <div class="game-icon">🌳</div>
-            <h3>Plant Rescue Mission</h3>
-            <p>Learn about plants and their environment through a mission.</p>
-            <span>Play Game →</span>
-        </a>
-    </div>
-</section>
 
-</main>
+    <!-- =================================  
+         LIGHT / DARK MODE  
+    ================================== -->  
 
-<footer>
-    <p>🌿 Medicinal Plants Explorer</p>
-    <small>Educational project. Traditional uses are presented for learning only, not as medical advice.</small>
-</footer>
+    <div class="theme-area">  
 
-<script src="app.js?v=21"></script>
-</body>
-</html>
+        <button id="themeToggle" type="button">  
+            🌙 Switch to Dark Mode  
+        </button>  
+
+    </div>  
+
+
+    <!-- =================================  
+         INTRODUCTION  
+    ================================== -->  
+
+    <section id="introduction">  
+
+        <div class="card intro-card">  
+
+            <h2>Welcome to Medicinal Plants Explorer</h2>  
+
+            <p>  
+                Plants have been an important part of human life  
+                for centuries. They provide food, shelter,  
+                useful natural materials and many substances  
+                studied in traditional and modern science.  
+            </p>  
+
+            <br>  
+
+            <p>  
+                This website allows you to explore different  
+                plants, learn their scientific names,  
+                characteristics, origins and interesting facts.  
+                You can also use our Teachable Machine AI model  
+                to identify plants through an uploaded image  
+                or your webcam.  
+            </p>  
+
+        </div>  
+
+    </section>  
+
+
+    <!-- =================================  
+         PLANT OF THE DAY  
+    ================================== -->  
+
+    <section id="dailyPlant">  
+
+        <h2 class="section-title">  
+            🌱 Plant of the Day  
+        </h2>  
+
+        <div class="card daily-card" id="plantOfTheDay">  
+
+            <p>Discovering today's plant...</p>  
+
+        </div>  
+
+    </section>  
+
+
+    <!-- =================================  
+         AI PLANT IDENTIFICATION  
+    ================================== -->  
+
+    <section id="aiIdentification">  
+
+        <h2 class="section-title">  
+            🤖 AI Plant Identification  
+        </h2>  
+
+        <div class="card ai-card">  
+
+            <h2>Teachable Machine AI</h2>  
+
+            <p class="ai-description">  
+
+                Upload a plant photograph or use your webcam.  
+                Our trained Teachable Machine model will analyse  
+                the image and predict the plant category.  
+
+            </p>  
+
+
+            <!-- MODEL STATUS -->  
+
+            <p id="modelStatus">  
+                AI model is ready to load.  
+            </p>  
+
+
+            <!-- IMAGE UPLOAD -->  
+
+            <div class="upload-area">  
+
+                <h3>📷 Upload a Plant Image</h3>  
+
+                <p>  
+                    Select a photograph of a plant from your device.  
+                </p>  
+
+                <input  
+                    type="file"  
+                    id="file"  
+                    accept="image/*"  
+                >  
+
+            </div>  
+
+
+            <!-- IMAGE PREVIEW -->  
+
+            <div id="previewBox">  
+
+                <h3>Selected Image</h3>  
+
+                <br>  
+
+                <img  
+                    id="preview"  
+                    src=""  
+                    alt="Selected plant preview"  
+                >  
+
+                <br>  
+
+                <button id="remove" type="button">  
+                    Remove Image  
+                </button>  
+
+            </div>  
+
+
+            <!-- WEBCAM -->  
+
+            <div class="camera-section">  
+
+                <h3>📸 Use Your Webcam</h3>  
+
+                <p>  
+                    You can also capture a plant photograph  
+                    directly using your device camera.  
+                </p>  
+
+                <br>  
+
+                <button id="startCamera" type="button">  
+                    Open Camera  
+                </button>  
+
+
+                <div id="cameraBox">  
+
+                    <video  
+                        id="cameraVideo"  
+                        autoplay  
+                        playsinline  
+                    ></video>  
+
+                    <br>  
+
+                    <button id="capturePhoto" type="button">  
+                        Capture Photo  
+                    </button>  
+
+                    <button id="stopCamera" type="button">  
+                        Close Camera  
+                    </button>  
+
+                </div>  
+
+                <canvas id="cameraCanvas"></canvas>  
+
+            </div>  
+
+
+            <!-- IDENTIFICATION BUTTON -->  
+
+            <br>  
+
+            <button id="classify" type="button">  
+                🔍 Identify Plant  
+            </button>  
+
+
+            <!-- IDENTIFICATION STATUS -->  
+
+            <p id="categoryStatus" aria-live="polite"></p>  
+
+
+            <!-- AI PREDICTIONS -->  
+
+            <div id="predictions"></div>  
+
+
+        </div>  
+
+    </section>  
+
+
+    <!-- =================================  
+         PLANT INFORMATION  
+    ================================== -->  
+
+    <section id="informationSection">  
+
+        <h2 class="section-title">  
+            🌿 Plant Information  
+        </h2>  
+
+        <div class="card">  
+
+            <div id="information">  
+
+                <p>  
+                    After identifying a plant, its botanical  
+                    information will appear here.  
+                </p>  
+
+            </div>  
+
+            <br>  
+
+            <button id="copy" type="button">  
+                📋 Copy Plant Information  
+            </button>  
+
+            <p id="copyStatus" aria-live="polite"></p>  
+
+        </div>  
+
+    </section>  
+
+
+    <!-- =================================  
+         GAMES SECTION  
+    ================================== -->  
+
+    <section id="games">  
+
+        <h2 class="section-title">  
+            🎮 Explore and Learn  
+        </h2>  
+
+        <div class="games-grid">  
+
+
+            <!-- PLANT CREATION LAB -->  
+
+            <div class="card game-card">  
+
+                <div class="game-icon">  
+                    🧪  
+                </div>  
+
+                <h3>Plant Creation Lab</h3>  
+
+                <p>  
+                    Explore plant structures and learn  
+                    about different plant parts through  
+                    an interactive activity.  
+                </p>  
+
+                <a href="plant_creation_lab.html">  
+                    Play Now →  
+                </a>  
+
+            </div>  
+
+
+            <!-- PLANT RESCUE MISSION -->  
+
+            <div class="card game-card">  
+
+                <div class="game-icon">  
+                    🌳  
+                </div>  
+
+                <h3>Plant Rescue Mission</h3>  
+
+                <p>  
+                    Take part in an educational mission  
+                    and discover how plants grow and  
+                    why they are important.  
+                </p>  
+
+                <a href="plant_rescue_mission.html">  
+                    Play Now →  
+                </a>  
+
+            </div>  
+
+
+        </div>  
+
+    </section>  
+
+
+</main>  
+
+
+<!-- =================================  
+     FOOTER  
+================================== -->  
+
+<footer>  
+
+    <p>  
+        🌿 Medicinal Plants Explorer  
+    </p>  
+
+    <p>  
+        An educational project based on Artificial Intelligence  
+        and botanical learning.  
+    </p>  
+
+    <p>  
+        Designed for educational purposes.  
+    </p>  
+
+</footer>  
+
+
+<!-- =================================  
+     JAVASCRIPT LIBRARIES  
+================================== -->  
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>  
+
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>  
+
+<!-- MAIN JAVASCRIPT -->  
+
+<script src="app.js?v=23"></script>
+
+</body>  </html>
