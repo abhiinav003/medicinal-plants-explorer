@@ -1,6 +1,6 @@
 /* =========================================
-   MEDICINAL PLANTS EXPLORER
-   COMPLETE APP.JS
+MEDICINAL PLANTS EXPLORER
+COMPLETE UPDATED APP.JS
 ========================================= */
 
 "use strict";
@@ -11,9 +11,10 @@ const MODEL_URL =
 let model = null;
 let selectedImage = null;
 let cameraStream = null;
+let speechUtterance = null;
 
 /* =========================================
-   PLANT DATABASE
+PLANT DATABASE
 ========================================= */
 
 const PLANTS = [
@@ -401,658 +402,988 @@ facts: [
 ];
 
 /* =========================================
-   LIGHT / DARK MODE
+LIGHT / DARK MODE
 ========================================= */
 
-const themeButton = document.getElementById("themeToggle");
+const themeButton =
+document.getElementById("themeToggle");
 
 function setTheme(dark) {
 
-    document.body.classList.toggle("dark", dark);
+document.body.classList.toggle("dark", dark);  
 
-    if (themeButton) {
-        themeButton.textContent = dark
-            ? "☀️ Switch to Light Mode"
-            : "🌙 Switch to Dark Mode";
-    }
+if (themeButton) {  
 
-    localStorage.setItem(
-        "plantTheme",
-        dark ? "dark" : "light"
-    );
+    themeButton.textContent = dark  
+        ? "☀️ Switch to Light Mode"  
+        : "🌙 Switch to Dark Mode";  
+
+}  
+
+localStorage.setItem(  
+    "plantTheme",  
+    dark ? "dark" : "light"  
+);
+
 }
 
 setTheme(localStorage.getItem("plantTheme") === "dark");
 
 if (themeButton) {
 
-    themeButton.addEventListener("click", function () {
+themeButton.addEventListener("click", function () {  
 
-        const isDark =
-            document.body.classList.contains("dark");
+    const isDark =  
+        document.body.classList.contains("dark");  
 
-        setTheme(!isDark);
-    });
+    setTheme(!isDark);  
+
+});
+
 }
 
 /* =========================================
-   PLANT OF THE DAY
+PLANT OF THE DAY
 ========================================= */
 
 function showPlantOfTheDay() {
 
-    const element =
-        document.getElementById("plantOfTheDay");
+const element =  
+    document.getElementById("plantOfTheDay");  
 
-    if (!element) return;
+if (!element) return;  
 
-    const now = new Date();
+const now = new Date();  
 
-    const start = new Date(now.getFullYear(), 0, 0);
+const start =  
+    new Date(now.getFullYear(), 0, 0);  
 
-    const day = Math.floor(
-        (now - start) / (1000 * 60 * 60 * 24)
-    );
+const day = Math.floor(  
+    (now - start) / (1000 * 60 * 60 * 24)  
+);  
 
-    const plant = PLANTS[day % PLANTS.length];
+const plant =  
+    PLANTS[day % PLANTS.length];  
 
-    element.innerHTML = `
-        <div class="daily-icon">${plant.emoji}</div>
+element.innerHTML = `  
 
-        <h3>${plant.name}</h3>
+    <div class="daily-icon">  
+        ${plant.emoji}  
+    </div>  
 
-        <p>
-            <strong>Scientific Name:</strong>
-            ${plant.scientific}
-        </p>
+    <h3>${plant.name}</h3>  
 
-        <p>${plant.overview}</p>
-    `;
+    <p>  
+        <strong>Scientific Name:</strong>  
+        ${plant.scientific}  
+    </p>  
+
+    <p>${plant.overview}</p>  
+
+`;
+
 }
 
 showPlantOfTheDay();
 
 /* =========================================
-   LOAD TEACHABLE MACHINE MODEL
+VOICE NARRATION
+========================================= */
+
+const speakButton =
+document.getElementById("speakInformation");
+
+const pauseButton =
+document.getElementById("pauseVoice");
+
+const resumeButton =
+document.getElementById("resumeVoice");
+
+const stopButton =
+document.getElementById("stopVoice");
+
+const voiceStatus =
+document.getElementById("voiceStatus");
+
+function stopVoice() {
+
+if ("speechSynthesis" in window) {  
+
+    window.speechSynthesis.cancel();  
+
+}  
+
+speechUtterance = null;  
+
+if (voiceStatus) {  
+    voiceStatus.textContent = "Voice stopped.";  
+}
+
+}
+
+function speakInformation() {
+
+const information =  
+    document.getElementById("information");  
+
+if (!information || !information.innerText.trim()) {  
+
+    if (voiceStatus) {  
+        voiceStatus.textContent =  
+            "No plant information is available to read.";  
+    }  
+
+    return;  
+
+}  
+
+if (!("speechSynthesis" in window)) {  
+
+    if (voiceStatus) {  
+        voiceStatus.textContent =  
+            "Voice narration is not supported by this browser.";  
+    }  
+
+    return;  
+
+}  
+
+// Stop any previous narration.  
+
+window.speechSynthesis.cancel();  
+
+// Read the visible plant information.  
+
+const textToRead =  
+    information.innerText  
+        .replace(/\s+/g, " ")  
+        .trim();  
+
+speechUtterance =  
+    new SpeechSynthesisUtterance(textToRead);  
+
+// Voice settings.  
+
+speechUtterance.lang = "en-IN";  
+speechUtterance.rate = 0.9;  
+speechUtterance.pitch = 1;  
+speechUtterance.volume = 1;  
+
+// Try to select an Indian English voice.  
+
+const voices =  
+    window.speechSynthesis.getVoices();  
+
+const preferredVoice =  
+    voices.find(voice =>  
+        voice.lang.toLowerCase() === "en-in"  
+    ) ||  
+    voices.find(voice =>  
+        voice.lang.toLowerCase().startsWith("en")  
+    );  
+
+if (preferredVoice) {  
+    speechUtterance.voice = preferredVoice;  
+}  
+
+speechUtterance.onstart = function () {  
+
+    if (voiceStatus) {  
+        voiceStatus.textContent =  
+            "🔊 Reading plant information...";  
+    }  
+
+};  
+
+speechUtterance.onend = function () {  
+
+    if (voiceStatus) {  
+        voiceStatus.textContent =  
+            "✅ Finished reading plant information.";  
+    }  
+
+};  
+
+speechUtterance.onerror = function (event) {  
+
+    if (voiceStatus) {  
+
+        voiceStatus.textContent =  
+            event.error === "canceled"  
+                ? "Voice stopped."  
+                : "Unable to play the voice. Please try again.";  
+
+    }  
+
+};  
+
+window.speechSynthesis.speak(speechUtterance);
+
+}
+
+if (speakButton) {
+
+speakButton.addEventListener(  
+    "click",  
+    speakInformation  
+);
+
+}
+
+if (pauseButton) {
+
+pauseButton.addEventListener("click", function () {  
+
+    if (  
+        "speechSynthesis" in window &&  
+        window.speechSynthesis.speaking  
+    ) {  
+
+        window.speechSynthesis.pause();  
+
+        if (voiceStatus) {  
+            voiceStatus.textContent = "⏸️ Voice paused.";  
+        }  
+
+    }  
+
+});
+
+}
+
+if (resumeButton) {
+
+resumeButton.addEventListener("click", function () {  
+
+    if (  
+        "speechSynthesis" in window &&  
+        window.speechSynthesis.paused  
+    ) {  
+
+        window.speechSynthesis.resume();  
+
+        if (voiceStatus) {  
+            voiceStatus.textContent =  
+                "▶️ Continuing narration...";  
+        }  
+
+    }  
+
+});
+
+}
+
+if (stopButton) {
+
+stopButton.addEventListener(  
+    "click",  
+    stopVoice  
+);
+
+}
+
+/* =========================================
+LOAD TEACHABLE MACHINE MODEL
 ========================================= */
 
 async function loadModel() {
 
-    if (model) return model;
+if (model) return model;  
 
-    const status =
-        document.getElementById("modelStatus");
+const status =  
+    document.getElementById("modelStatus");  
 
-    try {
+try {  
 
-        if (status) {
-            status.textContent = "Loading AI model...";
-        }
+    if (status) {  
+        status.textContent = "Loading AI model...";  
+    }  
 
-        model = await tmImage.load(
-            MODEL_URL + "model.json",
-            MODEL_URL + "metadata.json"
-        );
+    model = await tmImage.load(  
+        MODEL_URL + "model.json",  
+        MODEL_URL + "metadata.json"  
+    );  
 
-        if (status) {
-            status.textContent =
-                "AI model loaded successfully!";
-        }
+    if (status) {  
+        status.textContent =  
+            "AI model loaded successfully!";  
+    }  
 
-        return model;
+    return model;  
 
-    } catch (error) {
+} catch (error) {  
 
-        console.error(error);
+    console.error(error);  
 
-        if (status) {
-            status.textContent =
-                "Unable to load AI model. Check your internet connection.";
-        }
+    if (status) {  
+        status.textContent =  
+            "Unable to load AI model. Check your internet connection.";  
+    }  
 
-        throw error;
-    }
+    throw error;  
+
+}
+
 }
 
 /* =========================================
-   IMAGE UPLOAD
+IMAGE UPLOAD
 ========================================= */
 
 const fileInput =
-    document.getElementById("file");
+document.getElementById("file");
 
 const preview =
-    document.getElementById("preview");
+document.getElementById("preview");
 
 const previewBox =
-    document.getElementById("previewBox");
+document.getElementById("previewBox");
 
 if (fileInput) {
 
-    fileInput.addEventListener("change", function (event) {
+fileInput.addEventListener("change", function (event) {  
 
-        const file = event.target.files[0];
+    const file = event.target.files[0];  
 
-        if (!file) return;
+    if (!file) return;  
 
-        if (!file.type.startsWith("image/")) {
-            alert("Please select an image file.");
-            return;
-        }
+    if (!file.type.startsWith("image/")) {  
 
-        const reader = new FileReader();
+        alert("Please select an image file.");  
 
-        reader.onload = function (e) {
+        fileInput.value = "";  
 
-            const image = new Image();
+        return;  
 
-            image.onload = function () {
+    }  
 
-                selectedImage = image;
+    const reader = new FileReader();  
 
-                if (preview) {
-                    preview.src = e.target.result;
-                }
+    reader.onload = function (e) {  
 
-                if (previewBox) {
-                    previewBox.style.display = "block";
-                }
-            };
+        const image = new Image();  
 
-            image.src = e.target.result;
-        };
+        image.onload = function () {  
 
-        reader.readAsDataURL(file);
+            selectedImage = image;  
 
-        stopCamera();
-    });
+            if (preview) {  
+                preview.src = e.target.result;  
+            }  
+
+            if (previewBox) {  
+                previewBox.style.display = "block";  
+            }  
+
+        };  
+
+        image.onerror = function () {  
+
+            alert("Unable to open this image. Please choose another.");  
+
+        };  
+
+        image.src = e.target.result;  
+
+    };  
+
+    reader.readAsDataURL(file);  
+
+    stopCamera();  
+
+});
+
 }
 
 /* =========================================
-   REMOVE SELECTED IMAGE
+REMOVE SELECTED IMAGE
 ========================================= */
 
 const removeButton =
-    document.getElementById("remove");
+document.getElementById("remove");
 
 if (removeButton) {
 
-    removeButton.addEventListener("click", function () {
+removeButton.addEventListener("click", function () {  
 
-        selectedImage = null;
+    selectedImage = null;  
 
-        if (preview) {
-            preview.src = "";
-        }
+    stopVoice();  
 
-        if (previewBox) {
-            previewBox.style.display = "none";
-        }
+    if (preview) {  
+        preview.src = "";  
+    }  
 
-        if (fileInput) {
-            fileInput.value = "";
-        }
+    if (previewBox) {  
+        previewBox.style.display = "none";  
+    }  
 
-        const predictions =
-            document.getElementById("predictions");
+    if (fileInput) {  
+        fileInput.value = "";  
+    }  
 
-        if (predictions) {
-            predictions.innerHTML = "";
-        }
+    const predictions =  
+        document.getElementById("predictions");  
 
-        const informationSection =
-            document.getElementById("informationSection");
+    if (predictions) {  
+        predictions.innerHTML = "";  
+    }  
 
-        if (informationSection) {
-            informationSection.style.display = "none";
-        }
+    const informationSection =  
+        document.getElementById("informationSection");  
 
-        const categoryStatus =
-            document.getElementById("categoryStatus");
+    if (informationSection) {  
+        informationSection.style.display = "none";  
+    }  
 
-        if (categoryStatus) {
-            categoryStatus.textContent = "";
-        }
-    });
+    const categoryStatus =  
+        document.getElementById("categoryStatus");  
+
+    if (categoryStatus) {  
+        categoryStatus.textContent = "";  
+    }  
+
+});
+
 }
 
 /* =========================================
-   WEBCAM
+WEBCAM
 ========================================= */
 
 const startCameraButton =
-    document.getElementById("startCamera");
+document.getElementById("startCamera");
 
 const cameraBox =
-    document.getElementById("cameraBox");
+document.getElementById("cameraBox");
 
 const cameraVideo =
-    document.getElementById("cameraVideo");
+document.getElementById("cameraVideo");
 
 const cameraCanvas =
-    document.getElementById("cameraCanvas");
+document.getElementById("cameraCanvas");
 
 const captureButton =
-    document.getElementById("capturePhoto");
+document.getElementById("capturePhoto");
 
 const stopCameraButton =
-    document.getElementById("stopCamera");
+document.getElementById("stopCamera");
 
 async function startCamera() {
 
-    try {
+try {  
 
-        if (!navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia) {
+    if (  
+        !navigator.mediaDevices ||  
+        !navigator.mediaDevices.getUserMedia  
+    ) {  
 
-            alert("Your browser does not support webcam access.");
+        alert("Your browser does not support webcam access.");  
 
-            return;
-        }
+        return;  
 
-        cameraStream =
-            await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: "environment"
-                },
-                audio: false
-            });
+    }  
 
-        cameraVideo.srcObject = cameraStream;
+    cameraStream =  
+        await navigator.mediaDevices.getUserMedia({  
 
-        await cameraVideo.play();
+            video: {  
+                facingMode: "environment"  
+            },  
 
-        cameraBox.style.display = "block";
+            audio: false  
 
-    } catch (error) {
+        });  
 
-        console.error(error);
+    cameraVideo.srcObject = cameraStream;  
 
-        alert(
-            "Camera could not be opened. Please allow camera permission."
-        );
-    }
+    await cameraVideo.play();  
+
+    cameraBox.style.display = "block";  
+
+} catch (error) {  
+
+    console.error(error);  
+
+    alert(  
+        "Camera could not be opened. Please allow camera permission."  
+    );  
+
+}
+
 }
 
 function stopCamera() {
 
-    if (cameraStream) {
+if (cameraStream) {  
 
-        cameraStream.getTracks().forEach(track => {
-            track.stop();
-        });
+    cameraStream.getTracks().forEach(track => {  
+        track.stop();  
+    });  
 
-        cameraStream = null;
-    }
+    cameraStream = null;  
 
-    if (cameraVideo) {
-        cameraVideo.srcObject = null;
-    }
+}  
 
-    if (cameraBox) {
-        cameraBox.style.display = "none";
-    }
+if (cameraVideo) {  
+    cameraVideo.srcObject = null;  
+}  
+
+if (cameraBox) {  
+    cameraBox.style.display = "none";  
+}
+
 }
 
 if (startCameraButton) {
-    startCameraButton.addEventListener(
-        "click",
-        startCamera
-    );
+
+startCameraButton.addEventListener(  
+    "click",  
+    startCamera  
+);
+
 }
 
 if (stopCameraButton) {
-    stopCameraButton.addEventListener(
-        "click",
-        stopCamera
-    );
+
+stopCameraButton.addEventListener(  
+    "click",  
+    stopCamera  
+);
+
 }
 
 if (captureButton) {
 
-    captureButton.addEventListener("click", function () {
+captureButton.addEventListener("click", function () {  
 
-        if (!cameraVideo || !cameraCanvas) return;
+    if (!cameraVideo || !cameraCanvas) return;  
 
-        const width = cameraVideo.videoWidth;
-        const height = cameraVideo.videoHeight;
+    const width = cameraVideo.videoWidth;  
+    const height = cameraVideo.videoHeight;  
 
-        if (!width || !height) {
-            alert("Camera is not ready yet.");
-            return;
-        }
+    if (!width || !height) {  
 
-        cameraCanvas.width = width;
-        cameraCanvas.height = height;
+        alert("Camera is not ready yet.");  
 
-        const context =
-            cameraCanvas.getContext("2d");
+        return;  
 
-        context.drawImage(
-            cameraVideo,
-            0,
-            0,
-            width,
-            height
-        );
+    }  
 
-        const imageData =
-            cameraCanvas.toDataURL("image/png");
+    cameraCanvas.width = width;  
+    cameraCanvas.height = height;  
 
-        const image = new Image();
+    const context =  
+        cameraCanvas.getContext("2d");  
 
-        image.onload = function () {
+    context.drawImage(  
+        cameraVideo,  
+        0,  
+        0,  
+        width,  
+        height  
+    );  
 
-            selectedImage = image;
+    const imageData =  
+        cameraCanvas.toDataURL("image/png");  
 
-            if (preview) {
-                preview.src = imageData;
-            }
+    const image = new Image();  
 
-            if (previewBox) {
-                previewBox.style.display = "block";
-            }
-        };
+    image.onload = function () {  
 
-        image.src = imageData;
+        selectedImage = image;  
 
-        stopCamera();
-    });
+        if (preview) {  
+            preview.src = imageData;  
+        }  
+
+        if (previewBox) {  
+            previewBox.style.display = "block";  
+        }  
+
+    };  
+
+    image.src = imageData;  
+
+    stopCamera();  
+
+});
+
 }
 
 /* =========================================
-   MATCH AI CLASS WITH PLANT
+MATCH AI CLASS WITH PLANT
 ========================================= */
 
 function normalize(text) {
 
-    return String(text)
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
+return String(text)  
+    .toLowerCase()  
+    .replace(/[^a-z0-9]/g, "");
+
 }
 
 function findPlant(className) {
 
-    const target = normalize(className);
+const target = normalize(className);  
 
-    return PLANTS.find(plant => {
+// First, look for an exact match.  
 
-        const names = [
-            plant.name,
-            plant.scientific,
-            ...plant.aliases
-        ];
+const exactMatch = PLANTS.find(plant => {  
 
-        return names.some(name => {
+    const names = [  
+        plant.name,  
+        plant.scientific,  
+        ...plant.aliases  
+    ];  
 
-            const normalizedName = normalize(name);
+    return names.some(name =>  
+        normalize(name) === target  
+    );  
 
-            return target === normalizedName ||
-                target.includes(normalizedName) ||
-                normalizedName.includes(target);
-        });
-    });
+});  
+
+if (exactMatch) return exactMatch;  
+
+// Then try a carefully limited partial match.  
+
+return PLANTS.find(plant => {  
+
+    const names = [  
+        plant.name,  
+        plant.scientific,  
+        ...plant.aliases  
+    ];  
+
+    return names.some(name => {  
+
+        const normalizedName = normalize(name);  
+
+        return normalizedName.length >= 5 &&  
+            target.length >= 5 &&  
+            (  
+                target.includes(normalizedName) ||  
+                normalizedName.includes(target)  
+            );  
+
+    });  
+
+});
+
 }
 
 /* =========================================
-   DISPLAY PLANT INFORMATION
+DISPLAY PLANT INFORMATION
 ========================================= */
 
 function displayPlant(plant) {
 
-    const section =
-        document.getElementById("informationSection");
+const section =  
+    document.getElementById("informationSection");  
 
-    const information =
-        document.getElementById("information");
+const information =  
+    document.getElementById("information");  
 
-    if (!section || !information) return;
+if (!section || !information) return;  
 
-    if (!plant) {
+// Stop previous plant narration.  
 
-        section.style.display = "block";
+if ("speechSynthesis" in window) {  
+    window.speechSynthesis.cancel();  
+}  
 
-        information.innerHTML = `
-            <h2>Plant Information</h2>
+speechUtterance = null;  
 
-            <p>
-                No matching plant information was found.
-                Please check the Teachable Machine class labels.
-            </p>
-        `;
+if (voiceStatus) {  
+    voiceStatus.textContent = "";  
+}  
 
-        return;
-    }
+if (!plant) {  
 
-    information.innerHTML = `
+    section.style.display = "block";  
 
-        <h2>${plant.emoji} ${plant.name}</h2>
+    information.innerHTML = `  
 
-        <h3>Scientific Name</h3>
+        <h2>Plant Information</h2>  
 
-        <p><em>${plant.scientific}</em></p>
+        <p>  
+            No matching plant information was found.  
+            Please check the Teachable Machine class labels.  
+        </p>  
 
-        <h3>Overview</h3>
+    `;  
 
-        <p>${plant.overview}</p>
+    section.scrollIntoView({  
+        behavior: "smooth",  
+        block: "start"  
+    });  
 
-        <h3>Characteristics</h3>
+    return;  
 
-        <p>${plant.characteristics}</p>
+}  
 
-        <h3>Origin</h3>
+information.innerHTML = `  
 
-        <p>${plant.origin}</p>
+    <h2>${plant.emoji} ${plant.name}</h2>  
 
-        <h3>Traditional and Common Uses</h3>
+    <h3>Scientific Name</h3>  
 
-        <ul>
-            ${plant.uses.map(use => `<li>${use}</li>`).join("")}
-        </ul>
+    <p><em>${plant.scientific}</em></p>  
 
-        <h3>Interesting Facts</h3>
+    <h3>Overview</h3>  
 
-        <ul>
-            ${plant.facts.map(fact => `<li>${fact}</li>`).join("")}
-        </ul>
+    <p>${plant.overview}</p>  
 
-        <div class="info-note">
+    <h3>Characteristics</h3>  
 
-            <strong>Educational Note:</strong>
+    <p>${plant.characteristics}</p>  
 
-            This information is provided for botanical
-            learning. It is not medical advice or a
-            recommendation to use plants for treating
-            health conditions.
+    <h3>Origin</h3>  
 
-        </div>
-    `;
+    <p>${plant.origin}</p>  
 
-    section.style.display = "block";
+    <h3>Traditional and Common Uses</h3>  
 
-    section.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    <ul>  
+        ${plant.uses.map(use =>  
+            `<li>${use}</li>`  
+        ).join("")}  
+    </ul>  
+
+    <h3>Interesting Facts</h3>  
+
+    <ul>  
+        ${plant.facts.map(fact =>  
+            `<li>${fact}</li>`  
+        ).join("")}  
+    </ul>  
+
+    <div class="info-note">  
+
+        <strong>Educational Note:</strong>  
+
+        This information is provided for botanical  
+        learning. It is not medical advice or a  
+        recommendation to use plants for treating  
+        health conditions.  
+
+    </div>  
+
+`;  
+
+section.style.display = "block";  
+
+section.scrollIntoView({  
+    behavior: "smooth",  
+    block: "start"  
+});
+
 }
 
 /* =========================================
-   AI CLASSIFICATION
+AI CLASSIFICATION
 ========================================= */
 
 const classifyButton =
-    document.getElementById("classify");
+document.getElementById("classify");
 
 if (classifyButton) {
 
-    classifyButton.addEventListener("click", async function () {
+classifyButton.addEventListener("click", async function () {  
 
-        const status =
-            document.getElementById("categoryStatus");
+    const status =  
+        document.getElementById("categoryStatus");  
 
-        const predictionArea =
-            document.getElementById("predictions");
+    const predictionArea =  
+        document.getElementById("predictions");  
 
-        if (!selectedImage) {
+    if (!selectedImage) {  
 
-            alert(
-                "Please upload an image or capture a photo first."
-            );
+        alert(  
+            "Please upload an image or capture a photo first."  
+        );  
 
-            return;
-        }
+        return;  
 
-        try {
+    }  
 
-            classifyButton.disabled = true;
+    try {  
 
-            if (status) {
-                status.textContent =
-                    "Analysing your plant image...";
-            }
+        classifyButton.disabled = true;  
 
-            if (predictionArea) {
-                predictionArea.innerHTML = "";
-            }
+        if (status) {  
+            status.textContent =  
+                "Analysing your plant image...";  
+        }  
 
-            const ai = await loadModel();
+        if (predictionArea) {  
+            predictionArea.innerHTML = "";  
+        }  
 
-            const results =
-                await ai.predict(selectedImage);
+        const ai = await loadModel();  
 
-            results.sort(
-                (a, b) => b.probability - a.probability
-            );
+        const results =  
+            await ai.predict(selectedImage);  
 
-            if (!results.length) {
-                throw new Error("No predictions returned.");
-            }
+        results.sort(  
+            (a, b) => b.probability - a.probability  
+        );  
 
-            const best = results[0];
+        if (!results.length) {  
 
-            const confidence =
-                best.probability * 100;
+            throw new Error("No predictions returned.");  
 
-            if (predictionArea) {
+        }  
 
-                predictionArea.innerHTML = `
-                    <h3>AI Predictions</h3>
+        const best = results[0];  
 
-                    ${results.map(result => {
+        const confidence =  
+            best.probability * 100;  
 
-                        const percent =
-                            (result.probability * 100).toFixed(1);
+        if (predictionArea) {  
 
-                        return `
+            predictionArea.innerHTML = `  
 
-                            <div class="prediction-item">
+                <h3>AI Predictions</h3>  
 
-                                <strong>
-                                    ${result.className}
-                                </strong>
+                ${results.map(result => {  
 
-                                <span style="float:right">
-                                    ${percent}%
-                                </span>
+                    const percent =  
+                        (result.probability * 100).toFixed(1);  
 
-                                <div class="prediction-bar">
+                    return `  
 
-                                    <div
-                                        class="prediction-fill"
-                                        style="width:${percent}%">
-                                    </div>
+                        <div class="prediction-item">  
 
-                                </div>
+                            <strong>  
+                                ${result.className}  
+                            </strong>  
 
-                            </div>
+                            <span style="float:right">  
+                                ${percent}%  
+                            </span>  
 
-                        `;
+                            <div class="prediction-bar">  
 
-                    }).join("")}
-                `;
-            }
+                                <div  
+                                    class="prediction-fill"  
+                                    style="width:${percent}%">  
+                                </div>  
 
-            if (confidence < 50) {
+                            </div>  
 
-                if (status) {
-                    status.textContent =
-                        "The AI is uncertain. Please try a clearer plant image.";
-                }
+                        </div>  
 
-                displayPlant(null);
+                    `;  
 
-                return;
-            }
+                }).join("")}  
 
-            if (status) {
-                status.textContent =
-                    "Identification result: " + best.className;
-            }
+            `;  
 
-            const plant =
-                findPlant(best.className);
+        }  
 
-            displayPlant(plant);
+        if (confidence < 50) {  
 
-        } catch (error) {
+            if (status) {  
 
-            console.error(error);
+                status.textContent =  
+                    "The AI is uncertain. Please try a clearer plant image.";  
 
-            if (status) {
-                status.textContent =
-                    "Identification failed. Please try again.";
-            }
+            }  
 
-        } finally {
+            displayPlant(null);  
 
-            classifyButton.disabled = false;
-        }
-    });
+            return;  
+
+        }  
+
+        if (status) {  
+
+            status.textContent =  
+                "Identification result: " + best.className;  
+
+        }  
+
+        const plant =  
+            findPlant(best.className);  
+
+        displayPlant(plant);  
+
+    } catch (error) {  
+
+        console.error(error);  
+
+        if (status) {  
+
+            status.textContent =  
+                "Identification failed. Please try again.";  
+
+        }  
+
+    } finally {  
+
+        classifyButton.disabled = false;  
+
+    }  
+
+});
+
 }
 
 /* =========================================
-   COPY PLANT INFORMATION
+COPY PLANT INFORMATION
 ========================================= */
 
 const copyButton =
-    document.getElementById("copy");
+document.getElementById("copy");
 
 if (copyButton) {
 
-    copyButton.addEventListener("click", async function () {
+copyButton.addEventListener("click", async function () {  
 
-        const information =
-            document.getElementById("information");
+    const information =  
+        document.getElementById("information");  
 
-        const copyStatus =
-            document.getElementById("copyStatus");
+    const copyStatus =  
+        document.getElementById("copyStatus");  
 
-        if (!information ||
-            !information.innerText.trim()) {
-            return;
-        }
+    if (  
+        !information ||  
+        !information.innerText.trim()  
+    ) {  
 
-        try {
+        return;  
 
-            await navigator.clipboard.writeText(
-                information.innerText
-            );
+    }  
 
-            if (copyStatus) {
-                copyStatus.textContent =
-                    "Plant information copied successfully!";
-            }
+    try {  
 
-        } catch (error) {
+        await navigator.clipboard.writeText(  
+            information.innerText  
+        );  
 
-            if (copyStatus) {
-                copyStatus.textContent =
-                    "Copy is not available in this browser.";
-            }
-        }
-    });
+        if (copyStatus) {  
+
+            copyStatus.textContent =  
+                "Plant information copied successfully!";  
+
+        }  
+
+    } catch (error) {  
+
+        if (copyStatus) {  
+
+            copyStatus.textContent =  
+                "Copy is not available in this browser.";  
+
+        }  
+
+    }  
+
+});
+
 }
 
 /* =========================================
-   END OF APP.JS
+END OF APP.JS
 ========================================= */
